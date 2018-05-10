@@ -1,0 +1,60 @@
+<aura:component controller="PreTerminate_Controller" implements="force:hasRecordId,force:lightningQuickActionWithoutHeader" >
+    <aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="label" type="String"/>
+    <aura:attribute name="isByPass" type="Boolean"/>
+    <aura:attribute name="reason" type="String"/>
+    <aura:attribute name="termDate" type="Date" default=""/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <div class="slds-page-header slds-align_absolute-center">
+        <h1 class="slds-page-header__title slds-truncate slds-align-middle">Pre-Terminate {!v.label}</h1>
+        <p class="slds-text-body_small slds-line-height_reset"></p>
+    </div>
+    
+    <aura:attribute name="IsSpinner" type="Boolean" default="false"/>
+    <aura:if isTrue="{!v.IsSpinner}">
+        <lightning:spinner variant="brand"  size="large" />
+    </aura:if>
+    <br/>
+    <aura:renderIf isTrue="{!v.isByPass}">
+    	<div style="text-align:center;font-size:18px;" class="slds align__absolute-center" >
+	        There are already invoice(s) processed. Please make sure all invoice(s) are settled before Terminate. Terminate now?
+	    </div><br/>
+	     <div style="text-align:center;">
+	        <lightning:button onclick="{!c.byPass}"  variant="brand" >
+	            Yes
+	        </lightning:button>&nbsp;
+	        <lightning:button onclick="{!c.close}" variant="neutral" >
+	            No
+	        </lightning:button>
+	    </div>
+	    
+    	<aura:set attribute="else"> 
+		    
+		     <ui:message title="" severity="warning" closable="false">
+		    	<div style="font-size:14px;">
+		        	Are you sure you want to Pre-Terminate this {!v.label} along with {!if(v.label =='Lease' ,'Lease Unit(s)', if(v.label =='Lease Unit' ,'Lease Charge(s)','Rent Schedule(s)') )}.
+		     	</div>
+		     </ui:message>
+		    
+		    <br/>
+		    <ui:inputDate aura:id="expdate" label="Pre-Termination Date" value="{!v.termDate}" class="field"  displayDatePicker="true"  format="MM/dd/yyyy"/>  
+		    
+		    <aura:if isTrue="{!v.label != 'Lease Charge'}">
+			    <br/>
+			    <ui:inputText label="Reason for Termination" value="{!v.reason}" aura:id="inputReason" required="true"/>
+		    </aura:if>
+		    <br/>
+		    <br/>
+		    
+		    <div style="text-align:center;">
+		        <lightning:button onclick="{!c.proceedTerm}" variant="brand" >
+		            Proceed
+		        </lightning:button>&nbsp;
+		        <lightning:button onclick="{!c.close}"  variant="neutral">
+		            Cancel
+		        </lightning:button>
+		    </div>
+		</aura:set>
+    </aura:renderIf>
+</aura:component>

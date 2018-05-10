@@ -1,0 +1,41 @@
+<apex:page lightningStylesheets="true" showheader="false" sidebar="false" id="employeechecklist" standardController="Personnel_Action__c" extensions="HRISEmployeeChecklistExtension" tabStyle="Requisition_Process__tab">
+    <apex:sectionHeader title="" subtitle="Employee On-boarding Checklist"/>
+    <c:HRISBreadcrumb />
+    <apex:form >
+    <apex:pageBlock >
+     <apex:pageBlockSection title="Employee Information" id="employee">
+            <apex:outputField value="{!Personnel_Action__c.Property__c}" />
+            <apex:outputField value="{!Personnel_Action__c.Employee__c}" />
+            <apex:outputField value="{!Personnel_Action__c.Date_of_Join__c}" />
+            <apex:outputField value="{!Personnel_Action__c.Position__c}" />
+            <apex:outputField value="{!Personnel_Action__c.Job_Level__c}" />
+            <apex:outputField value="{!Personnel_Action__c.Division__c}" />
+            <apex:outputField value="{!Personnel_Action__c.Department__c}" />
+     </apex:pageBlockSection>
+      <apex:pageBlockButtons >
+            <apex:commandButton style="margin-left:100px" value="Save" action="{!updateChecklist}"/>
+            <apex:commandButton value="Cancel" />
+     </apex:pageBlockButtons>
+        
+     <apex:pageBlockSection title="Employee On-boarding Checklist" columns="1">
+                <apex:pageBlockTable value="{!employeeChecklist}" var="mci" cellspacing="1">
+                <apex:column value="{!mci.S_N__c}"/>
+                <apex:column value="{!mci.Description__c}"/>
+                <apex:column value="{!mci.Team_In_Charge__c}"/>
+                <apex:column headerValue="Completed">
+                   <apex:actionRegion >
+                          <apex:outputField value="{!mci.Completed__c}">
+                                  <apex:inlineEditSupport event="ondblclick" showOnEdit="saveButton,cancelButton" />
+                          </apex:outputField>
+                    </apex:actionRegion>    
+                </apex:column>
+                <apex:column headerValue="Attachment">
+                    <apex:outputLink value="{!mci.Attachment__c}" id="theLink">
+                        <apex:image url="{!URLFOR($Resource.SGLHR,'sglhr/Grey_Attachment_Icon.png')}" style="height: 18px;width: 18px;" rendered="{!mci.Attachment__c != null}"> </apex:image>
+                    </apex:outputLink>  
+                </apex:column>
+            </apex:pageBlockTable>
+        </apex:pageBlockSection>
+    </apex:pageBlock>
+    </apex:form>
+</apex:page>

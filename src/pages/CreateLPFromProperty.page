@@ -1,0 +1,69 @@
+<apex:page showHeader="false" sidebar="false" id="pg"  controller="CreateLPFromPropertyController" docType="html-5.0">
+	<apex:form id="frm">
+		<apex:pageBlock id="filterblk">
+			<br/>
+			<br/>
+        <div class="message warningM3" role="alert">
+                <table border="0" cellpadding="0" cellspacing="0" class="messageTable" style="padding:0px;margin:0px;">
+                    <tbody>
+                        <tr valign="top"> 
+                            <td>
+                                <img alt="WARNING" class="msgIcon" src="/s.gif" title="WARNING" />
+                            </td>
+                            <td class="messageCell">
+                                <div class="messageText">
+                                    <span style="color:#cc0000">
+                <h4>
+                WARNING:
+                </h4>
+                </span> Are you sure you want to Generate Lease Plans.
+                                    <br/>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <br/>
+            <table>
+                <tr>
+                    <td>
+                        End Year &nbsp;
+                    </td>
+                    <td>
+                        <div class="requiredInput">
+                            <div class="requiredBlock">
+                            </div>
+                            <apex:selectList value="{!prop.End_Year__c}" size="1" style="width:120px;margin-top: 3px;">
+                               <apex:selectOptions value="{!yearOptions}" /> 
+                            </apex:selectList>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="text-align:center;">
+                        <br/>
+	                         <apex:commandButton value="Proceed" style="border-width:1px;width:60px;text-align: center;" action="{!updateProperty}" onclick="this.disabled='true'; this.value='Wait...';" onComplete="CloseAndRefresh();" reRender="filterblk" /> &nbsp;&nbsp; 
+	                         <apex:commandButton value="Cancel" style="border-width:1px;width:60px;text-align: center;" onClick="window.close();" /> 
+                    </td>
+                </tr>
+            </table>
+            <br/>
+            <apex:pageMessages escape="false" ></apex:pageMessages>
+             <script>  
+                 function CloseAndRefresh(){
+                     if({!success}){
+                         window.opener.location = '/{!prop.Id}';
+                         window.close();
+                     }
+                 }
+             </script> 
+		</apex:pageBlock>
+	</apex:form> 
+</apex:page>

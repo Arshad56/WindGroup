@@ -1,0 +1,8 @@
+<apex:page controller="CalcLatePaymentController" id="pg" docType="html-5.0">
+<apex:form >
+<br/>
+Scdedular Running Date: <apex:input type="date" value="{!setTodayDate}"/>
+<br/>
+<apex:commandButton action="{!CalcLatePayment}" value="Save" id="theButton"/>
+  </apex:form>
+</apex:page>

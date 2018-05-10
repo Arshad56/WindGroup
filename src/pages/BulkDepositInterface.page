@@ -1,0 +1,293 @@
+<apex:page controller="BulkDepositInterfaceController" showHeader="false" sidebar="false" tabstyle="Deposit__c" id="pg" title="Generate Deposit">
+    <style>
+        tbody {
+            text-align: center;
+        }
+        .headerRow {
+            text-align: center;
+        }
+        input {
+            text-align: right;
+        }
+        .bPageBlock .pbTitle {
+            width: 100%;
+            text-align: center;
+        }
+        table#pg:frm:firstBlock:section1:table1 .apexp .bPageBlock .detailList .list {
+            width: 70%;
+        }
+        #block_container{
+            text-align: right;
+        }
+        #bloc1, #bloc2{
+            display:inline;
+        }
+    </style>
+    <script>
+        function GetIndex(index) {
+            var txtDepositRate = "pg:frm:firstBlock:pbSection11:table:" + index + ":depositRate";
+            var depositRate = document.getElementById(txtDepositRate).value;
+            depositRate = depositRate.replace(/\,/g, '');
+            depositRate = parseFloat(depositRate).toFixed(2);
+            if (isNaN(depositRate)) {
+                alert('Please Enter Deposit Rate In Digits');
+                document.getElementById(txtDepositRate).value = '0.00';
+            } else {
+                document.getElementById(txtDepositRate).value = depositRate;
+            }
+            var txtNoOfMonths = "pg:frm:firstBlock:pbSection11:table:" + index + ":noOfMonths";
+            var noOfMonths = document.getElementById(txtNoOfMonths).value;
+            noOfMonths = parseInt(noOfMonths);
+            if (isNaN(noOfMonths)) {
+                alert('Please Enter Months In Digits');
+                document.getElementById(txtNoOfMonths).value = 0;
+            } else {
+                document.getElementById(txtNoOfMonths).value = noOfMonths;
+            }
+            var txtAreaSqFt = "pg:frm:firstBlock:pbSection11:table:" + index + ":areaSqFt";
+            var areaSqFt = document.getElementById(txtAreaSqFt).innerHTML;
+            areaSqFt = areaSqFt.replace(/\,/g, '');
+            areaSqFt = parseFloat(areaSqFt).toFixed(2);
+            if (isNaN(areaSqFt)) {
+                alert('Please Enter Area In Digits');
+                document.getElementById(txtAreaSqFt).innerHTML = '0.00';
+            } else {
+                document.getElementById(txtAreaSqFt).innerHTML = areaSqFt.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+            var txtDepFormulaType = "pg:frm:firstBlock:pbSection11:table:" + index + ":depFormulaType";
+            var depFormulaType = document.getElementById(txtDepFormulaType).value;
+            var txtDepositAmount = "pg:frm:firstBlock:pbSection11:table:" + index + ":depositAmount";
+            var depositAmount;
+
+            if (depFormulaType == 'By Area') {
+                depositAmount = depositRate * noOfMonths * areaSqFt;
+            } else {
+                depositAmount = depositRate * noOfMonths;
+            }
+            if (isNaN(depositAmount)) {
+                document.getElementById(txtDepositAmount).value = '0.00';
+            } else {
+                depositAmount = parseFloat(depositAmount).toFixed(2);
+                document.getElementById(txtDepositAmount).innerHTML = depositAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                document.getElementById(txtDepositAmount).value(depositAmount);
+            }
+        }
+
+        function populateDepositRate(index) {
+            var txtDepFormulaType = "pg:frm:firstBlock:pbSection11:table:" + index + ":depFormulaType";
+            var depFormulaType = document.getElementById(txtDepFormulaType).value;
+            var txtBaseRent = "pg:frm:firstBlock:pbSection11:table:" + index + ":baseRent";
+            var baseRent = document.getElementById(txtBaseRent).innerHTML;
+            baseRent = baseRent.replace(/\,/g, '');
+            baseRent = parseFloat(baseRent).toFixed(2);
+            document.getElementById(txtBaseRent).innerHTML = baseRent.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            if (!isNaN(baseRent)) {
+                if (depFormulaType == 'By Base Rent') {
+                
+                    var crCode = "pg:frm:firstBlock:pbSection11:table:" + index + ":crCode";
+                    var tempCRCode = document.getElementById(crCode).innerHTML;
+                    var currencyCode = "pg:frm:firstBlock:pbSection11:table:" + index + ":currencyCode";
+                    if(tempCRCode != '' && tempCRCode != null){
+                        document.getElementById(currencyCode).value = tempCRCode;
+                    }
+                                        
+                    var txtDepositRate = "pg:frm:firstBlock:pbSection11:table:" + index + ":depositRate";
+                    document.getElementById(txtDepositRate).value = baseRent;
+                    GetIndex(index);
+                } else {
+                    GetIndex(index);
+                }
+            } else {
+                alert('Please Enter Base Rent In Digits');
+                document.getElementById(txtBaseRent).value = '0.00';
+            }
+        } 
+       
+        if ({!closePage}) {
+             if("{!$CurrentPage.parameters.isLightning}" != 'true'){
+                 window.close();
+             }else{
+                  window.location.href = "/{!redirectId}";
+             }
+        }
+            
+        function stopRKey(evt) {
+           var evt = (evt) ? evt : ((event) ? event : null);
+           var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+           if ((evt.keyCode == 13) && (node.type=="text")) {return false;}
+        }
+        
+        document.onkeypress = stopRKey; 
+    </script>
+    
+    <apex:form id="frm">
+        <apex:actionFunction name="generatePDF" action="{!generateDepositPDF}" />
+        <apex:actionFunction reRender="" name="Save" action="{!Save}" onComplete="generatePDF();return false;"/>
+        <apex:pageBlock title="Deposit" id="firstBlock">
+       
+            <apex:variable var="rowNum1" value="{!1}" />
+            <apex:pageBlockSection title="Existing Deposits" id="section1" columns="1" rendered="{! (existingDeposits.size > 0)}">
+                <apex:pageBlockTable style=" width:84%;" value="{!existingDeposits}" var="e" id="table1">
+                    <apex:column style="width:29px" headerValue="S No">
+                        <apex:outputText value="{!rowNum1}" />
+                    </apex:column>
+                    <apex:column style="width:54px" headerValue="Unit No.">
+                        <apex:outputText value="{!e.Lease_Unit__r.Unit__r.name}" />
+                    </apex:column>
+                    <apex:column style="width:54px" headerValue="Start Date">
+                        <apex:outputText style="width: 74px;" value="{0,date,dd/MM/yyyy}">
+                            <apex:param value="{!e.Lease_Unit__r.Lease_Start_Date__c}" />
+                        </apex:outputText>
+                    </apex:column>
+                    <apex:column style="width:54px" headerValue="End Date">
+                        <apex:outputText style="width: 74px;" value="{0,date,dd/MM/yyyy}">
+                            <apex:param value="{!e.Lease_Unit__r.Lease_End_Date__c}" />
+                        </apex:outputText>
+                    </apex:column>
+                    <apex:column style="text-align: right;width:54px" headerValue="Base Rent Amount">
+                        <apex:outputText value="{0, number, ###,##0.00}">
+                            <apex:param value="{!e.Lease_Charge__r.Base_Rent_Calculation__c}" />
+                        </apex:outputText>
+                    </apex:column>
+                    <apex:column style="text-align: right;width:54px" headerValue="Area (Sq.Ft)">
+                        <apex:outputText value="{0, number, ###,##0.00}">
+                            <apex:param value="{!e.Lease_Unit__r.Area_Sq_Ft__c}" />
+                        </apex:outputText>
+                    </apex:column>
+                    <apex:column style="width:74px" headerValue="Deposit Type">
+                        <apex:outputText value="{!e.Deposit_Type__c}" />
+                    </apex:column>
+                    <apex:column style="width:74px" headerValue="Deposit Formula Type">
+                        <apex:outputText value="{!e.Deposit_Formula_Type__c}" />
+                    </apex:column>
+                    <apex:column style="text-align: right;width:54px" headerValue="Deposit Amount">
+                        <apex:outputText value="{0, number, ###,##0.00}">
+                            <apex:param value="{!e.Deposit_Amount__c}" />
+                        </apex:outputText>
+                    </apex:column>
+                    <apex:column style="text-align: right;width:54px" headerValue="Outstanding Amount">
+                        <apex:outputText value="{0, number, ###,##0.00}">
+                            <apex:param value="{!e.Outstanding_Amount__c}" />
+                        </apex:outputText>
+                        <apex:variable var="rowNum1" value="{!rowNum1+1}" />
+                        
+                        
+                    </apex:column>
+                </apex:pageBlockTable>
+                
+            </apex:pageBlockSection>
+            <script>
+                    twistSection(document.getElementById('{!$Component.firstBlock:section1}').getElementsByTagName('img')[0])
+                </script>
+            
+
+
+
+            <apex:variable var="rowNum" value="{!1}" id="rowNum" />
+            <apex:variable var="backendCount" value="{!0}" id="backendCount" />
+            
+            <apex:pageBlockSection title="Deposit Interface" id="pbSection11" columns="1" collapsible="false">
+                <apex:outputPanel rendered="{!If(IsBlank(currencyError),false,true)}">
+                    <div class="message errorM3" role="alert">
+                        <table border="0" cellpadding="0" cellspacing="0" class="messageTable" style="padding:0px;margin:0px;">
+                            <tbody>
+                                <tr valign="top">
+                                    <td><img alt="ERROR" class="msgIcon" src="/s.gif" title="ERROR" /></td>
+                                    <td class="messageCell">
+                                        <div class="messageText">
+                                            <span style="text-align: left;color:#cc0000"><h4>Error:</h4>
+                                            </span> {!currencyError}
+                                            <br/>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr><td></td><td></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </apex:outputPanel>
+                <apex:pageBlockTable width="100%" value="{!leaseUnitWrap}" var="w" id="table">
+                    <apex:column style="width:40px" headerValue="S No">
+                        <apex:outputText value="{!rowNum}" />
+                    </apex:column>
+                    <apex:column style="width: 74px;" headerValue="Unit No.">
+                        <apex:outputText value="{!w.unit}" />
+                    </apex:column>
+                    <apex:column headerValue="Start Date">
+                        <apex:outputText style="width: 74px;" value="{0,date,dd/MM/yyyy}">
+                            <apex:param value="{!w.startDate}" />
+                        </apex:outputText>
+                    </apex:column>
+                    <apex:column headerValue="End Date">
+                        <apex:outputText style="width: 74px;" value="{0,date,dd/MM/yyyy}">
+                            <apex:param value="{!w.endDate}" />
+                        </apex:outputText>
+                    </apex:column>
+                    <apex:column style="text-align: right;" headerValue="Base Rent Amount">
+                        <div id="block_container">
+                            <div id="bloc1"><apex:outputText id="crCode" value="{!w.lcCurrencyCode}"/>&nbsp;&nbsp;</div>  
+                            <div id="bloc2"><apex:outputText style="width: 74px;" id="baseRent" value="{0, number, ###,##0.00}">
+                                            <apex:param value="{!w.baseRent}" />
+                                            </apex:outputText></div>
+                        </div>
+                    </apex:column>
+                    <apex:column style="text-align: right;" headerValue="Area (Sq.Ft)">
+                        <apex:outputText style="width: 74px;" id="areaSqFt" value="{0, number, ###,##0.00}">
+                            <apex:param value="{!w.areaSqFt}" />
+                        </apex:outputText>
+                    </apex:column> 
+                    <apex:column headerValue="Deposit Type">
+                        <apex:inputField style="width: 118px;border-color: {!If(w.dpTEmpty,'red', 'darkgray') };" value="{!w.dep.Deposit_Type__c}" />
+                    </apex:column>
+                    <apex:column headerValue="Deposit Formula Type">
+                        <apex:inputField style="width: 118px;border-color: {!If(w.dpFTEmpty,'red', 'darkgray') };" id="depFormulaType" onChange="populateDepositRate({!backendCount});" value="{!w.dep.Deposit_Formula_Type__c}" />
+                    </apex:column>
+                    <apex:column headerValue="Currency Code" >
+                        <apex:inputField style="width: 74px;border-color: {!If(w.dpCCEmpty,'red', 'darkgray') };" id="currencyCode" value="{!w.dep.Currency_Code__c}" />
+                    </apex:column> 
+                    <apex:column headerValue="Deposit Rate">
+                        <apex:inputText style="width: 74px;" id="depositRate" onChange="GetIndex({!backendCount});" value="{!w.depositRate}" />
+                    </apex:column>
+                    <apex:column headerValue="No of Months">
+                        <apex:inputText style="width: 74px;" id="noOfMonths" onChange="GetIndex({!backendCount});" value="{!w.noOfMonths}" />
+                    </apex:column>
+                    <apex:column style="text-align: right;" headerValue="Deposit Amount">
+                        <apex:outputText style="width: 120px;" id="depositAmount" value="{0, number,  ###,##0.00}">
+                            <apex:param value="{!w.depositAmount}" />
+                        </apex:outputText> 
+                    </apex:column>
+                    <apex:column style="width:40px;text-align: start;" headerValue="Add / Remove">
+                        <apex:commandButton action="{!addRow}" status="actStatusId" style="padding: 5px;" image="/img/cal/addNew_on.gif" rerender="table,rowNum,backendCount">
+                            <apex:param name="toAddRow" value="{!rowNum}" />
+                        </apex:commandButton>
+                        <apex:commandButton action="{!delRow}" status="actStatusId" rendered="{! !w.defaultRec}" style="padding: 3.5px;padding-left: 5px;padding-right: 5px;" image="/img/func_icons/remove12_on.gif" rerender="table,rowNum,backendCount">
+                            <apex:param name="toDelRow" value="{!rowNum}" />
+                        </apex:commandButton>
+                        <apex:actionStatus id="actStatusId">
+                            <apex:facet name="start">
+                                <img src="/img/loading.gif" style="margin-bottom:3px; " />
+                            </apex:facet>
+                        </apex:actionStatus>
+                        <apex:variable var="backendCount" value="{!backendCount+1}" />
+                        <apex:variable var="rowNum" value="{!rowNum+1}" />
+                    </apex:column>
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+            <div class="pbBottomButtons">
+                <table border="0" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td class="pbButtonb ">
+                                <apex:commandButton value="Save" style="width:60px;text-align: center;" onclick="Save(); this.disabled='true'; this.value='Saving...';" id="saveClick" />
+                                <apex:commandButton value="Cancel" rendered="{!$CurrentPage.parameters.isLightning != 'true'}" style="width:60px;text-align: center;" onClick="window.close();" />
+                                <apex:commandButton value="Cancel" rendered="{!$CurrentPage.parameters.isLightning == 'true'}" action="/{!redirectId}"/>
+
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </apex:pageBlock>
+        <br/>
+    </apex:form>
+</apex:page>

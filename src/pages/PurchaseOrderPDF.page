@@ -1,0 +1,139 @@
+<apex:page controller="PurchaseOrderPDFController" renderAs="pdf" sidebar="false" applyBodyTag="false">
+    <body>
+        <table width="100%">
+            <tr>
+                <td>
+                    <div style="width:50px !important;"><apex:outputField value="{!po[0].Company_Name__r.Field1__c}" /></div>
+                </td>
+                <td align="right">
+                    <apex:outputField value="{!po[0].Company_Name__r.name}"/><br/>
+                    <apex:outputField value="{!po[0].Company_Name__r.billingStreet}"/><br/>
+                    <apex:outputField value="{!po[0].Company_Name__r.billingCity}"/><br/>
+                    <apex:outputField value="{!po[0].Company_Name__r.billingState}"/><br/>
+                    <apex:outputField value="{!po[0].Company_Name__r.billingCountry}"/>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h2>Purchase Order</h2>
+                    <apex:outputField value="{!po[0].Vendor_Name__r.name}"/><br/>                    
+                    <apex:outputField value="{!po[0].Vendor_Contact__r.name}"/><br/>
+                    <apex:outputField value="{!po[0].Vendor_Name__r.BillingStreet}"/><br/>
+                    <apex:outputField value="{!po[0].Vendor_Name__r.BillingCity}"/><br/>
+                    <apex:outputField value="{!po[0].Vendor_Name__r.BillingState}"/><br/> 
+                    <apex:outputField value="{!po[0].Vendor_Name__r.BillingCountry}"/>
+                </td>
+                <td align="right">
+                    
+                        <b>Purchase Order Date</b><br/>
+                        <apex:outputField value="{!po[0].PO_Start_Date__c}"/><br/><br/>
+                        
+                        <b>Delivery Date</b><br/>
+                        <apex:outputField value="{!po[0].PO_End_Date__c}"/><br/><br/>
+                        
+                        
+                        <b>Purchase Order Number</b><br/>                       
+                        <apex:outputField value="{!po[0].Name}"/>
+                     <!--   <apex:DataTable style="float:right;" value="{!po[0].Name}" var="inv" columns="1">
+                            <apex:column value="{!inv.Invoice_Date__c}"/>
+                        </apex:dataTable><br/>
+                        
+                        <b>Delivery Date</b><br/>
+                        <apex:dataTable style="float:right;" value="{!po[0].PO_Start_Date__c}" var="inv">
+                            <apex:column value="{!inv.Invoice_Date__c}"/>
+                        </apex:dataTable><br/>
+                        
+                        <b>Purchase Order Number</b><br/>
+                        <apex:dataTable style="float:right;" value="{!po[0].PO_End_Date__c}" var="inv"> 
+                            <apex:column value="{!inv.Invoice_Number__c }"/>
+                        </apex:DataTable>
+                    -->
+                </td>
+            </tr>
+        </table>
+        
+        
+        
+        <div style="clear:both;width:100%;padding-top:6%;">
+            <table style="width:100%;">
+                <tr>
+                    <th style="width:48%;" align="left">Description</th>
+                    <th style="width:15%;">Quantity</th>
+                    <th style="width:12%;">Unit Price</th>
+                    <th style="width:25%;text-align:right;">Amount<br/>
+                       <div style="text-align:right;">{!po[0].currency_code__c}</div>
+                    </th>
+                </tr>
+            </table>
+            <hr style="border:none;height:1px;background-color:#000;"/>
+            
+            <apex:repeat value="{!po[0].PO_Line_Items__r}" var="poi">
+                <div style="width:48%;border:0px solid red;float:left;">{!poi.Item_Name__c}, &nbsp;{!poi.description__c}</div> 
+                <div style="width:15%;border:0px solid red;float:left;">{!poi.quantity__c}</div> 
+                <div style="width:12%;border:0px solid red;float:left;">
+                    <apex:outputPanel > 
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!poi.amount__c}"/>
+                        </apex:outputText>
+                    </apex:outputPanel>
+                </div> 
+                <div style="width:25%;border:0px solid red;float:left;text-align:right;">
+                    <apex:outputPanel > 
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!poi.Total_Amount__c }"/>
+                        </apex:outputText>
+                    </apex:outputPanel>
+                </div> 
+            </apex:repeat> 
+            
+            <hr style="clear:both; border:none; height:1px; background-color:rgb(180,180,180);"/>
+        </div>
+        
+        <div style="width:37%;float:right;text-align:right;">
+            <span style="float:left;">Subtotal</span>
+            <apex:outputPanel > 
+                <apex:outputText value="{0,number,###,###,##0.00}">
+                    <apex:param value="{!subTotal}"/>
+                </apex:outputText>
+            </apex:outputPanel><br/>
+            <span style="float:left;">Tax Subtotal</span>
+            <apex:outputPanel > 
+                <apex:outputText value="{0,number,###,###,##0.00}">
+                    <apex:param value="{!po[0].Tax_Amount__c}"/>
+                </apex:outputText>
+            </apex:outputPanel>
+            
+            
+            <hr style="margin-top:10px;border:none;height:0.5px;background-color:#000;"/>
+        </div>        
+        <div style="clear:both;"></div>
+        
+        <div style="width:37%;float:right;text-align:right;">
+            <span style="float:left;font-weight:bold;">Total &nbsp;({!po[0].currency_code__c})</span>
+                <apex:outputPanel > 
+                    <apex:outputText value="{0,number,###,###,##0.00}">
+                        <apex:param value="{!po[0].Total_PO_Amount__c}"/>
+                    </apex:outputText>
+                </apex:outputPanel>
+            <hr style="margin-top:15px;border:none;height:0.5px;background-color:#000;"/>
+        </div>
+        
+        <div style="clear:both;">
+            <hr style="margin-top:100px;border:none;height:1px;background-color:rgb(235, 235, 224);"/>
+            <div style="display:inline-block;vertical-align:top;position:relative;bottom:0px;">
+                <b>Delivery Address</b><br/>
+                {!po[0].Delivery_Street__c}<br/>
+                {!po[0].Delivery_City__c}<br/>
+                {!po[0].Delivery_Country__c}, {!po[0].Delivery_Zip_Postal_Code__c}<br/>
+                
+            </div>
+            
+            <div style="display:inline-block;border-left:0.5px solid rgb(180,180,180);border-right:0.5px solid rgb(180,180,180);padding-left:10px;margin-left:10px;width:200px;">
+                <b>Attention</b><br/>
+                {!po[0].Attention_To__c}<br/><br/>
+                <b>Telephone</b><br/>
+                {!po[0].delivery_phone__c}
+            </div>
+        </div>
+    </body>
+</apex:page>

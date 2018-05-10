@@ -1,0 +1,118 @@
+<apex:page lightningStylesheets="true" docType="html-5.0" sidebar="false" id="Requisition" standardController="Requisition__c" extensions="HRISRequisitionExtension" tabStyle="Requisition_Process__tab">
+    <apex:sectionHeader title="" subtitle="Requisition"/>
+        <table width="80%" align="center">
+    <tr>
+    <td>
+    <c:HRISBreadcrumb />
+    <apex:form id="myform" > 
+    <apex:pageBlock >
+    <apex:pageMessages escape="false"/>
+        <apex:pageBlockSection title="Part I : Details of the position required to fill" id="di">
+            <apex:inputField value="{!Requisition__c.Property__c}" required="true"/>
+            <apex:outputField value="{!Requisition__c.Status__c}" />
+            <apex:inputField value="{!Requisition__c.Division__c}" required="true"/>
+            <apex:outputField value="{!Requisition__c.Approval_Status__c}" />
+            <apex:inputField value="{!Requisition__c.Department__c}" required="true" /> 
+            <apex:inputField value="{!Requisition__c.Employment_Type__c}" />
+            <apex:inputField value="{!Requisition__c.Job_Description__c}" required="true">
+                <apex:actionSupport event="onchange" action="{!setRequisiteInfo}" reRender="di,di1,di2"/>
+            </apex:inputField>
+            <apex:inputField value="{!Requisition__c.Report_To__c}"/>
+            <apex:inputField value="{!Requisition__c.Position__c}"/>
+            <apex:inputField value="{!Requisition__c.Effective_Start_Date__c}" required="true"/>
+            <apex:inputField value="{!Requisition__c.Job_Level__c}"/>
+            <apex:inputField value="{!Requisition__c.Expected_Commencement_Date__c}" />
+        </apex:pageBlockSection>
+        <apex:pageBlockSection title="Reason for Hiring" id="di1">
+            <apex:inputField value="{!Requisition__c.Number_of_Employed__c}" required="true" label="Requisite Headcount"/>
+            <apex:inputField value="{!Requisition__c.Current_Headcount__c}"/>
+            <apex:inputField value="{!Requisition__c.Reason_for_Requisition__c}" style="width:70%"/>
+            <apex:inputField value="{!Requisition__c.Approved_Headcount__c}"/>
+			<apex:inputField value="{!Requisition__c.Justification__c}"/>
+            <apex:inputField value="{!Requisition__c.Headcount_Variance__c}"/>
+        </apex:pageBlockSection>
+        <apex:pageBlockSection title="Part II : Requirements of Job Applicant" columns="2" id="di2"> 
+            <!--apex:outputLabel >Job Requirements: Please specify the required competency, such technocal skill, work experience...etc.</apex:outputLabel-->
+            <apex:inputField value="{!Requisition__c.Job_Requirements__c}" style="width:550px;" />   
+            <apex:outputLabel ></apex:outputLabel>
+            <apex:inputField value="{!Requisition__c.Job_Info__c}" style="width:550px"/>      
+        </apex:pageBlockSection>
+        <!--apex:pageBlockSection title="Approval History" columns="1" rendered="{!doaHistoryList != null}">
+            <apex:dataTable value="{!doaHistoryList}" var="doa" align="center" cellpadding="3" cellspacing="3" style="width:100%;" >
+                  <apex:column styleclass="">
+                    <apex:facet name="header">Action </apex:facet> 
+                    <apex:outputText ><b>{!doa.Action__c}</b></apex:outputText>
+                  </apex:column>
+                  <apex:column styleclass="">
+                    <apex:facet name="header">Name </apex:facet> 
+                    <apex:outputText >{!doa.Name__c}</apex:outputText>
+                  </apex:column>
+                  <apex:column styleclass="">
+                    <apex:facet name="header">Department </apex:facet> 
+                    <apex:outputText >{!doa.Department__c}</apex:outputText>
+                  </apex:column>
+                  <apex:column styleclass="">
+                    <apex:facet name="header">Position </apex:facet> 
+                    <apex:outputText >{!doa.Position__c}</apex:outputText>
+                  </apex:column>
+                  <apex:column styleclass="">
+                    <apex:facet name="header">Title </apex:facet> 
+                    <apex:outputText >{!doa.Title__c}</apex:outputText>
+                  </apex:column>
+                  <apex:column styleclass="">
+                    <apex:facet name="header" >Comment </apex:facet> 
+                    <apex:outputText >{!doa.Comment__c}</apex:outputText>
+                  </apex:column>
+                  <apex:column styleclass="">
+                      <apex:facet name="header"> Date </apex:facet> 
+                    <apex:outputText >{!doa.Approve_Reject_Date__c}</apex:outputText>
+                  </apex:column>
+                  <apex:column styleclass="">
+                    <apex:facet name="header">Status </apex:facet> 
+                      <apex:outputText rendered="{!doa.Status__c == 'Pending'}"> <apex:image url="{!URLFOR($Resource.SGLHR,'sglhr/yellow.png')}" style="height:14px;width:14px;" /> &nbsp;{!doa.Status__c}</apex:outputText>
+                      <apex:outputText rendered="{!doa.Status__c == 'Approved'}"> <apex:image url="{!URLFOR($Resource.SGLHR,'sglhr/trafficlight-green-icon.png')}" style="height:14px;width:14px;" /> &nbsp;{!doa.Status__c}</apex:outputText>
+                      <apex:outputText rendered="{!doa.Status__c == 'Rejected'}"> <apex:image url="{!URLFOR($Resource.SGLHR,'sglhr/Trafficlight-red-icon.png')}" style="height:14px;width:14px;" /> &nbsp;{!doa.Status__c}</apex:outputText>
+                  </apex:column>   
+            </apex:dataTable>  
+        </apex:pageBlockSection-->
+        <apex:pageBlockSection title="Delegation of Authority" columns="1">
+            <table align="center" border="1">
+                <tr>
+                    <td><b>Step</b></td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                    <td>4</td>
+                    <td>5</td>
+                </tr>
+                <tr>
+                    <td><b>Approver</b></td>
+                    <td>Division Head</td>
+                    <td>DOHR</td>
+                    <td>FC</td>
+                    <td>GM /RM</td>
+                    <td>EVP only for Job Level 1 and Level 2.</td>
+                </tr>
+            </table>
+        </apex:pageBlockSection>
+        <apex:pageBlockButtons location="bottom">
+            <apex:commandButton action="{!saveReq}" value="Save" disabled="{!IF((Requisition__c.Approval_Status__c == 'In-Progress' || Requisition__c.Approval_Status__c == 'Approved'),true,false)}"/>
+            <apex:commandButton action="{!submitReq}" value="Submit" disabled="{!IF((Requisition__c.Approval_Status__c == 'In-Progress' || Requisition__c.Approval_Status__c == 'Approved'),true,false)}"/>
+            <apex:commandButton action="{!cancelReq}" value="Cancel" immediate="true"/>
+        </apex:pageBlockButtons>
+     </apex:pageBlock>  
+    </apex:form>
+    <apex:relatedList list="ProcessSteps" />
+    
+    </td>
+    </tr>
+    </table>        
+    
+     <script>
+        function showAlert() {
+          if(!"{!error}") {
+            alert('Approval has submitted to Division Head.');
+          } 
+       }
+  </script>
+</apex:page>

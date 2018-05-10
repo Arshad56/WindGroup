@@ -1,0 +1,74 @@
+<apex:page showHeader="false" sidebar="false" controller="UpdateDailyRateController" docType="html-5.0">
+    <apex:form id="frm">
+        <apex:pageMessages />
+        <apex:pageBlock rendered="{!!contains(chargeMethod,'Daily Rate')}">
+            <apex:pageBlockSection columns="1">
+                <apex:outputPanel >
+                    <apex:outputLabel value="Start Month & Year"/>
+                    <apex:selectList value="{!startMonth}" size="1">
+                        <apex:selectOptions value="{!monthList}"/>
+                    </apex:selectList>
+                    <apex:selectList value="{!startYear}" size="1">
+                        <apex:selectOptions value="{!YearList}"/>
+                    </apex:selectList>
+                </apex:outputPanel>
+                <apex:outputPanel >
+                    <apex:outputLabel value="End Month & Year"/>
+                    <apex:selectList value="{!endMonth}" size="1">
+                        <apex:selectOptions value="{!monthList}"/>
+                    </apex:selectList>
+                    <apex:selectList value="{!endYear}" size="1">
+                        <apex:selectOptions value="{!YearList}"/>
+                    </apex:selectList>
+                </apex:outputPanel>
+                
+                <apex:outputPanel >
+                    <apex:outputLabel value="Bulk Update By"/>
+                    <apex:selectList value="{!bulkUpdateBy}" size="1">
+                        <apex:selectOption itemValue="Absolute" itemLabel="Absolute"/>
+                        <apex:selectOption itemValue="Incremental Change" itemLabel="Incremental Change"/>
+                        <apex:selectOption itemValue="% Rate Change" itemLabel="% Rate Change"/>
+                    </apex:selectList>
+                    <apex:input type="number" value="{!bulkUpdateValue}" required="true"/>
+                </apex:outputPanel>
+            </apex:pageBlockSection>
+            <apex:pageBlockButtons >
+                <apex:commandButton value="Update Rate" action="{!updateRate}" reRender="frm"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+        <apex:pageBlock rendered="{!Contains(chargeMethod,'Daily Rate')}">
+            <apex:pageBlockSection columns="1">
+                <apex:input type="date" value="{!startDate}" label="Start Date" required="true"/>
+                <apex:input type="date" value="{!endDate}" label="End Date" required="true"/>
+                <apex:selectList multiselect="true" value="{!weekDays}" label="Day(s) of the week">
+                    <apex:selectOption itemLabel="All" itemValue="All"/>
+                    <apex:selectOption itemLabel="Sunday" itemValue="Sunday"/>
+                    <apex:selectOption itemLabel="Monday" itemValue="Monday"/>
+                    <apex:selectOption itemLabel="Tuesday" itemValue="Tuesday"/>
+                    <apex:selectOption itemLabel="Wednesday" itemValue="Wednesday"/>
+                    <apex:selectOption itemLabel="Thursday" itemValue="Thursday"/>
+                    <apex:selectOption itemLabel="Friday" itemValue="Friday"/>
+                    <apex:selectOption itemLabel="Saturday" itemValue="Saturday"/>
+                </apex:selectList>
+                <apex:outputPanel >
+                    <apex:outputLabel value="Bulk Update By"/>
+                    <apex:selectList value="{!bulkUpdateBy}" size="1">
+                        <apex:selectOption itemValue="Absolute" itemLabel="Absolute"/>
+                        <apex:selectOption itemValue="Incremental Change" itemLabel="Incremental Change"/>
+                        <apex:selectOption itemValue="% Rate Change" itemLabel="% Rate Change"/>
+                    </apex:selectList>
+                    <apex:input type="number" value="{!bulkUpdateValue}" required="true"/>
+                </apex:outputPanel>
+            </apex:pageBlockSection>
+            <apex:pageBlockButtons >
+                <apex:commandButton value="Update Rate" action="{!updateRate}" reRender="frm"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+        <script>
+            if({!success}){
+                window.opener.Generate();
+                window.close();
+            }
+        </script>
+    </apex:form>
+</apex:page>

@@ -1,0 +1,36 @@
+<apex:page lightningStylesheets="true" sidebar="false" id="offboardingStep1" standardController="Personnel_Action__c" extensions="HRISOnOffboardingStep1Extension" tabStyle="Requisition_Process__tab">
+    <apex:sectionHeader title="" subtitle="Off-boarding"/>
+    <c:HRISBreadcrumb />
+    <apex:form id="myform"> 
+    <apex:pageMessages escape="false"/>
+        <table width="80%" align="center">
+        <tr>
+        <td>
+        <apex:pageBlock >
+        <apex:pageBlockSection title="Search for Off-boarding">
+            <apex:inputField value="{!Personnel_Action__c.Employee__c}" />
+            <apex:inputField value="{!Personnel_Action__c.Property__c}" required="true"/>
+            <apex:inputField value="{!Personnel_Action__c.Employee_No__c}" />
+            <br/>
+            <br/>
+        </apex:pageBlockSection>
+            <apex:pageBlockButtons location="top">
+            <apex:commandButton action="{!searchOffboard}" value="Search"/>
+        </apex:pageBlockButtons>
+        <br/>
+        <br/>
+        <apex:pageBlockTable value="{!onoffboardingList}" var="offboarding" rendered="{!onoffboardingList != null}">
+            <apex:column headerValue="{!headerValue}">
+                <apex:outputLink value="/apex/HRISOffboarding?id={!offboarding.Id}">{!offboarding.Name}</apex:outputLink>
+            </apex:column>
+            <apex:column value="{!offboarding.Property__c}"/>
+            <apex:column value="{!offboarding.Employee__c}"/>
+            <apex:column value="{!offboarding.Employee_No__c}"/>
+        </apex:pageBlockTable>
+            
+        </apex:pageBlock>
+        </td>
+        </tr>
+        </table>
+    </apex:form>
+</apex:page>

@@ -1,0 +1,141 @@
+<apex:page controller="CustomContactLookupController" tabStyle="Contact" sidebar="false" title="Search" showHeader="false">
+ <apex:sectionHeader title="Lookup" subtitle="Contact"/>
+    <apex:form >
+        <apex:tabPanel selectedTab="name2" id="tabpanel" tabClass="activeTab" inactiveTabClass="inactiveTab" >      
+            
+            <!----------------------------------Tab1: To search Contacts----------------------------------------->
+            <apex:tab label="Contacts" name="Tab1" >
+               <!-- <apex:inputText id="searchbox" value="{!searchText}"  />
+                <apex:commandButton value="Go!" style="width:60px;" action="{!search}" reRender="pb"/>
+                -->
+                <apex:outputPanel id="top" layout="block" style="margin:5px;padding:10px;padding-top:2px;">
+                   <!-- <apex:outputLabel value="Search" style="font-weight:Bold;padding-right:10px;" for="txtSearch" />-->
+                    <apex:inputText id="searchbox" value="{!searchText}" />
+                    <span style="padding-left:5px">
+                         <apex:actionstatus id="status">
+                                    <apex:facet name="start">
+                                        <div class="waitingHolder" style="display:inline-block;" >
+                                                <img class="waitingImage" src="/img/loading.gif" title="Please Wait..." />
+                                                <span class="waitingDescription">Loading...</span>
+                                        </div>
+                                    </apex:facet>
+                                    <apex:facet name="stop">
+                                        <apex:commandButton value="Go!" action="{!search}" status="status" rerender="pb" />
+                                    </apex:facet>
+                          </apex:actionstatus>
+                        
+                    </span>
+                </apex:outputPanel>
+                
+                <apex:outputPanel id="SearchResults" style="margin:10px;height:350px;overflow-Y:auto;" layout="block">  
+                    <apex:pageBlock id="pb">
+                        <apex:pageMessages rendered="{!ContactList==null || ContactList.size==0}"/>
+                        <apex:pageBlockSection >
+                            <apex:pageBlockTable value="{!ContactList}" var="a" columns="4" style="width:260%;font-weight:bold;" id="con" rendered="{!ContactList!=null && ContactList.size>0}">
+                                <apex:column >
+                                    <apex:facet name="header">
+                                        <apex:outputPanel >Contact Name</apex:outputPanel>
+                                    </apex:facet>
+                                    <apex:outputLink value="javascript:top.window.opener.lookupPick2('{!FormTag}','{!TextBox}_lkid','{!TextBox}','{!a.Id}','{!JSENCODE(a.firstName)}'.length?'{!JSENCODE(a.firstName)}'+' '+'{!JSENCODE(a.LastName)}':'{!JSENCODE(a.LastName)}', false)" rendered="{!NOT(ISNULL(a.Id))}">{!a.firstName} {!a.LastName}</apex:outputLink>
+                                </apex:column>
+                                <apex:column >
+                                     <apex:facet name="header">
+                                        <apex:outputPanel >Phone</apex:outputPanel>
+                                    </apex:facet>
+                                    <apex:outputLink >{!a.mobilephone}</apex:outputLink>
+                                </apex:column>
+                                
+                                   <apex:column >
+                                        <apex:facet name="header">
+                                        <apex:outputPanel >Email</apex:outputPanel>
+                                    </apex:facet>
+                                    
+                                    <apex:outputLink >{!a.email}</apex:outputLink>
+                                </apex:column>
+                                
+                                 <apex:column headerValue="Contact Roles">
+                                     <apex:outputLink >{!a.Contact_Roles__c}</apex:outputLink>
+                                </apex:column>
+                                
+                            </apex:pageBlockTable>
+                        </apex:pageBlockSection>
+                    </apex:pageBlock>
+                </apex:outputPanel>
+            </apex:tab>
+                 
+  <!--------------------------------------Tab2: For inserting new contacts------------------------------------->
+               
+           <apex:tab label="New Contact" >
+               
+                 <apex:pageBlock title="New Contact" id="tab2Block" >
+                     <apex:pageBlockButtons location="top">
+                             <apex:actionStatus id="disablebtn">
+                               <apex:facet name="stop">
+                                   <apex:commandButton value="Save" style="width:40px;" action="{!saveContact}" status="disablebtn" disabled="false"/>
+                               </apex:facet>    
+                               <apex:facet name="start">
+                                    <apex:commandButton style="width:60px;" status="disablebtn" value="Saving..." disabled="true"/>
+                               </apex:facet>
+                            </apex:actionStatus>
+                        </apex:pageBlockButtons>
+                     
+                     <!----------------------Supplying the values to the parent window--------------------------->   
+                     <script>
+                         if ({!closeWindow}) {
+                             var fname='{!cont.firstName}';
+                             var lname='{!cont.lastName}';
+                             console.log('first name--------------'+fname);
+                             console.log('last name--------------'+lname);
+                             if(lname.length)
+                                 if(fname.length)
+                                     window.parent.opener.appendContactLookupWindow('{!cont.id}','{!cont.firstName}'+' '+'{!cont.lastName}');
+                                 else
+                                     window.parent.opener.appendContactLookupWindow('{!cont.id}','{!cont.lastName}');
+                             top.parent.window.close();
+                         }
+                        </script>
+                     
+                     <apex:pageMessages rendered="{!cont.LastName == ' ' || cont.lastName==NULL}"/>
+                     
+                     <apex:pageBlockSection columns="1">
+                         <apex:pageBlockSectionItem >
+                            <apex:outputLabel value="First Name " />
+                            <apex:inputText value="{!cont.FirstName}"  style="width:30%;"/>          
+                         </apex:pageBlockSectionItem>
+                         
+                         <apex:pageBlockSectionItem >
+                            <apex:outputLabel value="Last Name " />
+                            <apex:outputpanel >
+                                <div class="requiredInput">
+                                    <div class="requiredBlock"/>
+                                    <apex:inputText value="{!cont.lastName}"  style="width:30%;"/>
+                                </div>
+                            </apex:outputpanel>
+                         </apex:pageBlockSectionItem>
+                         
+                         <apex:pageBlockSectionItem >
+                            <apex:outputLabel value="Mobile"/>
+                            <apex:inputText value="{!cont.MobilePhone}" style="width:30%;"/>
+                         </apex:pageBlockSectionItem>
+                         
+                         <apex:pageBlockSectionItem >
+                            <apex:outputLabel value="Phone"/>
+                            <apex:inputText value="{!cont.Phone}" style="width:30%;"/>
+                         </apex:pageBlockSectionItem>
+                         
+                         <apex:pageBlockSectionItem >
+                            <apex:outputLabel value="E-mail"/>
+                            <apex:inputText value="{!cont.email}" style="width:30%;"/>
+                         </apex:pageBlockSectionItem>
+                         
+                           <apex:pageBlockSectionItem >
+                            <apex:outputLabel value="Contact Roles"/>
+                            <apex:inputfield value="{!cont.Contact_Roles__c}"/>
+                         </apex:pageBlockSectionItem>
+                      
+                     </apex:pageBlockSection>
+                </apex:pageBlock>
+            </apex:tab>
+        </apex:tabPanel>
+    </apex:form>
+</apex:page>

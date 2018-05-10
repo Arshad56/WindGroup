@@ -1,0 +1,40 @@
+<apex:page lightningStylesheets="true" sidebar="false" id="jobChangeStep1" standardController="Personnel_Action__c" extensions="HRISJobChangeStep1Extension" tabStyle="Requisition_Process__tab">
+    <apex:sectionHeader title="" subtitle="Job Change"/>
+    <c:HRISBreadcrumb />
+   
+    <apex:form id="myform"> 
+    <apex:pageMessages escape="false"/>
+        <table width="80%" align="center">
+        <tr>
+        <td>
+        <apex:pageBlock >
+        <apex:pageBlockSection title="Search for Employee">
+            <apex:inputField value="{!Personnel_Action__c.Employee__c}" />
+            <apex:inputField value="{!Personnel_Action__c.Property__c}" required="true"/>
+            <apex:inputField value="{!Personnel_Action__c.Employee_No__c}" />
+            <br/>
+            <br/>
+        </apex:pageBlockSection>
+            <apex:pageBlockButtons location="top">
+            <apex:commandButton action="{!search}" value="Search"/>
+            <apex:commandButton action="{!createJobChange}" value="Create Job Change"/>
+        </apex:pageBlockButtons>
+            <br/>
+            <br/>
+        <apex:pageBlockTable value="{!candidateList}" var="con1" rendered="{!candidateList != null}">
+            <apex:column headerValue="{!headerValue}">
+                <apex:outputLink value="/apex/HRISJobChangeEmployee?id={!con1.Id}">{!con1.Name}</apex:outputLink>
+            </apex:column>
+            <apex:column value="{!con1.Employee__c}"/>
+            <apex:column value="{!con1.Employee_No__c}"/>
+            <apex:column value="{!con1.Division__c}"/>
+            <apex:column value="{!con1.Department__c}"/>
+            <apex:column value="{!con1.Movement_Type__c}"/>
+        </apex:pageBlockTable>
+            
+        </apex:pageBlock>
+        </td>
+        </tr>
+        </table>
+    </apex:form>
+</apex:page>

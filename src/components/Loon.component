@@ -1,0 +1,7 @@
+<apex:component >
+<script language='javascript' async='true' type='text/javascript' src='//whatfix.com/embed/embed.nocache.js'></script>
+  <!-- Begin Default Content REMOVE THIS -->
+  <h1>Congratulations</h1>
+  This is your new Component
+  <!-- End Default Content REMOVE THIS -->
+</apex:component>

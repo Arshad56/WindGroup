@@ -1,0 +1,115 @@
+<apex:page lightningStylesheets="true" docType="html-5.0" sidebar="false" id="Evaluation1" standardController="Evaluation__c" extensions="HRISEvaluationStep1Extension" tabStyle="Requisition_Process__tab">
+    <apex:sectionHeader title="" subtitle="Interview"/>
+    <c:HRISBreadcrumb />
+    <apex:form id="myform"> 
+    <apex:pageMessages escape="false"/>
+    <table width="80%" align="center">
+    <tr>
+    <td>
+    <apex:pageBlock >
+        <apex:pageBlockSection title="Candidate Information">
+            <apex:inputField value="{!Evaluation__c.Candidate_Name__c}" required="true"/>
+            <apex:inputField value="{!Evaluation__c.Recruitment_Source__c}" required="true"/>
+            <apex:inputField value="{!Evaluation__c.Home_Country__c}"/>
+            <apex:inputField value="{!Evaluation__c.Preferred_Location__c}"/>
+            <apex:inputField value="{!Evaluation__c.Current_Salary__c}"/>
+            <apex:inputField value="{!Evaluation__c.Notice_Period__c}"/>
+            <!--apex:outputLabel ></apex:outputLabel>
+            <apex:inputField value="{!Evaluation__c.Languages__c}"/-->
+            <apex:inputField value="{!Evaluation__c.Current_Benefit__c}" style="width:60%"/>
+        </apex:pageBlockSection>
+        <apex:pageBlockSection title="1st Interview (Div/Dept)">
+            <apex:inputField value="{!Evaluation__c.Managing_Execution__c}"/>
+            <apex:outputLabel ></apex:outputLabel>
+            <apex:inputField value="{!Evaluation__c.Innovation_and_Business_Acumen__c}"/>
+            <apex:outputLabel ></apex:outputLabel>
+            <apex:inputField value="{!Evaluation__c.Generating_Talent_Organizat_Capability__c}" />
+            <apex:outputLabel ></apex:outputLabel>
+            <apex:inputField value="{!Evaluation__c.Leadership__c}"/>
+            <apex:outputLabel ></apex:outputLabel>
+            <apex:inputField value="{!Evaluation__c.First_Interview_Comments__c}" style="width:60%"/>
+            <apex:inputField value="{!Evaluation__c.First_Interview_Recommendation__c}"/>
+            <apex:inputField value="{!Evaluation__c.First_Interviewer__c}"/>
+            <apex:inputField value="{!Evaluation__c.First_Interview_Date__c}"/>
+        </apex:pageBlockSection>
+        <apex:pageBlockSection title="2nd Interview (HR)">
+            <apex:inputField value="{!Evaluation__c.Customer_Focus__c}"/>
+            <apex:outputLabel ></apex:outputLabel>
+            <apex:inputField value="{!Evaluation__c.Team_Work__c}"/>
+            <apex:outputLabel ></apex:outputLabel>
+            <apex:inputField value="{!Evaluation__c.Ethic_and_Values__c}" />
+            <apex:outputLabel ></apex:outputLabel>
+            <apex:inputField value="{!Evaluation__c.Cultural_Competency__c}"/>
+            <apex:outputLabel ></apex:outputLabel>
+            <apex:inputField value="{!Evaluation__c.Second_Interview_Comments__c}" style="width:60%"/>
+            <apex:inputField value="{!Evaluation__c.Second_Interview_Recommendation__c}"/>
+            <apex:inputField value="{!Evaluation__c.Second_Interviewer__c}"/>
+            <apex:inputField value="{!Evaluation__c.Second_Interview_Date__c}"/>
+        </apex:pageBlockSection>
+        <apex:pageBlockSection title="Final Interview (General Manager)">
+            <apex:inputField value="{!Evaluation__c.Final_Interview_Comments__c}" style="width:60%"/>
+            <apex:inputField value="{!Evaluation__c.Final_Interview_Recommendation__c}"/>
+            <apex:inputField value="{!Evaluation__c.Final_Interviewer__c}"/>
+            <apex:inputField value="{!Evaluation__c.Final_Interview_Date__c}" />
+        </apex:pageBlockSection>
+        <apex:pageBlockSection title="1st Interview (Div/Dept)" columns="1">
+            <b>Preparation Checklist</b>
+            <ol>
+                <li>Use the competency-based interview skills to gather the candidate’s past behavior (Situation-Solution-Outcome).</li>
+                <li>Ask 1 or 2 questions from each competency to generate past performance from the candidate.</li>
+                <li>Start the interview by asking 2 simple introductory questions</li>
+                <ol type="a">
+                    <li>Please give an overview of your current job role and responsibilities?</li>
+                    <li>What are the reasons for leaving the last / current position?</li>
+                </ol>
+            </ol>
+            <apex:outputField value="{!jobdes.Managing_Execution__c}"/>
+            <apex:inputField value="{!Evaluation__c.ME_Rmk__c}" style="width:60%"/>
+            <apex:outputField value="{!jobdes.Innovation_and_Business_Acumen__c}"/>
+            <apex:inputField value="{!Evaluation__c.IBA_Rmk__c}" style="width:60%"/>
+            <apex:outputField value="{!jobdes.Generating_Talent_Org_Capability__c}"/>
+            <apex:inputField value="{!Evaluation__c.GTOC_Rmk__c}" style="width:60%"/>
+            <apex:outputField value="{!jobdes.Leadership__c}"/>
+            <apex:inputField value="{!Evaluation__c.L_Rmk__c}" style="width:60%"/>         
+        </apex:pageBlockSection>
+        <apex:pageBlockSection title="1st Interview Review">
+            <apex:inputField value="{!Evaluation__c.First_Interview_Strengths__c}" style="width:70%"/>
+            <apex:inputField value="{!Evaluation__c.First_Interview_Area_for_Development__c}" style="width:70%"/>  
+        </apex:pageBlockSection>
+        <apex:pageBlockSection title="2nd Interview (HR)" columns="1">
+            <b>Preparation Checklist</b>
+            <ol>
+                <li>Use the competency-based interview skills to gather the candidate’s past behavior (Situation-Solution-Outcome).</li>
+                <li>Ask 1 or 2 questions from each competency to generate past performance from the candidate.</li>
+                <li>Start the interview by asking 2 simple introductory questions</li>
+                <ol type="a">
+                    <li>Why are you keen to work for Shangri-La Hotels and Resorts?</li>
+                    <li>What attracted you to apply for this position?</li>
+                </ol>
+            </ol>
+            <apex:outputField value="{!jobdes.Customer_Focus__c}"/>
+            <apex:inputField value="{!Evaluation__c.CF_Rmk__c}" style="width:60%"/>
+            <apex:outputField value="{!jobdes.Leadership__c}"/>
+            <apex:inputField value="{!Evaluation__c.TW_Rmk__c}" style="width:60%"/>
+            <apex:outputField value="{!jobdes.Ethics_and_Values_Outcome__c}"/>
+            <apex:inputField value="{!Evaluation__c.EV_Rmk__c}" style="width:60%"/>
+            <apex:outputField value="{!jobdes.Team_Work__c}"/>
+            <apex:inputField value="{!Evaluation__c.CC_Rmk__c}" style="width:60%"/>         
+        </apex:pageBlockSection>
+        <apex:pageBlockSection title="2nd Interview Review">
+            <apex:inputField value="{!Evaluation__c.Second_Interview_Strengths__c}" style="width:70%"/>
+            <apex:inputField value="{!Evaluation__c.Second_Interview_Area_for_Development__c}" style="width:70%"/>  
+        </apex:pageBlockSection>
+        <apex:pageBlockButtons location="bottom">
+            <apex:commandButton action="{!saveEva}" value="Save" />
+            <apex:commandButton action="{!cancel}" value="Cancel"/>
+        </apex:pageBlockButtons>
+    </apex:pageBlock>
+    <apex:inputHidden value="{!Evaluation__c.Requisition_No__c}" id="theHiddenInput"/>
+    <apex:inputHidden value="{!Evaluation__c.Property__c}" id="theHiddenInput1"/>
+    <apex:inputHidden value="{!Evaluation__c.Position_Applied__c}" id="theHiddenInput2"/>
+    </td>
+    </tr>
+    </table>         
+    </apex:form>
+</apex:page>

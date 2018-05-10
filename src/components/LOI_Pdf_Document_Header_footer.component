@@ -1,0 +1,9 @@
+<apex:component >
+
+<apex:attribute required="true"  type="string" name="type" description="specify header" />
+<apex:stylesheet value="{!$Resource.loipdfRepeatedHeaderFooter}"/>
+<div class="{!type}" >
+    <apex:componentBody />
+</div>
+ 
+</apex:component>

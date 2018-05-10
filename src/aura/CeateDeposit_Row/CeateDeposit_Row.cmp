@@ -1,0 +1,45 @@
+<aura:component controller="CreateDepositCheckboxController" implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global">
+	
+	<aura:attribute name="lu" type="Lease_Unit__c" />
+	<tr> 
+       <td scope="row" class="slds-text-align--right" style="width:3.25rem;">
+           <div class="slds-form-element">
+               <div class="slds-form-element__control">
+                   <label class="slds-checkbox">
+                       <ui:inputCheckbox value="{!v.lu.Pre_Termination__c}" aura:id="boxPack" />
+                       <span class="slds-checkbox--faux"></span>
+                       <span class="slds-form-element__label text"></span>
+                   </label>
+               </div>
+           </div>
+       </td>
+       <td scope="row">
+           <div class="slds-truncate" title="{!v.lu.Name}">
+               <a href="javascript:void(0);" onclick="{!c.redirectLU}">{!v.lu.Name}</a>
+           </div>
+       </td>
+       <td scope="row">
+           <a href="javascript:void(0);" onclick="{!c.redirectUnit}">{!v.lu.Unit__r.Name}</a>
+       </td>
+       <td scope="row">
+           <div class="slds-truncate" title="{!v.lu.Area_Sq_Ft__c}">{!v.lu.Area_Sq_Ft__c}</div>
+       </td>
+       <td scope="row">
+           <div class="slds-truncate" title="{!v.lu.Handover_Date__c }">{!v.lu.Handover_Date__c }</div>
+       </td>
+       <td scope="row">
+           <a href="javascript:void(0);" onclick="{!c.editRecord}">Edit</a>&nbsp;
+           <a href="javascript:void(0);" onclick="{!c.deleteRecord}">Delete</a>
+          <!-- <div  onclick="{!c.editRecord}">
+               <ui:outputURL label="Edit"/>
+           </div>&nbsp;
+           <div data-accId="{!v.lu.Id}" onclick="{!c.deleteRecord}">
+               <ui:outputURL label="Delete"/>
+           </div>-->
+           <!-- <lightning:select name="Action" label="" onchange="{!c.doSomething}">
+                <option value="Edit">Edit</option>
+                <option value="Delete">Delete</option>
+            </lightning:select>-->
+       </td>
+   </tr>
+</aura:component>

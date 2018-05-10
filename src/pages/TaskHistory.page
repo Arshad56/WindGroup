@@ -1,0 +1,34 @@
+<apex:page standardController="Task" extensions="TaskHistory_Extension">
+<Style>
+	.ct {
+            text-align: center;
+        }
+</Style>
+<apex:pageBlock id="firstBlock">
+        <apex:pageBlockTable style=" width:100%;" value="{!tahList}" var="th" id="table1">
+            <apex:column style="width:35%" headerValue="Comment" >
+                 <apex:outputText value="{!th.Comment__c}" />
+             </apex:column>
+             <apex:column style="width:14%;text-align: center;" headerValue="Estimated Completion"  headerClass="ct">
+             	<apex:outputText value="{0,date, dd/MM/yyyy}"> 
+                 	<apex:param value="{!th.Estimated_Completion__c + offset}" /> 
+                 </apex:outputText> 
+             </apex:column>
+              <apex:column style="width:14%;text-align: right;" headerValue="Estimated Cost"  headerClass="ct">
+              		<apex:outputText value="{0, number, ###,##0.00}">
+                        <apex:param value="{!th.Estimated_Cost__c}" />
+                  </apex:outputText>
+             </apex:column>
+              <apex:column style="width:14%;text-align: center;" headerValue="Estimated Work Days"  headerClass="ct">
+                 <apex:outputText value="{!th.Estimated_Work_Days__c}" />
+             </apex:column>
+              <apex:column style="width:25%;text-align: center;" headerValue="Last Modified By"  headerClass="ct">
+                 <apex:outputText value="{!th.User_Name__r.Name}" />
+                 <apex:outputText value="{0,date, dd/MM/yyyy HH:mm}"> 
+                 	<apex:param value="{!th.Date_Time__c + offset}" /> 
+                 </apex:outputText> 
+                 
+             </apex:column> 
+      </apex:pageBlockTable>
+</apex:pageBlock>
+</apex:page>

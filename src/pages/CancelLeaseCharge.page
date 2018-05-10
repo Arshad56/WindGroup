@@ -1,0 +1,79 @@
+<apex:page controller="CancelLeaseChargeController" showHeader="false" sidebar="false">
+    <style type="text/css">
+        .custPopup{
+            background-color: white;
+            border-width: 2px;
+            border-style: solid;
+            z-index: 9999;
+            left: 50%;
+            padding:10px;
+            position: absolute;
+            /* These are the 3 css properties you will need to change so the popup 
+            displays in the center of the screen. First set the width. Then set 
+            margin-left to negative half of what the width is. You can add 
+            the height property for a fixed size pop up if you want.*/
+            width: 431px;
+            margin-left: -250px;
+            top:100px;
+        }
+        .popupBackground{
+            background-color:black;
+            opacity: 0.20;
+            filter: alpha(opacity = 20);
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 9998;
+        }
+
+    </style>
+    <apex:form id="frm" >
+    	<apex:actionStatus id="status">
+	            <apex:facet name="start">
+		            <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.75; z-index: 1000; background-color: black;">
+		                &nbsp;
+		            </div>
+		            <div style="position: fixed; left: 0; top: 0; bottom: 0; right: 0; z-index: 1001; margin: 30% 50%">
+		                <img src="http://upload.wikimedia.org/wikipedia/commons/e/ed/Cursor_Windows_Vista.gif" />
+		            </div>
+	            </apex:facet>
+        	</apex:actionStatus>
+            
+            <apex:outputPanel id="tstpopup">
+        		<apex:outputPanel styleClass="popupBackground" layout="block" rendered="{!displayPopUp}"/>
+	            <apex:outputPanel styleClass="custPopup" layout="block" rendered="{!displayPopUp}">
+	                There are already invoice(s) processed. Please make sure all invoice(s) are settled before Cancelled. Cancel now?<br/><br/><br/>
+	              <div style="text-align: center;">
+	              	<apex:commandButton value="Yes" action="{!proceed}" status="status"/>&nbsp;
+	                <apex:commandButton value="No"  onclick="window.close();"/>
+	              </div>
+	            </apex:outputPanel>
+        	</apex:outputPanel>
+        	
+        <apex:pageBlock >
+            <apex:pageMessages />
+            <apex:pageBlockSection columns="1">
+            	<apex:pageblocksectionitem >
+                    <apex:outputlabel >Reason To Cancel</apex:outputlabel>
+                    <apex:outputpanel layout="block" styleClass="requiredInput">
+                        <apex:outputpanel layout="block" styleClass="requiredBlock"></apex:outputpanel>
+                        <apex:inputfield value="{!lsChg.Cancel_Reason__c}"></apex:inputfield>
+                    </apex:outputpanel>
+                </apex:pageblocksectionitem>
+<!--                 <apex:inputField value="{!lsChg.Cancel_Reason__c}" label="Reason To Cancel"/> -->
+            </apex:pageBlockSection>        
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton value="Save" action="{!save}"/>
+                <apex:commandButton value="Cancel" onclick="window.close();"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+    </apex:form>
+    <script>
+        if({!success}){
+            window.opener.location = '/{!lsChg.Id}';
+            window.close();
+        }
+    </script>
+</apex:page>

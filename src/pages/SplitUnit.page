@@ -1,0 +1,143 @@
+<apex:page controller="SplitUnit_Controller"  showHeader="false" sidebar="false"  docType="html-5.0">
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+
+<style>
+    .headerRow,.dataCell{
+        text-align: center;
+    }
+    .totalRow {
+        text-align: right;
+    }
+    .spinnerBg{
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        background-color: #000;
+        opacity: 0.2;
+        z-index: 999999;
+    }
+    .spinner{
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        background-image: url("/img/loading32.gif");
+        background-size: 16px;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-position: center;
+        z-index: 9999999;
+        opacity: 1;
+    }
+</style>
+
+<apex:form id="frm">
+        <apex:actionStatus id="spinnerStatus">
+            <apex:facet name="start">
+                <div class="spinnerBg" />
+                <div class="spinner" />
+            </apex:facet>
+        </apex:actionStatus>
+        <apex:pageMessages id="firstError" escape="false"></apex:pageMessages>
+        <apex:pageBlock id="filterblk">
+                <apex:pageBlockButtons >
+                      <apex:commandButton value="Generate Split" style="border-width:1px;text-align: center;" action="{! generateSplit }" onComplete="sumColoumn();return false;" status="spinnerStatus" reRender="frm" /> &nbsp;&nbsp;
+                      <apex:commandButton value="Cancel" rendered="{!$CurrentPage.parameters.isLightning != 'true'}" style="border-width:1px;width:60px;text-align: center;" onClick="window.close();" />
+                      <apex:commandButton value="Cancel" rendered="{!$CurrentPage.parameters.isLightning == 'true'}" style="border-width:1px;width:60px;text-align: center;" action="/{!unitId}"/>
+                </apex:pageBlockButtons>
+                <apex:pageBlockSection title="Split Details" columns="1">
+                       <apex:inputfield value="{!unitOnUI.Name}" id="unName"  html-disabled="true" /> 
+                       <apex:inputfield label="Split Start Date" value="{!unitOnUI.Start_Date__c}" id="startDt" required="true"/> 
+                       <apex:inputfield label="Split End Date" value="{!unitOnUI.End_Date__c}" id="endDt"  required="true"/>
+                       
+                        <apex:pageBlockSectionItem >
+                            <apex:outputLabel value="No of Split" />
+                            <apex:outputPanel layout="block" styleClass="requiredInput">
+                                    <div class="requiredBlock"></div>
+                                    <apex:inputText value="{! noOfSplit }" required="true"/>
+                            </apex:outputPanel>
+                        </apex:pageBlockSectionItem>
+                        
+                       <apex:inputfield value="{!unitOnUI.NLA_SQF__c}" id="nlaSq"  html-disabled="true" /> 
+                </apex:pageBlockSection>
+        </apex:pageBlock>
+            
+        <apex:pageBlock id="listSplit"  >
+        <apex:pageMessages id="secondError" escape="false" rendered="{! splitGenerated }"/>
+        
+            <apex:pageBlockButtons >
+                      <apex:commandButton value="Save Split" style="border-width:1px;text-align: center;" action="{! saveSplit }"  onComplete="sumColoumn();return false;"  status="spinnerStatus" reRender="listSplit,secondError"  rendered="{! splitGenerated }"/> &nbsp;&nbsp;
+                </apex:pageBlockButtons>
+            <apex:outputPanel rendered="{! splitGenerated }">
+            <apex:pageBlockTable value="{!splitUnits}" style="width:80%" var="record" id="thePageBlockTable"> 
+                    <apex:column style="width:150px">
+                        <apex:outputField value="{!record.Name}" id="AccountNameDOM" /> 
+                        <apex:facet name="header" >Name</apex:facet>
+                    </apex:column>
+                    <apex:column style="width:110px">
+                        <apex:inputField value="{!record.NLA_SQF__c}" style="text-align: end;" id="areaNLA" styleClass="totalMarker" onkeyup="sumColoumn();"/> 
+                        <apex:facet name="header">NLA (SQF) </apex:facet>
+                        <apex:facet name="footer"><b><span styleClass="grandTotalMarker" id="grandTotalMarker">&nbsp; </span></b> </apex:facet>
+                    </apex:column>
+                    <apex:column style="width:150px">
+                        <apex:outputField value="{!record.Start_Date__c}" id="startDate" /> 
+                        <apex:facet name="header">Start Date</apex:facet>
+                    </apex:column>
+                    <apex:column style="width:150px">
+                        <apex:outputField value="{!record.End_Date__c}" id="endDate" /> 
+                        <apex:facet name="header">End Date</apex:facet>
+                    </apex:column>
+                </apex:pageBlockTable>
+             <script> 
+            if ({!closePage}) { 
+                 alert({!$CurrentPage.parameters.isLightning});
+                
+                if("{!$CurrentPage.parameters.isLightning}" != 'true'){
+                    window.opener.location.href = "/{!unitId}";
+                    window.close();
+                }else{
+                   // window.close();
+                    //window.open("/{!unitId}");
+                    window.location.href = "/{!unitId}";
+                }
+            }
+            </script>
+            </apex:outputPanel>
+            
+        </apex:pageBlock>
+    
+    <script>
+//window.onload = sumColoumn;
+
+function sumColoumn(){
+    var inputElem = document.getElementsByTagName("input");
+    var total = 0;
+    for(var i=0; i<inputElem.length; i++){
+        if(inputElem[i].id.indexOf("areaNLA")!=-1){
+            if(isNaN(parseInt(inputElem[i].value))){
+                alert('Please enter Numbers only.');
+                inputElem[i].value = 0;
+                //break;
+            }
+            console.log(inputElem[i].value);
+            total +=  parseFloat(inputElem[i].value);
+        }
+        console.log(document.getElementById("grandTotalMarker").innerHTML);
+
+        var totalVal = total.toFixed(2);
+        /*if(totalVal > {!unitOnUI.NLA_SQF__c}){
+            document.getElementById("grandTotalMarker").setAttribute("style", "color: red;");
+        }else{
+            document.getElementById("grandTotalMarker").setAttribute("style", "color: black;");
+        }*/
+        
+        if(totalVal > {!unitOnUI.NLA_SQF__c}){
+            document.getElementById("grandTotalMarker").setAttribute("style", "background:#ffb0b0;display:block;margin:-1px;height:26px;line-height: 26px;");
+        }else{
+            document.getElementById("grandTotalMarker").setAttribute("style", "background:#a2e8a8;display:block;margin:-1px;height:26px;line-height: 26px;");
+        }
+        document.getElementById("grandTotalMarker").innerHTML="Total " +totalVal;
+    }
+}
+</script>
+</apex:form>
+</apex:page>

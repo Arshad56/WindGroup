@@ -1,0 +1,94 @@
+<apex:page showHeader="false" sidebar="false" id="clsd" standardController="Lease__c" extensions="ChangeLeaseStartDate_Extension" docType="html-5.0">
+    <script src="/soap/ajax/38.0/connection.js"></script>
+    
+    <apex:form id="frm">
+        <apex:pageBlock id="filterblk">
+            <br/>
+            <br/>
+            <script>
+            if ({!closePage}) {
+                   window.opener.location.href = "/{!selectedLease}";
+                   window.close();
+                }
+            </script>
+            <apex:pageMessages ></apex:pageMessages>
+            <br />
+            <div class="message warningM3" role="alert">
+                <table border="0" cellpadding="0" cellspacing="0" class="messageTable" style="padding:0px;margin:0px;">
+                    <tbody>
+                        <tr valign="top">
+                            <td>
+                                <img alt="WARNING" class="msgIcon" src="/s.gif" title="WARNING" />
+                            </td>
+                            <td class="messageCell">
+                                <div class="messageText">
+                                    <span style="color:#cc0000">
+                              <h4>
+                                 WARNING:
+                              </h4>
+                           </span> Are you sure you want to <b>Change Lease Start Date </b> for this Lease along with Lease Unit(s).
+                                   All Rent Schedule and Monthly Lease Plan will be modified.
+                                    <br/>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <br/>
+            <table cellspacing='10'>
+                <tr>
+                    <td>
+                        Change Lease Start Date &nbsp;
+                    </td>
+                    <td>
+                        <div class="requiredInput">
+                            <div class="requiredBlock">
+                            </div>
+                            <apex:inputfield id="leaseStartDate" value="{!Lease__c.Lease_Start_Date__c}" />
+                        </div>
+                    </td>
+                 </tr>
+                 <tr>
+                    <td>
+                        Lease Tenure (Mths) &nbsp;
+                    </td>
+                    <td>
+                        <div class="requiredInput">
+                            <div class="requiredBlock">
+                            </div>
+                            <apex:inputfield id="leaseTenureMths" value="{!Lease__c.Lease_Tenure_Mths__c}" />
+                        </div>
+                    </td>
+                 </tr>
+                 <tr>
+                    <td>
+                        Lease Tenure (Days) &nbsp;
+                    </td>
+                    <td>
+                        <div class="requiredInput">
+                            <div class="requiredBlock">
+                            </div>
+                            <apex:inputfield id="leaseTenureDays" value="{!Lease__c.Lease_Tenure_Days__c}"  />
+                        </div>
+                    </td>
+                </tr>
+               
+                <tr>
+                    <td colspan="2" style="text-align:center;">
+                        <br/> <br/>
+                        <apex:commandButton value="Proceed" style="border-width:1px;width:60px;text-align: center;" action="{!checkData}" onclick="this.disabled='true'; this.value='Wait...';" onComplete="CloseAndRefresh();" reRender="filterblk" /> &nbsp;&nbsp;
+                        <apex:commandButton value="Cancel" style="border-width:1px;width:60px;text-align: center;" onClick="window.close();" />
+                    </td>
+                </tr>
+            </table>
+            <br/>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

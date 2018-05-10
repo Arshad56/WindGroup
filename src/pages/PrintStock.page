@@ -1,0 +1,41 @@
+<apex:page standardController="Stock__c" showHeader="false" sidebar="false">
+<style>
+    .pageTitleIcon{
+        display:none;
+    }
+    
+    body .bPageTitle .ptBody .pageType, body .bPageTitle .ptBody .pageDescription{
+        margin-left:0px;
+    }
+</style>
+<apex:sectionHeader title="Stock Take Report - {!Stock__c.Latest_Stock_Freeze_Date__c}"/>
+<apex:form >
+    <apex:pageBlock title="Warehouse/Store Information">
+        <apex:pageBlockSection columns="2" >
+            <apex:outputField value="{!Stock__c.name}"/>
+            <apex:outputField value="{!Stock__c.Company_Name__c}"/>
+            <apex:outputField value="{!Stock__c.Cupboard__c}"/>
+            <apex:outputField value="{!Stock__c.Manager__c}"/>
+            <apex:outputField value="{!Stock__c.Address__c}"/>
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel value="Stock Take Done By"/>
+                <apex:outputLabel />
+            </apex:pageBlockSectionItem>
+            
+        </apex:pageBlockSection>
+    </apex:pageBlock>
+    <bbr/>
+    <apex:pageBlock title="Inventory">
+        <apex:pageBlockTable value="{!Stock__c.Inventory__r}" var="inv">
+            <apex:column value="{!inv.Name}"/>
+            <apex:column value="{!inv.Product_Name__c}"/>
+            <apex:column value="{!inv.Product_Type__c}"/>
+            <apex:column value="{!inv.Available_Qty__c}"/>
+            <apex:column headerValue="Actual Qty"/>
+        </apex:pageBlockTable>
+    </apex:pageBlock>
+</apex:form>
+<script>
+    document.onload(window.print());
+</script>
+</apex:page>

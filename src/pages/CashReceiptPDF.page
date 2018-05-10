@@ -1,0 +1,232 @@
+<apex:page renderAs="pdf" showHeader="false" sidebar="false" standardStylesheets="false" applyBodyTag="false"  applyHtmlTag="false" controller="CashReceiptPDFController" >
+    <html>
+    <head>
+        <style>
+            @page {
+                size: letter;
+                margin-right:10px;
+                margin-left : 25px;
+                margin-top: 35mm;
+                margin-bottom:30mm;
+                @top-center {
+                    content: element(header);
+                }                    
+                @bottom-center{
+                    content: element(footer);
+                }
+            }
+            div.header{
+                padding: 15px;
+                position: running(header);
+            }
+            div.footer{
+                padding: 10px;
+                position: running(footer);
+            }
+            .pagenumber:before {
+                content: counter(page);
+            }
+            .pagecount:before {
+                content: counter(pages);
+            }
+            
+            .changingFonts{
+                font-weight:bolder;
+            }
+            
+        </style>
+    </head>
+    <body style="font-size:14px;font-family: Arial Unicode MS;">
+        <div class="header">
+            <table width="100%">
+                <tr>
+                    <td width="55%" valign="top" align="center">
+                        <apex:image url="{!cashReceipt.Property__r.Logo__c}" style="margin-left:-120px" width="275" height="75"/>
+                    </td>
+                    <td>
+                        <div style="font-size:15px;font-weight:bold;font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                        {!cashReceipt.Property__r.Name}
+                        <br/>
+                        <apex:outputField value="{!cashReceipt.Property__r.Address__c}"/>
+                        </div>
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+            <hr size="5px" style="margin-top: -1px;"/>
+        </div>
+          <br/> <br/>
+       
+        <table border="0" width="100%" >
+        <tr>
+        <td colspan="2">
+        <center> 
+            <p style="font-size:17px;font-weight:bold;font-family:Arial, Helvetica, sans-serif,Lucida Console;">OFFICIAL RECEIPT</p>
+        </center>
+        </td>
+        </tr>
+            <tr>
+                <td width="60%" style="word-wrap:break-word;font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                    <b>Send to:</b><br/>
+                    {!cashReceipt.Tenant__r.Name}
+                    <br/>
+                    <apex:outputPanel rendered="{!cashReceipt.Tenant__r.BillingStreet!=null}">
+                        {!cashReceipt.Tenant__r.BillingStreet},<br/>
+                    </apex:outputPanel>
+                    {!concatIncAddFields}<br/>
+                    Tel: {!cashReceipt.Tenant__r.Phone}  
+                    <br/>
+                    <b>Customer Code : {!cashReceipt.Tenant__r.Customer_Code__c} </b><br/>                  
+                </td>
+                <td width="40%" style="vertical-align:top;font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                    <table>
+                        <tr>
+                            <td>Receipt No.</td>
+                            <td>:</td>
+                            <td>{!cashReceipt.Name}</td>
+                        </tr>
+                        <tr>
+                            <td>Receipt Date</td>
+                            <td>:</td>
+                            <td>
+                                <apex:outputText value="{0,date,dd/MM/yyyy}">
+                                    <apex:param value="{!cashReceipt.Payment_Date__c}"/>
+                                </apex:outputText>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Payment Currency</td>
+                            <td>:</td>
+                            <td>{!cashReceipt.Payment_Currency__c}</td>
+                        </tr>
+                        <tr>
+                            <td>Payment Mode</td>
+                            <td>:</td>
+                            <td>{!cashReceipt.Payment_Mode__c}</td>
+                        </tr>
+                        <tr>
+                            <td>Payment Reference</td>
+                            <td>:</td>
+                            <td>
+                                <apex:outputPanel rendered="{!cashReceipt.Payment_Mode__c!= 'Quick Pay'}">
+                                    {!cashReceipt.Remarks__c}
+                                </apex:outputPanel>
+                                <apex:outputPanel rendered="{!cashReceipt.Payment_Mode__c== 'Quick Pay'}">
+                                    {!cashReceipt.Payment_Reference__c}
+                                </apex:outputPanel>
+                            </td>
+                        </tr>
+                        
+                        
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <br/>
+        <apex:variable value="{!1}" var="num" />
+        <table width="100%" cellspacing="0" cellpadding="0">
+            <tbody style="display:table-row-group; font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+            <tr>
+                <th width="30%" height="35px;" style="border-top:1px solid black;border-bottom:1px solid black;">Reference Invoice No.</th>
+                <th width="50%" height="35px;" style="border-top:1px solid black;border-bottom:1px solid black;">Remarks</th>
+                <th width="20%" height="35px;" style="border-top:1px solid black;border-bottom:1px solid black;text-align:right;">Total Amount<br/>({!cashReceipt.Payment_Currency__c})</th>
+            </tr>
+            <apex:repeat value="{!cashDetWrapList}" var="cdw">
+                <tr style="height:25px;">
+                    <td>{!cdw.name}</td>
+                    <td>
+                        <apex:outputField value="{!cdw.cd.Remarks__c}"/>
+                    </td>
+                    <td style="text-align:right;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                        <apex:param value="{!cdw.amount}"/>
+                    </apex:outputText>
+                    </td>
+                </tr>
+                <tr style="height: {!IF((7-num > 0 && num == cashDetWrapList.size && num < 7 ), (7-num)*20 , 0 )}px">
+                    <td colspan="3" >
+                    </td>
+                </tr>
+                <apex:variable value="{!num+1}" var="num" />
+            </apex:repeat>
+            <!--<apex:outputPanel layout="none" rendered="{!(!isBlank(cashReceipt.Offset_Amount__c) && (cashReceipt.Offset_Amount__c>0 || cashReceipt.Offset_Amount__c<0))}">
+                <tr style="height:25px;">
+                    <td></td>
+                    <td>
+                        Offset
+                    </td>
+                    <td style="text-align:right;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                        <apex:param value="{!cashReceipt.Offset_Amount__c}"/>
+                    </apex:outputText>
+                    </td>
+                </tr>
+            </apex:outputPanel>-->
+            <tr>
+                <td style="border-top:2px solid black;border-bottom:2px solid black;font-weight:bold;" colspan="2"><div style="margin: 5px;margin-left: 0px">Grand Total</div></td>
+                <td style="border-top:2px solid black;border-bottom:2px solid black;text-align:right;font-weight:bold;">
+                    <apex:outputText value="{0,number,###,###,##0.00}">
+                        <apex:param value="{!cashReceipt.Payment_Amount__c}"/>
+                    </apex:outputText>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <br/><br/>
+        <br/><br/><br/>
+        <div>
+          <table style="margin-left:45px;float: left;border:1px solid black;font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+            <tr>
+              <td><div style="height: 70px;width: 90px"><b>&nbsp;Cashier</b></div></td>
+              <td><div style="width: 160px">&nbsp;</div></td>
+            </tr>
+            <tr>
+              <td height="35px;"><b>&nbsp;Signature</b></td>
+              <td>............................</td>
+            </tr>
+            <tr>
+              <td height="35px;"><b>&nbsp;Name</b></td>
+              <td>{!$User.FirstName}  {!$User.LastName}</td>
+            </tr>
+            <tr>
+              <td height="35px;"><b>&nbsp;NRC No</b></td>
+              <td>
+                  <apex:outputPanel rendered="{! $User.NRC_No__c != null }">
+                        {!$User.NRC_No__c}
+                  </apex:outputPanel>
+                   <apex:outputPanel rendered="{! $User.NRC_No__c == null }">
+                        ............................
+                  </apex:outputPanel>
+              </td>
+            </tr>
+          </table>
+          <table style="margin-right:45px;float: right;border:1px solid black;font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+            <tr>
+              <td><div style="height: 70px;width: 90px"><b>&nbsp;Payer</b></div></td>
+              <td><div style="width: 160px">&nbsp;</div></td>
+            </tr>
+            <tr>
+              <td height="35px;"><b>&nbsp;Signature</b></td>
+              <td>............................</td>
+            </tr>
+            <tr>
+              <td height="35px;"><b>&nbsp;Name</b></td>
+              <td>............................</td>
+            </tr>
+            <tr>
+              <td height="35px;"><b>&nbsp;NRC No</b></td>
+              <td>............................</td>
+            </tr>
+          </table>
+        </div>
+        <div class="footer">
+            <table width="100%" style="font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <tr>
+                    <td >This receipt is computer generated. No signature is required.</td>
+                </tr>                
+            </table>
+            <center>Page <span class="pagenumber"/> of <span class="pagecount"/></center>
+        </div>
+    </body>
+</html>
+</apex:page>

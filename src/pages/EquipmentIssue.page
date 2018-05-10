@@ -1,0 +1,22 @@
+<apex:page showHeader="false" sidebar="false" controller="EquipmentIssueController" docType="html-5.0">
+    <apex:form >
+        <apex:pageBlock >
+            <apex:pageMessages />
+            <apex:pageBlockSection columns="1">
+                <apex:input type="date" value="{!issueDate}" label="Issue Date" required="true"/>
+                <apex:inputField value="{!equipment.Contact_Name__c}"/>
+                <apex:inputTextarea label="Remarks" value="{!remarks}"/>
+            </apex:pageBlockSection>            
+            <apex:pageBlockButtons >
+                <apex:commandButton value="Issue" action="{!issue}"/>
+                <apex:commandButton value="Cancel" onclick="window.close();"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+    </apex:form>
+    <script>
+        if({!success}){
+            window.opener.location = '/{!equipment.Id}';
+            window.close();
+        }
+    </script>
+</apex:page>

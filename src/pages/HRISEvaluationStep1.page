@@ -1,0 +1,41 @@
+<apex:page lightningStylesheets="true" sidebar="false" id="evaluationStep1" standardController="Evaluation__c" extensions="HRISEvaluationStep1Extension" tabStyle="Requisition_Process__tab">
+    <apex:sectionHeader title="" subtitle="Interview"/>
+    <c:HRISBreadcrumb />
+   
+    <apex:form id="myform"> 
+    <apex:pageMessages escape="false"/>
+        <table width="80%" align="center">
+        <tr>
+        <td>
+        <apex:pageBlock >
+        <apex:pageBlockSection title="Search for Interview Invited Candidate">
+            <apex:inputField value="{!Evaluation__c.Requisition_No__c}"/>
+            <apex:inputField value="{!Evaluation__c.Property__c}" required="true"/>
+            <apex:inputField value="{!Evaluation__c.Candidate_Name__c}"/>
+            <br/>
+            <br/>
+        </apex:pageBlockSection>
+            <apex:pageBlockButtons location="top">
+            <apex:commandButton action="{!search}" value="Search"/>
+            <apex:commandButton action="{!createCandidate}" value="Create Candidate"/>
+            <apex:commandButton action="{!createEvaluation}" value="Create Interview Assesment Form"/>
+        </apex:pageBlockButtons>
+            <br/>
+            <br/>
+        <apex:pageBlockTable value="{!evaluationList}" var="eva" rendered="{!evaluationList != null}">
+            <apex:column headerValue="{!headerValue}">
+                <apex:outputLink value="/apex/{!IF((eva.Position_Applied__c == 'Service Executive' || eva.Position_Applied__c == 'Sr Service Manager'),'EvaluationInterviewForm1','EvaluationInterviewForm2')}?id={!eva.Id}">{!eva.Name}</apex:outputLink>
+            </apex:column>
+            <apex:column value="{!eva.Candidate_Name__c}"/>
+            <apex:column value="{!eva.Position_Applied__c}"/>
+            <apex:column value="{!eva.First_Interview_Recommendation__c}"/>
+            <apex:column value="{!eva.Second_Interview_Recommendation__c}"/>
+            <apex:column value="{!eva.Final_Interview_Recommendation__c}"/>
+        </apex:pageBlockTable>
+            
+        </apex:pageBlock>
+        </td>
+        </tr>
+        </table>
+    </apex:form>
+</apex:page>

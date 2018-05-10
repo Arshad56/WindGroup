@@ -1,0 +1,131 @@
+<apex:page showHeader="false" sidebar="false" id="pg" standardController="Lease__c" extensions="PreTerminateLease_Extension" docType="html-5.0">
+    <style type="text/css">
+        .custPopup{ 
+            background-color: white;
+            border-width: 2px;
+            border-style: solid;
+            z-index: 9999;
+            left: 50%;
+            padding:10px;
+            position: absolute;
+            /* These are the 3 css properties you will need to change so the popup 
+            displays in the center of the screen. First set the width. Then set 
+            margin-left to negative half of what the width is. You can add 
+            the height property for a fixed size pop up if you want.*/
+            width: 431px;
+            margin-left: -250px;
+            top:100px;
+        }
+        .popupBackground{
+            background-color:black;
+            opacity: 0.20;
+            filter: alpha(opacity = 20);
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 9998;
+        }
+
+    </style>
+    
+    <apex:form id="frm"> 
+        
+        <apex:actionStatus id="status"> 
+            <apex:facet name="start">
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.75; z-index: 1000; background-color: black;">
+                    &nbsp;
+                </div> 
+                <div style="position: fixed; left: 0; top: 0; bottom: 0; right: 0; z-index: 1001; margin: 30% 50%">
+                    <img src="http://upload.wikimedia.org/wikipedia/commons/e/ed/Cursor_Windows_Vista.gif" />
+                </div>  
+            </apex:facet>
+        </apex:actionStatus> 
+           
+           <apex:outputPanel id="tstpopup">
+            <apex:outputPanel styleClass="popupBackground" layout="block" rendered="{!displayPopUp}"/>
+                <apex:outputPanel styleClass="custPopup" layout="block" rendered="{!displayPopUp}">
+                  There are already invoice(s) processed. Please make sure all invoice(s) are settled before Terminate. Terminate now?<br/><br/><br/>
+                  <div style="text-align: center;">
+                    <apex:commandButton value="Yes" action="{!save}" status="status" />&nbsp;
+                    <apex:commandButton value="No"  onclick="window.close();"/>
+                  </div>
+                </apex:outputPanel>
+            </apex:outputPanel>
+            
+        <apex:pageBlock id="filterblk">
+            <br/>
+            <br/>
+            <script>
+            if ({!closePage}) {
+                   window.opener.location.href = "/{!selectedLease}";
+                   window.close();
+                }
+            </script>
+            <div class="message warningM3" role="alert">
+                <table border="0" cellpadding="0" cellspacing="0" class="messageTable" style="padding:0px;margin:0px;">
+                    <tbody>
+                        <tr valign="top">
+                            <td>
+                                <img alt="WARNING" class="msgIcon" src="/s.gif" title="WARNING" />
+                            </td>
+                            <td class="messageCell">
+                                <div class="messageText">
+                                    <span style="color:#cc0000">
+                              <h4>
+                                 WARNING:
+                              </h4>
+                           </span> Are you sure you want to Pre-Terminate this Lease along with Lease Unit(s).
+                                    <br/>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <br/>
+            <table>
+                <tr>
+                    <td>
+                        Pre-Termination Date &nbsp;
+                    </td>
+                    <td>
+                        <div class="requiredInput">
+                            <div class="requiredBlock">
+                            </div>
+                            <apex:inputfield id="endDate" value="{!leaseOnUI.Lease_Start_Date__c}" style=" border-width: thin; width: 85px;border-color: {!If(error,'red', 'darkgray') };" />
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="top">
+                        Reason for Termination &nbsp;
+                    </td>
+                    <td>
+                        <div class="requiredInput">
+                            <div class="requiredBlock">
+                            </div>
+                            <apex:inputfield id="terminationReason" value="{!leaseOnUI.Reason_for_Termination__c}" style=" border-width: thin;height: 100px;width: 275px; border-color: {!If(termError,'red', 'darkgray') };" />
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="text-align:center;">
+                        <br/>
+                        <apex:commandButton value="Proceed" style="border-width:1px;width:60px;text-align: center;" action="{!checkDate}" onclick="this.disabled='true'; this.value='Wait...';" reRender="frm"  status="status"/> &nbsp;&nbsp;
+                        <apex:commandButton value="Cancel" style="border-width:1px;width:60px;text-align: center;" onClick="window.close();" />
+                    </td>
+                </tr>
+            </table>
+            <br/>
+            <apex:pageMessages escape="false"></apex:pageMessages>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

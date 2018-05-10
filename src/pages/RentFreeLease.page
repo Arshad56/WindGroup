@@ -1,0 +1,25 @@
+<apex:page showHeader="false" sidebar="false" id="pg" controller="RentFreeLeaseController" docType="html-5.0">
+    <apex:form id="frm">
+        <apex:pageMessages escape="false"></apex:pageMessages>
+        <apex:pageBlock >
+            <apex:pageBlockSection columns="1">
+                <apex:inputField value="{!lease.Rent_Free_Start_Date__c}" required="true"/>
+                <apex:inputField value="{!lease.Rent_Free_End_Date__c}" required="true"/>
+            </apex:pageBlockSection>
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton value="Proceed" style="border-width:1px;width:60px;text-align: center;" action="{!proceed}" onComplete="CloseAndRefresh();" reRender="frm" />
+                <apex:commandButton value="Cancel" style="border-width:1px;width:60px;text-align: center;" onClick="window.close();" />
+            </apex:pageBlockButtons>
+            
+            
+        </apex:pageBlock>        
+        <script>
+            function CloseAndRefresh(){
+                if({!success}){
+                    window.opener.location = '/{!lease.Id}';
+                    window.close();
+                }
+            }
+        </script>
+    </apex:form>
+</apex:page>

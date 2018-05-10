@@ -1,0 +1,39 @@
+<!-- 
+Author Name- Arshad Shaikh	
+Date - 20th April 2018
+Description - To Un Void all Invoices and there related ILI, RS, RR
+ -->
+<aura:component controller="UnVoidInvoice_Controller" implements="force:hasRecordId,force:lightningQuickActionWithoutHeader" >
+	<aura:attribute name="recordId" type="String"/>
+	
+    <aura:attribute name="reason" type="String"/> 
+    <aura:attribute name="isShowReason" type="Boolean" default="false"/>   
+    <aura:attribute name="displayCmp" type="Boolean" default="false"/>
+     
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:renderIf isTrue="{!v.displayCmp}">
+	     <div class="slds-page-header slds-align_absolute-center">
+	        <h1 class="slds-page-header__title slds-truncate slds-align-middle" title="Add Contacts">Void Invoice</h1>
+	        <p class="slds-text-body_small slds-line-height_reset"></p>
+	    </div>
+	     
+	    <div class="slds-grid slds-grid_vertical" >
+	         <div class="slds-col">
+	         		<br/>
+		            <div style="text-align:center;font-size:18px;" class="slds align__absolute-center" >
+		                Are you sure you want to Un-Void this Invoice?
+		            </div><br/><br/>
+		            <div style="text-align:center;">
+		                <button  onclick="{!c.saveUnVoidInvoice}"  class="slds-button slds-button--success">
+		                    Yes
+		                </button>&nbsp;
+		                <button onclick="{!c.close}"  class="slds-button slds-button--destructive">
+		                    No
+		                </button>
+		            </div>
+	         </div>
+	    </div>
+     </aura:renderIf>
+	
+</aura:component>

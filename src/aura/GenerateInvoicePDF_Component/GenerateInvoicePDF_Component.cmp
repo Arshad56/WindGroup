@@ -1,0 +1,29 @@
+<aura:component controller="PDFComponent_Utility" implements="force:hasRecordId,force:lightningQuickActionWithoutHeader"  >
+	<aura:attribute name="recordId" type="String"/> 
+	<aura:attribute name="objLabel" type="String" default="Invoice"/> 
+	<aura:attribute name="objName" type="String" default="Invoice__c"/>
+	<aura:attribute name="fieldName" type="String" default="Invoice_Generated__c"/>
+	
+	<aura:attribute name="displayCmp" type="Boolean" default="false"/>
+	
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:renderIf isTrue="{!v.displayCmp}">
+	    <div class="slds-page-header slds-align_absolute-center">
+	        <h1 class="slds-page-header__title slds-truncate slds-align-middle">Generate {!v.objLabel} PDF</h1>
+	        <p class="slds-text-body_small slds-line-height_reset"></p>
+	    </div>
+	    
+	    <div style="text-align:center;font-size:18px;" class="slds align__absolute-center" >
+	        Are you sure you want to Generated this {!v.objLabel}?
+	    </div><br/><br/>
+	    <div style="text-align:center;">
+	        <button  onclick="{!c.generatPDF}"  class="slds-button slds-button--success">
+	            Yes
+	        </button>&nbsp;
+	        <button onclick="{!c.close}"  class="slds-button slds-button--destructive">
+	            No
+	        </button>
+	    </div>
+	 </aura:renderIf>
+</aura:component>

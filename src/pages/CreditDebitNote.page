@@ -1,0 +1,217 @@
+<apex:page controller="CashAdjustmentController" docType="html-5.0" sidebar="false" id="pg">
+<style>
+    alignCenter{
+        text-align:center;
+    }
+</style>
+<apex:form id="frm">
+    <apex:actionFunction name="refresh" action="{!refresh}" reRender="frm"/>
+    <apex:actionFunction name="search" action="{!search}"/>
+    <apex:actionFunction name="generate" action="{!generate}"/>
+    
+    <center><div style="font-size:18px;padding-top: 10px; padding-right: 130px; padding-bottom: 10px; ">Other Invoices</div></center>
+    
+    <apex:pageBlock rendered="{!!showDetail}">
+        <apex:pageBlockSection >
+            <apex:SelectList value="{!billingType}" size="1" label="Invoice Type">
+                <apex:selectOption itemLabel="Debit Note" itemValue="Debit Note"/>
+                <apex:selectOption itemLabel="Credit Note" itemValue="Credit Note"/>
+                <apex:selectOption itemLabel="Ad-Hoc Invoice" itemValue="Ad-Hoc Invoice"/>
+                <apex:selectOption itemLabel="Miscellaneous" itemValue="Miscellaneous"/>
+            </apex:SelectList>
+        </apex:pageBlockSection>
+        <apex:pageBlockButtons location="bottom">
+            <apex:commandButton value="Next" action="{!next}" />
+        </apex:pageBlockButtons>
+    </apex:pageBlock>
+    <apex:pageBlock rendered="{!showDetail && billingType=='Miscellaneous'}" id="miscblock">
+        <apex:pageMessages />
+            <apex:pageBlockSection >
+                <apex:outputText label="Invoice Type" value="{!billingType}"/>
+                <apex:outputLabel />
+                <apex:inputField value="{!filter.PropertyLU__c}" onchange="refresh();return false;" />
+                <apex:inputField value="{!filter.TenantLU__c}" label="Account" onchange="refresh();return false;"/>
+                <apex:selectList value="{!currencyCode}" size="1" label="Currency Code">
+                    <apex:selectOptions value="{!currencyCodes}"/>
+                </apex:selectList>
+                <apex:inputField value="{!rentRoll.Expected_Invoice_Date__c}" required="true"/>
+                <apex:selectList value="{!applChargeIds}" label="Applicable Charge" multiselect="true" title="You can select multiple Charge Types by pressing Ctrl+Click.">
+                    <apex:selectOptions value="{!MiscApplChargeList}"/>
+                </apex:selectList>
+            </apex:pageBlockSection>
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton value="Back" action="{!back}"/>
+                <apex:commandButton value="Search" onclick="search(); this.disabled='true'; this.value='Searching...'; return false;"/>                
+            </apex:pageBlockButtons>
+    </apex:pageBlock>
+    
+    <apex:pageBlock rendered="{!miscWrapList.size > 0}">        
+        <apex:variable value="{!0}" var="i"/>
+        <apex:pageBlockTable value="{!miscWrapList}" var="mw">
+            <apex:column headerValue="Action" style="text-align:center;">
+                <apex:commandLink rendered="{!mw.addMore}" action="{!addMoreMisc}" style="text-decoration:none"><span style="font-weight:bold;font-size:20px;">+</span>
+                    <apex:param assignTo="{!selRecord}" value="{!i}" name="arg0"/>
+                </apex:commandLink>
+                <apex:commandLink rendered="{!!mw.addMore}" action="{!deleteMisc}" style="text-decoration:none"><span style="font-weight:bold;">✘</span>
+                    <apex:param assignTo="{!selRecord}" value="{!i}" name="arg1"/>
+                </apex:commandLink>
+            </apex:column>
+            <apex:column headerValue="Tenant" value="{!mw.tenantName}"/>
+            <apex:column headerValue="Applicable Charge" value="{!mw.applChargeName}"/>
+            <apex:column headerValue="Charge Incurred Date">
+                <apex:input type="date" value="{!mw.startDate}"/>
+            </apex:column>
+            <apex:column headerValue="Amount">
+                <apex:input type="number" value="{!mw.amount}"/>
+            </apex:column>
+            <apex:column headerValue="Apply Commercial Tax">
+                <apex:inputcheckbox value="{!mw.applyCommTax}"/>
+            </apex:column>
+            
+            <apex:column headerValue="Remarks">
+                <apex:inputTextarea value="{!mw.remarks}"/>
+                <apex:variable value="{!i+1}" var="i"/>
+            </apex:column>
+        </apex:pageBlockTable>
+        <apex:pageBlockButtons location="top">
+            <apex:commandButton value="Generate" onclick="generate(); this.disabled='true'; this.value='Generating...'; return false;"/>
+        </apex:pageBlockButtons>
+    </apex:pageBlock>
+    
+    <apex:pageBlock rendered="{!showDetail && billingType=='Ad-Hoc Invoice'}" id="adhocblock">        
+        <apex:pageMessages />
+            <apex:pageBlockSection >
+                <apex:outputText label="Invoice Type" value="{!billingType}"/>
+                <apex:outputLabel />
+                <apex:inputField value="{!filter.PropertyLU__c}" onchange="refresh();return false;"/>
+                <apex:inputField value="{!filter.TenantLU__c}" onchange="refresh();return false;"/>
+                <apex:selectList value="{!leaseUnit}" size="1" label="Lease Unit" onchange="refresh();return false;">
+                    <apex:selectOptions value="{!LeaseUnitOptionList}"/>
+                </apex:selectList>
+                <apex:selectList value="{!LeaseChargeType}" size="1" label="Billing Type" onchange="refresh();return false;">
+                    <apex:selectOption itemLabel="Rent" itemValue="Rent"/>
+                    <apex:selectOption itemLabel="Monthly" itemValue="Monthly"/>
+                </apex:selectList>
+                <apex:selectList value="{!currencyCode}" size="1" label="Currency Code">
+                    <apex:selectOptions value="{!currencyCodes}"/>
+                </apex:selectList>
+                <apex:inputField value="{!rentRoll.Expected_Invoice_Date__c}" required="true"/>
+                <apex:selectList value="{!leaseChargeIds}" label="Lease Charge" multiselect="true" title="You can select multiple Charge Types by pressing Ctrl+Click.">
+                    <apex:selectOptions value="{!LeaseChargeOptionList}"/>
+                </apex:selectList>
+            </apex:pageBlockSection>
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton value="Back" action="{!back}"/>
+                <apex:commandButton value="Search" onclick="search(); this.disabled='true'; this.value='Searching...'; return false;"/>                
+            </apex:pageBlockButtons>
+    </apex:pageBlock>
+    <apex:pageBlock rendered="{!adhocItemList.size > 0}">        
+        <apex:pageBlockTable value="{!adhocItemList}" var="adi">
+            <!--<apex:column headerValue="Property" value="{!adi.PropName}"/>-->
+            <apex:column headerValue="Tenant" value="{!adi.tenantName}"/>
+            <!--<apex:column headerValue="Lease Unit" value="{!adi.leaseUnitName}"/>-->
+            <apex:column headerValue="Unit #" value="{!adi.unitNo}"/>
+            <apex:column headerValue="Lease Charge" value="{!adi.leaseChargeName}"/>
+            <apex:column headerValue="Charge Incurred Date">
+                <apex:input type="date" value="{!adi.startDate}"/>
+            </apex:column>
+            <apex:column headerValue="Amount">
+                <apex:input type="number" value="{!adi.adjustAmount}"/>
+            </apex:column>
+            <apex:column headerValue="Apply Commercial Tax">
+                <apex:inputcheckbox value="{!adi.applyCommTax}"/>
+            </apex:column>
+            
+            <apex:column headerValue="Remarks">
+                <apex:inputTextarea value="{!adi.remarks}"/>
+            </apex:column>
+        </apex:pageBlockTable>
+        <apex:pageBlockButtons location="top">
+            <apex:commandButton value="Generate" onclick="generate(); this.disabled='true'; this.value='Generating...'; return false;"/>
+        </apex:pageBlockButtons>
+    </apex:pageBlock>
+    
+    <apex:pageBlock rendered="{!showDetail && (billingType=='Debit Note' || billingType=='Credit Note')}" id="dcblock">
+        <apex:pageMessages />
+        <apex:pageBlockSection >
+            <apex:outputText label="Billing Type" value="{!billingType}"/>
+            <apex:outputLabel />
+            <apex:inputField value="{!filter.PropertyLU__c}" onchange="refresh();return false;"/>
+            <apex:inputField value="{!filter.TenantLU__c}" onchange="refresh();return false;"/>
+            <apex:selectList value="{!Year}" size="1" label="Year">
+                <apex:selectOptions value="{!YearList}"/>
+            </apex:selectList>
+            <apex:selectList value="{!month}" size="1" label="Month">
+                <apex:selectOptions value="{!MonthList}"/>
+            </apex:selectList>
+            <apex:selectList value="{!leaseAgreementNo}" size="1" label="Lease Agreement No.">
+                <apex:selectOptions value="{!LeaseOptionList}"/>
+            </apex:selectList>
+            <apex:inputText value="{!invNumber}" label="Invoice Number"/>
+            <apex:selectList value="{!currencyCode}" size="1" label="Currency Code">
+                <apex:selectOptions value="{!currencyCodes}"/>
+            </apex:selectList>
+        </apex:pageBlockSection>
+        <apex:pageBlockButtons location="bottom">
+            <apex:commandButton value="Back" action="{!back}"/>
+            <apex:commandButton value="Search" onclick="search(); this.disabled='true'; this.value='Searching...'; return false;"/>            
+        </apex:pageBlockButtons>
+    </apex:pageBlock>
+    <apex:variable value="{!0}" var="i"/>
+    <apex:pageBlock rendered="{!dcWrapList.size >0}" id="dcwblk">
+        <apex:pageBlockTable value="{!dcWrapList}" var="dcw" id="dclist">
+            <apex:column width="100px" style="Text-align:center;" headerClass="alignCenter">
+                <apex:facet name="header">
+                    <apex:outputPanel layout="none">
+                    <apex:outputLabel value="Select"/>
+                    <!--<br/>
+                    <apex:inputCheckbox onClick="selectAllCheckboxes(this,'inputId')"/>-->
+                    </apex:outputPanel>
+                </apex:facet>
+                <apex:inputCheckbox value="{!dcw.isSelected}" id="selcheck" onChange="callme(this.id,{!i});"/>
+                <apex:variable value="{!i+1}" var="i"/>
+            </apex:column>
+            <apex:column headerValue="Invoice Number">
+                <a href="/{!dcw.inv.Id}" target="_blank">
+                {!dcw.inv.Name}
+                </a>
+            </apex:column>
+            <apex:column value="{!dcw.inv.Exchange_Rate__c}" headerValue="Exchange Rate"/>
+            <apex:column value="{!dcw.invLinItm.Charge_Name__c}" headerValue="Charge Name"/>
+            <!--<apex:column value="{!dcw.invLinItm.Lease_Charge__r.Charge_Type__c}" headerValue="Charge Type"/>-->
+            <apex:column value="{!dcw.inv.Currency_Code__c}" headerValue="Currency Code"/>
+            <apex:column value="{!dcw.invLinItm.Amount__c}" headerValue="Invoice Amount"/>
+            <apex:column headerValue="Amount">
+                <apex:input type="number" value="{!dcw.adjustAmount}" id="amt"/>
+            </apex:column>
+            <apex:column headerValue="Apply Commercial Tax">
+                <apex:inputcheckbox value="{!dcw.applyCommTax}" id="tax"/>
+            </apex:column>
+            <apex:column headerValue="Remarks">
+                <apex:inputTextarea value="{!dcw.remarks}" id="rmk"/>
+            </apex:column>
+        </apex:pageBlockTable>
+        <apex:pageBlockButtons location="top">
+            <apex:commandButton value="Generate" onclick="generate(); this.disabled='true'; this.value='Generating...'; return false;"/>
+        </apex:pageBlockButtons>
+        <script>
+            function disablefields(){
+                for (var i = 0; i < {!dcWrapList.size}; i += 1) {
+                    document.getElementById("pg:frm:dcwblk:dclist:"+i+":amt").disabled = !document.getElementById("pg:frm:dcwblk:dclist:"+i+":selcheck").checked;
+                    document.getElementById("pg:frm:dcwblk:dclist:"+i+":tax").disabled = !document.getElementById("pg:frm:dcwblk:dclist:"+i+":selcheck").checked;
+                    document.getElementById("pg:frm:dcwblk:dclist:"+i+":rmk").disabled = !document.getElementById("pg:frm:dcwblk:dclist:"+i+":selcheck").checked;
+                }
+            }
+            window.onload = disablefields();
+        </script>
+    </apex:pageBlock>
+</apex:form>
+<script>
+    function callme(myid,number){
+        document.getElementById("pg:frm:dcwblk:dclist:"+number+":amt").disabled = !document.getElementById(myid).checked;
+        document.getElementById("pg:frm:dcwblk:dclist:"+number+":tax").disabled = !document.getElementById(myid).checked;
+        document.getElementById("pg:frm:dcwblk:dclist:"+number+":rmk").disabled = !document.getElementById(myid).checked;
+    }
+</script>
+<c:wfx_profile ></c:wfx_profile>
+</apex:page>

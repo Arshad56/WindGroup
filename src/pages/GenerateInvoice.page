@@ -1,0 +1,238 @@
+<apex:page controller="GenerateInvoiceController" id="pg" sidebar="false">
+<head>
+<style>
+    .dateFormat{
+        display:none;
+    }
+    
+    .requiredInput{
+        display:inline;
+    }
+</style>
+</head>
+    <apex:form id="frm">
+        <apex:actionFunction name="search" action="{!search}"/>
+        <apex:actionFunction name="generateInvoice" action="{!generateInvoice}"/>
+        <center><div style="font-size:18px;padding-top: 10px; padding-right: 30px; padding-bottom: 10px; padding-left: 80px;">Approve Rent Roll</div></center>
+        
+        <apex:outputpanel rendered="{!!showRentDetail}"> 
+        <apex:pageMessages />
+        <apex:pageBlock >
+         
+            <apex:pageBlockSection >
+                <apex:inputField value="{!rentRoll.Property__c}"/>
+                <apex:selectList label="Billing Type" value="{!rentRoll.Billing_Type__c}" size="1">
+                    <apex:selectOptions value="{!BillingTypes}"/>
+                </apex:selectList>
+            </apex:pageBlockSection>
+            
+            
+            
+            <apex:pageBlockButtons location="bottom"> 
+                <apex:commandButton value="Search" onclick="search(); this.disabled='true'; this.value='Searching...'; return false;"/>
+            </apex:pageBlockButtons>
+         </apex:pageBlock>
+         
+       
+       <apex:pageblock rendered="{!rentRollList.size > 0}">
+       <apex:outputPanel >
+            <table border="1" style="border-collapse:collapse;text-align:center;" >
+                <tr>
+                
+                <th style="text-align:center;" width="180" height="25">Rent Roll</th>
+                <th style="text-align:center;" width="120">Billing Type</th>
+                <th style="text-align:center;" width="120">Invoice Date</th>
+                <th style="text-align:center;" width="120">Currency Code</th>
+                <th style="text-align:center;" width="120">Total Amount</th>
+                <th style="text-align:center;" width="120">Status</th>
+                </tr>
+                <apex:repeat value="{!rentRollList}" var="rr" rendered="{!rentRollList.size > 0}">
+                <tr>
+
+                    <td align="left" height="25" valign="middle">
+                    <apex:commandLink action="{!selectRentRoll}" reRender="frm" value="{!rr.Name}">
+                        <apex:param value="{!rr.Id}" name="arg1" assignTo="{!selRentRollId}"/>
+                    </apex:commandLink>
+                    </td>
+                    <td align="center" valign="middle"><apex:outputField value="{!rr.Billing_Type__c}"/></td>
+                    <td align="center" valign="middle"><apex:outputField value="{!rr.Expected_Invoice_Date__c}"/></td>
+                    <td align="center" valign="middle"><apex:outputField value="{!rr.Currency_Code__c}"/></td>
+                    <td align="center" valign="middle"><apex:outputField value="{!rr.Total_Amount_Formula__c}"/></td>
+                    <td align="center" valign="middle">
+                         <apex:outputText value="{!IF(rr.Approved__c,'Approved','Pending Approval')}" />
+                    </td>
+                </tr>
+                </apex:repeat>
+            </table>
+       </apex:outputpanel>
+      </apex:pageblock>
+        </apex:outputpanel>
+        
+        <apex:outputpanel rendered="{!showRentDetail}">
+        <apex:pageBlock >
+            <apex:pageMessages />            
+            <apex:pageBlockSection >
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel value="Rent Roll ID"/>
+                <a href="/{!rentRoll.Id}" target="_blank">{!rentRoll.Name}</a>
+            </apex:pageBlockSectionItem>
+            <apex:outputField value="{!rentRoll.Property__c}"/>
+            <apex:outputText label="Status" value="{!IF(rentRoll.Approved__c,'Approved','Pending Approval')}" />
+            <apex:inputField value="{!rentRoll.Actual_Invoice_Date__c}" required="true"/>
+            <apex:outputText label="Billing Type" value="{!rentRoll.Billing_Type__c}"/>
+            <apex:outputLabel />
+          <!--  <apex:pageBlockSectionItem >
+                <apex:outputLabel value="Report"/>
+                <a href="/{!$Label.ApproveRentRollReportId}?pv0={!rentRoll.Name}" target="_blank">Link</a>
+            </apex:pageBlockSectionItem> -->
+            </apex:pageBlockSection>
+            </apex:pageBlock>
+            
+            <apex:pageBlock rendered="{!rentRollDetailList.size > 0}">
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton value="Back" action="{!back}" immediate="true"/>
+                <apex:commandButton value="Approve" onclick="generateInvoice(); this.disabled='true'; this.value='Approving...'; return false;"/> 
+                <a href="/{!$Label.ApproveRentRollReportId}?pv0={!rentRoll.Name}" target="_blank">Preview Report</a>               
+            </apex:pageBlockButtons>
+            <apex:outputPanel > 
+                
+                <apex:outputPanel rendered="{!rentRoll.Billing_Type__c!='Late Charge'}">
+                    <table width="100%" border="1" style="border-collapse:collapse;text-align:center;" >
+                        <tr>
+                        <th style="text-align:center;">
+                         ✔<br/>
+                            <input type="radio" name="selectApprove" value="Approved"  onchange="selectallApprove();return false;"/>
+                            
+                        </th>
+                        <th style="text-align:center;">
+                         ✘<br/>
+                            <input type="radio" name="selectReject" value="Rejected" checked="checked" onchange="selectallReject();return false;"/>
+                        </th>
+                        
+                        <th style="text-align:center;">Tenant</th>
+                        <th style="text-align:center;">Unit</th>
+                        <th style="text-align:center;">Charge</th>
+                        <th style="text-align:center;">Rent Month</th>
+                        <th style="text-align:center;">Charge Rate</th>
+                        <th style="text-align:center;">Withholding Tax Rate</th>                        
+                        <th style="text-align:center;">Comm Tax</th>
+                        <th style="text-align:center;">Amount</th>
+                        <th style="text-align:center;">Rejection Reasons</th>
+                        <th style="text-align:center;">Details</th>
+                        </tr>
+                        <apex:repeat value="{!rentRollDetailList}" var="rs">
+                        <tr>
+                            <td>
+                                <input type="radio" name="{!rs.Id}" value="Approved"/>
+                            </td>
+                            <td>
+                                <input type="radio" name="{!rs.Id}" value="Rejected" checked="checked"/>
+                            </td>
+                            <td style="text-align:Left;">{!rs.Tenant__c}</td>
+                            <td style="text-align:Left;">{!rs.Unit__r.Name}</td>
+                            <td style="text-align:Left;">{!rs.Lease_Charge__r.Name}</td>
+                            <td>
+                                <apex:outputtext value="{0, date, MMM-YY }">
+                                    <apex:param value="{!rs.Start_Date__c}"/>
+                                </apex:outputtext> 
+                            </td>
+                            <td style="text-align:Right;"><apex:outputField value="{!rs.Lease_Charge__r.Charge_Rate__c}"/></td>
+                            <td style="text-align:Right;"><apex:outputField value="{!rs.Withholding_Tax_Rate__c}"/></td>
+                            <td style="text-align:Right;"><apex:outputField value="{!rs.Comm_Tax_Amount__c}"/></td>
+                            <td style="text-align:Right;"><apex:outputField value="{!rs.Amount__c}"/></td>
+                            <td><apex:inputField value="{!rs.Comments__c}"/></td>
+                            <td><a href="/{!rs.Lease_Charge__c}" target="_blank">Details</a></td>
+                        </tr>
+                        </apex:repeat>
+                    </table>
+                </apex:outputPanel>
+                <apex:outputPanel rendered="{!rentRoll.Billing_Type__c=='Late Charge'}">
+                    <table width="100%" border="1" style="border-collapse:collapse;text-align:center;" >
+                        <tr>
+                        <th style="text-align:center;">
+                         ✔<br/>
+                            <input type="radio" name="selectApprove" value="Approved"  onchange="selectallApprove();return false;"/>
+                            
+                        </th>
+                        <th style="text-align:center;">
+                         ✘<br/>
+                            <input type="radio" name="selectReject" value="Rejected" checked="checked" onchange="selectallReject();return false;"/>
+                        </th>
+                        
+                        <th style="text-align:center;">Tenant</th>
+                        <th style="text-align:center;">Rent Month</th>
+                        <th style="text-align:center;">Invoice No.</th>
+                        <th style="text-align:center;">Invoice Amount</th>
+                        <th style="text-align:center;">Outstanding Amount</th>
+                        <th style="text-align:center;">Duration</th>
+                        <th style="text-align:center;">Due Days</th>
+                        <th style="text-align:center;">Charge Rate</th>
+                        <th style="text-align:center;">Comm Tax</th>
+                        <th style="text-align:center;">Amount</th>
+                        <th style="text-align:center;">Rejection Reasons</th>
+                        <th style="text-align:center;">Details</th>
+                        </tr>
+                        <apex:repeat value="{!rentRollDetailList}" var="rs">
+                        <tr>
+                            <td>
+                                <input type="radio" name="{!rs.Id}" value="Approved"/>
+                            </td>
+                            <td>
+                                <input type="radio" name="{!rs.Id}" value="Rejected" checked="checked"/>
+                            </td>
+                            <td style="text-align:Left;">{!rs.Invoice__r.Lease__r.Tenant__r.Name}</td>
+                            <td>
+                                <apex:outputtext value="{0, date, MMM-YY }">
+                                    <apex:param value="{!rs.Start_Date__c}"/>
+                                </apex:outputtext> 
+                            </td>
+                            <td style="text-align:Right;">{!rs.Invoice__r.Name}</td>
+                            <td style="text-align:Right;"><apex:outputField value="{!rs.Invoice__r.Amount__c}"/></td>
+                            <td style="text-align:Right;"><apex:outputField value="{!rs.Outstanding_Amount__c}"/></td>
+                            <td style="text-align:center;">
+                                <apex:outputText value="{0,date,dd-MMM-yyyy}">
+                                    <apex:param value="{!rs.Start_Date__c}"/>
+                                </apex:outputText>
+                                
+                                ~
+                                
+                                <apex:outputText value="{0,date,dd-MMM-yyyy}">
+                                    <apex:param value="{!rs.End_Date__c}"/>
+                                </apex:outputText>
+                            </td>
+                            <td style="text-align:Right;">{!rs.Default_Days__c}</td>
+                            <td style="text-align:Right;"><apex:outputField value="{!rs.Late_Percent_Rate__c}"/></td>
+                            <td style="text-align:Right;"><apex:outputField value="{!rs.Comm_Tax_Amount__c}"/></td>
+                            <td style="text-align:Right;"><apex:outputField value="{!rs.Amount__c}"/></td>
+                            <td><apex:inputField value="{!rs.Comments__c}"/></td>
+                            <td><a href="/{!rs.Invoice__c}" target="_blank">Details</a></td>
+                        </tr>
+                        </apex:repeat>
+                    </table>
+                </apex:outputPanel>
+<script>
+    function selectallApprove(){        
+        document.getElementsByName("selectReject")[0].checked = false;
+        for (var i = 0; i < document.getElementById("pg:frm").elements.length; i++ ){
+            if (document.getElementById("pg:frm").elements[i].type == 'radio' && document.getElementById("pg:frm").elements[i].value == 'Approved'){
+                document.getElementById("pg:frm").elements[i].checked = true;
+            }
+        }
+    }
+    
+    
+    function selectallReject(){
+        document.getElementsByName("selectApprove")[0].checked = false;
+        for (var i = 0; i < document.getElementById("pg:frm").elements.length; i++ ){
+            if (document.getElementById("pg:frm").elements[i].type == 'radio' && document.getElementById("pg:frm").elements[i].value == 'Rejected'){
+                document.getElementById("pg:frm").elements[i].checked = true;
+            }
+        }
+    }
+</script>
+            </apex:outputPanel>
+        </apex:pageBlock>    
+     </apex:outputpanel>   
+    </apex:form>
+    <c:wfx_profile ></c:wfx_profile>
+</apex:page>

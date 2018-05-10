@@ -1,0 +1,140 @@
+<apex:page lightningStylesheets="true" controller="CustomUnitLookupController" tabStyle="Units__c" showHeader="False" sidebar="False">
+  <apex:sectionHeader title="Lookup" subtitle="Unit"/>
+  <style>
+      .first{
+          padding-top:0px !important;
+          padding-bottom:0px !important;
+      }
+  </style>
+    <apex:form >
+        <apex:outputPanel layout="block" >
+            <apex:tabPanel switchType="Client">
+                 
+                <apex:tab label="Search"  style="font-weight:bold;">
+                    <apex:actionRegion >
+                        <!---------------------------Search Region-------------------------------->
+                        <apex:pageBlock >
+                            <apex:pageBlockSection columns="1">
+                                <!--<apex:outputPanel >
+                                    <apex:outputLabel style="padding-right:10px;">Unit Name</apex:outputLabel>
+                                    <apex:inputText value="{!unitSearchString}" label="Unit Name" />
+                                </apex:outputPanel>
+                                <apex:outputPanel >
+                                    <apex:outputLabel style="padding: 5px 5px 0px 0px;length:500px;">Space Type</apex:outputLabel>
+                                    <apex:inputField value="{!uni.Space_Type__c}" label="Space Type"/>
+                                </apex:outputPanel>
+                                <apex:outputPanel >
+                                     <apex:outputLabel style="padding:5px 5px 0px 0px;float:left;">Charge Method</apex:outputLabel>
+                                     <apex:inputField value="{!uni.Charge_Method__c}" label="Charge Method" />
+                                </apex:outputPanel>-->
+                                <apex:inputText value="{!unitSearchString}" label="Unit Name" />
+                                <apex:inputField value="{!uni.Space_Type__c}" label="Space Type"/>
+                                <apex:inputField value="{!uni.Charge_Method__c}" label="Charge Method" rendered="{!isBlank(chargeMethod)}"/>
+                            </apex:pageBlockSection>
+                            <apex:pageBlockButtons location="bottom">
+                                <apex:actionstatus id="status">
+                                        <apex:facet name="start">
+                                            <div class="waitingHolder" style="display:inline-block;" >
+                                                    <img class="waitingImage" src="/img/loading.gif" title="Please Wait..." />
+                                                    <span class="waitingDescription">Loading...</span>
+                                            </div>
+                                        </apex:facet>
+                                        <apex:facet name="stop">
+                                            <apex:commandButton value="Go!" action="{!search}" status="status" rerender="pb,result" />
+                                        </apex:facet>
+                                  </apex:actionstatus>
+                            </apex:pageBlockButtons>
+                        </apex:pageBlock>
+                        <!--
+                        <apex:outputPanel id="top" layout="block" style="margin:5px;padding:10px;padding-top:2px;">
+                            <div style="float:left;">
+                                <apex:outputLabel style="padding-right:10px;">Unit Name</apex:outputLabel>
+                                <apex:inputText value="{!unitSearchString}" label="Unit Name" /> <br/>
+                                <apex:outputLabel style="padding: 5px 5px 0px 0px;length:500px;">Space Type</apex:outputLabel>
+                                <apex:inputField value="{!uni.Space_Type__c}" label="Space Type"/>
+                                <div>
+                                    <apex:outputLabel style="padding:5px 5px 0px 0px;float:left;">Charge Method</apex:outputLabel>
+                                    <apex:inputField value="{!uni.Charge_Method__c}" label="Charge Method" />
+                                </div>
+                                
+                                <Div style="margin:10px 0px 10px 100px; clear:both;">
+                                     <apex:actionstatus id="status">
+                                                <apex:facet name="start">
+                                                    <div class="waitingHolder" style="display:inline-block;" >
+                                                            <img class="waitingImage" src="/img/loading.gif" title="Please Wait..." />
+                                                            <span class="waitingDescription">Loading...</span>
+                                                    </div>
+                                                </apex:facet>
+                                                <apex:facet name="stop">
+                                                    <apex:commandButton value="Go!" action="{!search}" status="status" rerender="pb,result" />
+                                                </apex:facet>
+                                      </apex:actionstatus>
+                                 </div>
+                         
+                            </div>
+                        </apex:outputPanel>
+                       -->
+                        <div style="clear:both;">
+                        
+                        <!---------------------------List of Unit related to property------------------------------->
+                        <apex:outputPanel id="result"  style="margin:10px;height:350px;overflow-Y:auto;"  layout="block">
+                            <apex:pageMessages />
+                            <apex:pageBlock id="pb" >
+                                <apex:pageblockTable value="{!unitSearchResult}" var="unt">
+                                    <apex:column >
+                                        <apex:facet name="header" >
+                                            <apex:outputPanel >Unit Name</apex:outputPanel>
+                                         </apex:facet>
+                                         <apex:outputLink value="javascript:top.window.opener.lookupPick2('{!FormTag}','{!TextBox}_lkid','{!TextBox}','{!unt.Id}','{!JSENCODE(unt.Name)}', false)" rendered="{!NOT(ISNULL(unt.Id))}">{!unt.Name}</apex:outputLink>
+                                    </apex:column>
+                                    <apex:column >
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >Active</apex:outputPanel>
+                                        </apex:facet>
+                                        <apex:outputField value="{!unt.Active__c}"  />
+                                    </apex:column>
+                                     <apex:column >
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >Level</apex:outputPanel>
+                                        </apex:facet>
+                                        {!unt.level__r.name}
+                                    </apex:column>
+                                     <apex:column >
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >Space Type</apex:outputPanel>
+                                        </apex:facet>
+                                        {!unt.Space_Type__c}
+                                    </apex:column>
+                                     <apex:column >
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >Charge Method</apex:outputPanel>
+                                        </apex:facet>
+                                        {!unt.Charge_Method__c}
+                                    </apex:column>
+                                     <apex:column >
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >Start Date</apex:outputPanel>
+                                        </apex:facet>
+                                         <apex:outputText value="{0,date,MM/dd/yyyy}">
+                                            <apex:param value="{!unt.Start_Date__c}"/>
+                                         </apex:outputText>
+                                    </apex:column>
+                                     <apex:column >
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >End Date</apex:outputPanel>
+                                        </apex:facet>
+                                         <apex:outputText value="{0,date,MM/dd/yyyy}">
+                                            <apex:param value="{!unt.End_Date__c}"/>
+                                         </apex:outputText>
+                                    </apex:column>
+                                </apex:pageblockTable>
+                            </apex:pageBlock>
+                        </apex:outputPanel>
+                        
+                        </div>
+                    </apex:actionRegion>
+                </apex:tab>
+            </apex:tabPanel>
+        </apex:outputPanel>
+    </apex:form>
+</apex:page>

@@ -1,0 +1,442 @@
+<apex:page lightningStylesheets="true" docType="html-5.0" sidebar="false" id="GenerateLOIPage" controller="GenerateLOIController" tabstyle="LOI__c" >
+<style>
+td.dataCol.first.last:first-of-type {
+    width: 1%;
+}
+
+.error + .errorMsg{
+    color : #FF9800 !important;
+}
+
+.errorMsg strong{
+    display: none;
+}
+.error + .errorMsg:before {
+    content: 'Info:';
+}
+.dateFormat{
+    display:none;
+}
+</style>
+    <script>
+        function openLookup(baseURL, width, modified, searchParam){
+            var originalbaseURL = baseURL;
+            var originalwidth = width;
+            var originalmodified = modified;
+            var originalsearchParam = searchParam;
+            var untPrefix='{!$ObjectType.LOI_Unit_Template__c}';
+            var lookupType = baseURL.substr(baseURL.length-3, 3);
+            if (modified == '1') baseURL = baseURL + searchParam;
+            var isCustomLookup = false;
+    
+           
+            
+            if(lookupType == untPrefix){
+                var propId = '{!loi.Property__c}';
+                var unitId = '{!loiUnitTemp.Unit__c}';
+                var urlArr = baseURL.split("&");
+                var txtId = '';
+           
+               if(urlArr.length > 2) {
+                    urlArr = urlArr[1].split('=');
+                     txtId = urlArr[1];
+                }   
+              
+                
+                // Following is the url of Custom Lookup page. You need to change that accordingly
+                baseURL = "/apex/CustomLOIUnitTemplate?txt="+txtId+"&untId="+unitId+"&prop="+propId+"&loiStart={!strLoiStartDate}&loiEnd={!strLoiEndDate}";
+                
+                // Following is the id of apex:form control "myForm". You need to change that accordingly
+                baseURL = baseURL + "&frm=" + escapeUTF("{!$Component.myForm}");
+                
+                if (modified == '1')
+                baseURL = baseURL + "&lksearch=" + searchParam;
+                
+                // Following is the ID of inputField that is the lookup to be customized as custom lookup
+                if(txtId.indexOf('LoiUnitTemp') > -1 )
+                    isCustomLookup = true;
+            }
+            
+            if(isCustomLookup){
+                openPopup(baseURL, "lookup", 350, 480, "width="+width+",height=480,toolbar=no,status=no,directories=no,menubar=no,resizable=yes,scrollable=no", true);
+            }
+        }
+        
+         function GetIndex(index) {
+            var txtDepositRate = "GenerateLOIPage:myform:RentPB:DepositPB:table:" + index + ":depositRate";
+            var depositRate = document.getElementById(txtDepositRate).value;
+            depositRate = depositRate.replace(/\,/g, '');
+            depositRate = parseFloat(depositRate).toFixed(2);
+            if (isNaN(depositRate)) {
+                alert('Please Enter Deposit Rate In Digits');
+                document.getElementById(txtDepositRate).value = '0.00';
+            } else {
+                document.getElementById(txtDepositRate).value = depositRate;
+            }
+            var txtNoOfMonths = "GenerateLOIPage:myform:RentPB:DepositPB:table:" + index + ":noOfMonths";
+            var noOfMonths = document.getElementById(txtNoOfMonths).value;
+            noOfMonths = parseInt(noOfMonths);
+            if (isNaN(noOfMonths)) {
+                alert('Please Enter Months In Digits');
+                document.getElementById(txtNoOfMonths).value = 0;
+            } else {
+                document.getElementById(txtNoOfMonths).value = noOfMonths;
+            }
+            var txtAreaSqFt = "GenerateLOIPage:myform:RentPB:DepositPB:table:" + index + ":areaSqFt";
+            var areaSqFt = document.getElementById(txtAreaSqFt).innerHTML;
+            areaSqFt = areaSqFt.replace(/\,/g, '');
+            areaSqFt = parseFloat(areaSqFt).toFixed(2);
+            if (isNaN(areaSqFt)) {
+                alert('Please Enter Area In Digits');
+                document.getElementById(txtAreaSqFt).innerHTML = '0.00';
+            } else {
+                document.getElementById(txtAreaSqFt).innerHTML = areaSqFt.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+            var txtDepFormulaType = "GenerateLOIPage:myform:RentPB:DepositPB:table:" + index + ":depFormulaType";
+            var depFormulaType = document.getElementById(txtDepFormulaType).value;
+            var txtDepositAmount = "GenerateLOIPage:myform:RentPB:DepositPB:table:" + index + ":depositAmount";
+            var depositAmount;
+
+            if (depFormulaType == 'By Area') {
+                depositAmount = depositRate * noOfMonths * areaSqFt;
+            } else {
+                depositAmount = depositRate * noOfMonths;
+            }
+            if (isNaN(depositAmount)) {
+                document.getElementById(txtDepositAmount).value = '0.00';
+            } else {
+                depositAmount = parseFloat(depositAmount).toFixed(2);
+                document.getElementById(txtDepositAmount).innerHTML = depositAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                document.getElementById(txtDepositAmount).value(depositAmount);
+            }
+        }
+        
+        function populateDepositRate(index) {
+            var txtDepFormulaType = "GenerateLOIPage:myform:RentPB:DepositPB:table:" + index + ":depFormulaType";
+            var depFormulaType = document.getElementById(txtDepFormulaType).value;
+            var txtBaseRent = "GenerateLOIPage:myform:RentPB:DepositPB:table:" + index + ":baseRent";
+            var baseRent = document.getElementById(txtBaseRent).innerHTML;
+            baseRent = baseRent.replace(/\,/g, '');
+            baseRent = parseFloat(baseRent).toFixed(2);
+            document.getElementById(txtBaseRent).innerHTML = baseRent.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            if (!isNaN(baseRent)) {
+                if (depFormulaType == 'By Base Rent') {
+                
+                    var crCode = "GenerateLOIPage:myform:RentPB:DepositPB:table:" + index + ":crCode";
+                    var tempCRCode = document.getElementById(crCode).innerHTML;
+                    var currencyCode = "GenerateLOIPage:myform:RentPB:DepositPB:table:" + index + ":currencyCode";
+                    if(tempCRCode != '' && tempCRCode != null){
+                        document.getElementById(currencyCode).value = tempCRCode;
+                    }
+                                        
+                    var txtDepositRate = "GenerateLOIPage:myform:RentPB:DepositPB:table:" + index + ":depositRate";
+                    document.getElementById(txtDepositRate).value = baseRent;
+                    GetIndex(index);
+                } else {
+                    GetIndex(index);
+                }
+            } else {
+                alert('Please Enter Base Rent In Digits');
+                document.getElementById(txtBaseRent).value = '0.00';
+            }
+        } 
+        
+        function changeBaseRent(index){
+            if(index == 0){
+                var txtRentType = "GenerateLOIPage:myform:RentPB:pbsRent:pbsTbl:" + index + ":chargeType";
+                var valRentType = document.getElementById(txtRentType).value;
+                
+                var txtChargRate = "GenerateLOIPage:myform:RentPB:pbsRent:pbsTbl:" + index + ":chargeRate";
+                var valChargRate = document.getElementById(txtChargRate).value;
+                
+                if(valRentType == 'By Area') {
+                    var txtAreaSqFt = "GenerateLOIPage:myform:RentPB:DepositPB:table:" + index + ":areaSqFt";
+                    var areaSqFt = document.getElementById(txtAreaSqFt).innerHTML;
+                    areaSqFt = areaSqFt.replace(/\,/g, '');
+                    areaSqFt = parseFloat(areaSqFt).toFixed(2);
+                    
+                    valChargRate = valChargRate.replace(/\,/g, '');
+                    valChargRate = parseFloat(valChargRate).toFixed(2);
+                    
+                    if (!(isNaN(areaSqFt) && inNaN(valChargRate))) {
+                        var baseRents = document.getElementsByClassName("baseRentCls");
+                        for(var i = 0; i < baseRents.length; i++){
+                           baseRents[i].innerHTML= parseFloat(valChargRate*areaSqFt).toFixed(2);
+                        }
+                    }
+                }else{
+                    var baseRents = document.getElementsByClassName("baseRentCls");
+                    for(var i = 0; i < baseRents.length; i++){
+                       baseRents[i].innerHTML=valChargRate;
+                    }
+                }
+            }
+           
+        }
+        
+        function statusTopDivStart(input){
+        document.getElementById('GenerateLOIPage:myform:status.start').style.display='block';
+    }
+    </script>
+    
+    <apex:sectionHeader title="LOI" subtitle="Generate LOI"/>
+    <center>
+        <apex:image value="{!$Resource.GenerateLOIStep2}" style="width:20%;"/>
+    </center>
+    <apex:form id="myform">
+    <apex:pagemessages ></apex:pagemessages>
+        <apex:actionFunction name="validate" action="{!rentValidation}" status="status" rerender="pbsRent"/>
+        
+        <apex:pageBlock id="PageBlock" title="Select LOI Unit Template">
+            <apex:pageBlockButtons >
+                
+                <apex:commandButton action="/apex/GenerateLOI" immediate="true" onclick="statusTopDivStart();" value="Back"/>
+                <apex:commandButton action="{!generateLOIPage3}" onclick="statusTopDivStart();" value="Next"/>
+                <apex:commandButton action="/home/home.jsp" immediate="true" value="Cancel"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection id="pbsec">
+                <apex:inputField id="LoiUnitTemp" required="true" value="{!loiUnitChrgTemp.LOI_Unit_Template__c}"/>
+                <apex:commandButton value="Generate" action="{!generateCharge}" status="status" rerender="myform"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        
+        <apex:actionstatus id="status">
+            <apex:facet name="start">
+                <div class="waitingSearchDiv" id="el_loading" style="background-color: #fbfbfb;
+                       height: 100%;opacity:0.65;width:100%;">
+                </div>
+                <div class="waitingHolder" style="position:absolute;top: 200px;left:48%; opacity:1;z-index:100; width: 91px;">
+                        <img class="waitingImage" src="/img/loading.gif" title="Please Wait..." />
+                        <span class="waitingDescription">Loading...</span>
+                </div>
+            </apex:facet>
+        </apex:actionstatus>
+        
+        <apex:pageBlock id="RentPB">
+            <apex:pageBlockSection columns="1" id="pbsRent" rendered="{!rentUnitChrgTemp.size>0}" title="Rent Details">
+                <apex:variable var="i" value="{!0}"/>
+                <apex:pageBlockTable value="{!rentUnitChrgTemp}" id="pbsTbl"  var="chargType">
+                    <apex:column value="{!chargType.Name}"/>
+                    <apex:column value="{!chargType.Charge_Type__c}" />
+                    <apex:column headerValue="Type">
+                         <apex:inputField value="{!chargType.Type__c}" id="chargeType" onchange="validate();changeBaseRent({!i});"/>
+                    </apex:column>
+                    <apex:column value="{!chargType.Currency_Code__c}" />
+                    <apex:column headerValue="Charge Rate">
+                         <apex:inputField onchange="validate();changeBaseRent({!i});"  id="chargeRate" value="{!chargType.Charge_Rate__c}"/>
+                    </apex:column>
+                    <apex:column value="{!chargType.Commercial_Tax_Apply__c}"/>
+                    
+                    <apex:column headerValue="Start Date">
+                         <apex:inputField value="{!chargType.Start_Date__c}"/>
+                    </apex:column>
+                    <apex:column headerValue="End Date">
+                         <apex:inputField value="{!chargType.End_Date__c}"/>
+                    </apex:column>
+                    <apex:column headerValue="Sub-Total" style="text-align:right;" rendered="{!subAmount > 0}">
+                        <apex:outputField value="{!chargType.Sub_Amount__c}"/>
+                    </apex:column>
+                                        
+                    <apex:column style="width:40px;text-align: start;" headerValue="Add / Remove">
+                        <apex:commandButton action="{!addRow}" status="actStatusId" style="padding: 5px;" image="/img/cal/addNew_on.gif" rerender="RentPB">
+                            <apex:param name="toAddRow" value="{!i}" assignTo="{!indexVal}"/>
+                            <apex:param name="Rent" value="Rent" assignTo="{!listType}"/>
+                        </apex:commandButton>
+                        <apex:commandButton action="{!delRow}" status="actStatusId" style="padding: 3.5px;padding-left: 5px;padding-right: 5px;" image="/img/func_icons/remove12_on.gif" rerender="RentPB">
+                            <apex:param name="deal" value="{!i}" assignTo="{!indexVal}"/>
+                            <apex:param name="Rent" value="Rent" assignTo="{!listType}"/>
+                        </apex:commandButton>
+                        <apex:actionStatus id="actStatusId">
+                            <apex:facet name="start">
+                                <img src="/img/loading.gif" style="margin-bottom:3px; " />
+                            </apex:facet>
+                        </apex:actionStatus>
+                        <apex:variable var="i" value="{!i+1}"/> 
+                    </apex:column>
+                </apex:pageBlockTable>
+                <apex:outputPanel rendered="{!subAmount > 0}">
+                <table style="float:right;font-weight:bold;margin-right:75px;text-align:right;" cellspacing="10">
+                    <tr>
+                        <td>Sub - Total</td>
+                        <td>
+                            <apex:outputText value="{0, number, ###,##0.00}">
+                                <apex:param value="{!subAmount}"/>
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                    <apex:outputPanel rendered="{!withHoldingTaxAmount>0}" layout="none">
+                        <tr>
+                        <td>Expected Withholding Tax ({!withHoldingTaxRate}%)</td>
+                        <td>
+                            <apex:outputText value="{0, number, ###,##0.00}">
+                                <apex:param value="{!withHoldingTaxAmount}" />
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Apply Withholding Tax</td>
+                        <td>
+                            <apex:inputCheckbox value="{!applyWitholding}"/>
+                        </td>
+                    </tr>
+                    </apex:outputPanel>
+                </table>
+                </apex:outputPanel>
+            </apex:pageBlockSection>
+            <!--
+            <apex:pageBlockSection columns="1" rendered="{!depositUnitChrgTemp.size>0}" title="Deposit Information" id="DepositPB">
+                <apex:variable var="i" value="{!0}"/>
+                <apex:pageBlockTable value="{!depositUnitChrgTemp}"  var="chargType">
+                    <apex:column value="{!chargType.Name}"/>
+                    
+                    <apex:column value="{!chargType.Charge_Type__c}"/>
+                    
+                    <apex:column headerValue="Type">
+                         <apex:inputField value="{!chargType.Type__c}"/>
+                    </apex:column>
+                    
+                    <apex:column value="{!chargType.Currency_Code__c}"/>
+                    <apex:column headerValue="Charge Rate">
+                         <apex:inputField value="{!chargType.Charge_Rate__c}"/>
+                    </apex:column>
+                    <apex:column value="{!chargType.Commercial_Tax_Apply__c}"/>
+                    
+                    <apex:column headerValue="Start Date">
+                         <apex:inputField value="{!chargType.Start_Date__c}"/>
+                    </apex:column>
+                    <apex:column headerValue="End Date">
+                         <apex:inputField value="{!chargType.End_Date__c}"/>
+                    </apex:column>
+                    <apex:column style="width:40px;text-align: start;" headerValue="Add / Remove">
+                        <apex:commandButton action="{!addRow}" status="actStatusId" style="padding: 5px;" image="/img/cal/addNew_on.gif" rerender="RentPB">
+                            <apex:param name="toAddRow" value="{!i}" assignTo="{!indexVal}"/>
+                            <apex:param name="Deposit" value="Deposit" assignTo="{!listType}"/>
+                        </apex:commandButton>
+                        <apex:commandButton action="{!delRow}" status="actStatusId" style="padding: 3.5px;padding-left: 5px;padding-right: 5px;" image="/img/func_icons/remove12_on.gif" rerender="RentPB">
+                            <apex:param name="deal" value="{!i}" assignTo="{!indexVal}"/>
+                            <apex:param name="Deposit" value="Deposit" assignTo="{!listType}"/>
+                        </apex:commandButton>
+                        <apex:actionStatus id="actStatusId">
+                            <apex:facet name="start">
+                                <img src="/img/loading.gif" style="margin-bottom:3px; " />
+                            </apex:facet>
+                        </apex:actionStatus>
+                        <apex:variable var="i" value="{!i+1}"/> 
+                    </apex:column>
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>-->
+            <apex:pageBlockSection columns="1" rendered="{!depositUnitChrgTemp.size>0}" title="Deposit Information" id="DepositPB">
+                <apex:variable var="i" value="{!0}"/>
+                <apex:pageBlockTable width="100%" value="{!depositUnitChrgTemp}" var="w" id="table">
+                    <apex:column style="width:40px" headerValue="S No">
+                        <apex:outputText value="{!i+1}" />
+                    </apex:column>
+                    <apex:column style="width: 74px;" headerValue="Unit No.">
+                        <apex:outputText value="{!w.unit}" />
+                    </apex:column>
+                    <apex:column headerValue="Start Date">
+                        <apex:outputText style="width: 74px;" value="{0,date,dd/MM/yyyy}">
+                            <apex:param value="{!w.startDate}" />
+                        </apex:outputText>
+                    </apex:column>
+                    <apex:column headerValue="End Date">
+                        <apex:outputText style="width: 74px;" value="{0,date,dd/MM/yyyy}">
+                            <apex:param value="{!w.endDate}" />
+                        </apex:outputText>
+                    </apex:column>
+                    <apex:column style="text-align: right;"  headerValue="Base Rent Amount">
+                        <div id="block_container">
+                            <apex:outputText id="crCode" value="{!w.lcCurrencyCode}"/>&nbsp;&nbsp;<apex:outputText styleClass="baseRentCls" style="width: 74px;" id="baseRent" value="{0, number, ###,##0.00}">
+                                            <apex:param value="{!w.baseRent}" />
+                                            </apex:outputText>
+                        </div>
+                    </apex:column>
+                    <apex:column style="text-align: right;"  headerValue="Area (Sq.Ft)">
+                        <apex:outputText style="width: 74px;" id="areaSqFt" value="{0, number, ###,##0.00}">
+                            <apex:param value="{!w.areaSqFt}" />
+                        </apex:outputText>
+                    </apex:column> 
+                    <apex:column headerValue="Deposit Type">
+                        <apex:inputField style="width: 118px;border-color: {!If(w.dpTEmpty,'red', 'darkgray') };" value="{!w.dep.Deposit_Type__c}" />
+                    </apex:column>
+                    <apex:column headerValue="Deposit Formula Type">
+                        <apex:inputField style="width: 118px;border-color: {!If(w.dpFTEmpty,'red', 'darkgray') };" id="depFormulaType" onChange="populateDepositRate({!i});" value="{!w.dep.Deposit_Formula_Type__c}" />
+                    </apex:column>
+                    <apex:column headerValue="Currency Code" >
+                        <apex:inputField style="width: 74px;border-color: {!If(w.dpCCEmpty,'red', 'darkgray') };" id="currencyCode" value="{!w.dep.Currency_Code__c}" />
+                    </apex:column> 
+                    <apex:column headerValue="Deposit Rate">
+                        <apex:inputText style="width: 74px;text-align: right;" id="depositRate" onChange="GetIndex({!i});" value="{!w.depositRate}" />
+                    </apex:column>
+                    <apex:column headerValue="No of Months">
+                        <apex:inputText style="width: 74px;text-align: right;" id="noOfMonths" onChange="GetIndex({!i});" value="{!w.noOfMonths}" />
+                    </apex:column>
+                    <apex:column style="text-align: right;" headerValue="Deposit Amount">
+                        <apex:outputText style="width: 120px;" id="depositAmount" value="{0, number,  ###,##0.00}">
+                            <apex:param value="{!w.depositAmount}" />
+                        </apex:outputText> 
+                    </apex:column>
+                    <apex:column style="width:40px;text-align: start;" headerValue="Add / Remove">
+                        <apex:commandButton action="{!addRow}" status="actStatusId" style="padding: 5px;" image="/img/cal/addNew_on.gif" rerender="RentPB">
+                            <apex:param name="toAddRow" value="{!i}" assignTo="{!indexVal}"/>
+                            <apex:param name="Deposit" value="Deposit" assignTo="{!listType}"/>
+                        </apex:commandButton>
+                        <apex:commandButton action="{!delRow}" status="actStatusId" style="padding: 3.5px;padding-left: 5px;padding-right: 5px;" image="/img/func_icons/remove12_on.gif" rerender="RentPB">
+                            <apex:param name="deal" value="{!i}" assignTo="{!indexVal}"/>
+                            <apex:param name="Deposit" value="Deposit" assignTo="{!listType}"/>
+                        </apex:commandButton>
+                        <apex:actionStatus id="actStatusId">
+                            <apex:facet name="start">
+                                <img src="/img/loading.gif" style="margin-bottom:3px; " />
+                            </apex:facet>
+                        </apex:actionStatus>
+                        <apex:variable var="i" value="{!i+1}"/> 
+                    </apex:column>
+                </apex:pageBlockTable>
+             </apex:pageBlockSection>
+                 <apex:pageBlockSection columns="1" rendered="{!monthlyUnitChrgTemp.size>0}" id="MonthlyPB" title="Monthly Information">
+                    <apex:variable var="i" value="{!0}"/>
+                    <apex:pageBlockTable value="{!monthlyUnitChrgTemp}"  var="chargType">
+                        <apex:column value="{!chargType.Name}"/>
+                        <apex:column value="{!chargType.Charge_Type__c}"/>
+                        
+                        <apex:column headerValue="Type">
+                             <apex:inputField value="{!chargType.Type__c}"/>
+                        </apex:column>
+                        
+                        <apex:column value="{!chargType.Currency_Code__c}"/>
+                        <apex:column headerValue="Charge Rate">
+                             <apex:inputField value="{!chargType.Charge_Rate__c}"/>
+                        </apex:column>
+                        <apex:column value="{!chargType.Commercial_Tax_Apply__c}"/>
+                        
+                        <apex:column headerValue="Start Date">
+                             <apex:inputField value="{!chargType.Start_Date__c}"/>
+                        </apex:column>
+                        <apex:column headerValue="End Date">
+                             <apex:inputField value="{!chargType.End_Date__c}"/>
+                        </apex:column>
+                        <apex:column style="width:40px;text-align: start;" headerValue="Add / Remove">
+                            <apex:commandButton action="{!addRow}" status="actStatusId" style="padding: 5px;" image="/img/cal/addNew_on.gif" rerender="RentPB">
+                                <apex:param name="toAddRow" value="{!i}" assignTo="{!indexVal}"/>
+                                <apex:param name="Monthly" value="Monthly" assignTo="{!listType}"/>
+                            </apex:commandButton>
+                            <apex:commandButton action="{!delRow}" status="actStatusId" style="padding: 3.5px;padding-left: 5px;padding-right: 5px;" image="/img/func_icons/remove12_on.gif" rerender="RentPB">
+                                <apex:param name="deal" value="{!i}" assignTo="{!indexVal}"/>
+                                <apex:param name="Monthly" value="Monthly" assignTo="{!listType}"/>
+                            </apex:commandButton>
+                            <apex:actionStatus id="actStatusId">
+                                <apex:facet name="start">
+                                    <img src="/img/loading.gif" style="margin-bottom:3px; " />
+                                </apex:facet>
+                            </apex:actionStatus>
+                            <apex:variable var="i" value="{!i+1}"/> 
+                        </apex:column>
+                    </apex:pageBlockTable>
+                </apex:pageBlockSection>
+        </apex:pageBlock>
+       <script>
+           window.onload=validate;
+       </script>
+    </apex:form>
+</apex:page>

@@ -1,0 +1,26 @@
+<apex:page controller="FullInvoiceReceiptController" tabStyle="Invoice_Receipt__c" sidebar="False">
+ <apex:sectionHeader subtitle="Full Invoice Receipt" title="Generate"/>
+ <apex:form >
+     <apex:pageMessages ></apex:pageMessages>
+     
+     <apex:pageBlock title="Invoice Receipt Edit">
+
+         <apex:pageBlockButtons >
+             <apex:commandButton value="Save" action="{!saveFullInvoice}" rendered="{!(!errorLock)}"/>
+             <apex:commandButton value="Cancel" action="/{!purchaseOrder.id}"/>
+         </apex:pageBlockButtons>
+
+         <apex:pageBlockSection columns="2">
+             <apex:outputField value="{!fullInv.Purchase_Order__c}"/> 
+             <apex:outputField value="{!fullInv.Currency_Code__c}"/> 
+             <apex:outputField value="{!fullInv.Vendor_Name__c }"/> 
+             <apex:inputField value="{!fullInv.Status__c }"/> 
+             <apex:inputField value="{!fullInv.Invoice_Number__c}"/> 
+             <apex:outputField value="{!fullInv.Amount__c}"/> 
+             <apex:inputField value="{!fullInv.Invoice_Date__c}"/> 
+             <apex:outputField value="{!fullInv.Tax__c }"/> 
+             <apex:inputField value="{!fullInv.Invoice_Due_Date__c}"/>             
+         </apex:pageBlockSection>
+     </apex:pageBlock>
+ </apex:form>
+</apex:page>

@@ -1,0 +1,30 @@
+<aura:component controller="PopulateBaseRentRsCmpController" implements="force:hasRecordId,force:lightningQuickActionWithoutHeader"  >
+	<aura:attribute name="recordId" type="String"/> 
+	<aura:attribute name="displayCmp" type="Boolean" default="false"/>
+	
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:attribute name="IsSpinner" type="Boolean" default="true"/>
+    <aura:if isTrue="{!v.IsSpinner}">
+        <lightning:spinner variant="brand"  size="large" />
+    </aura:if>
+    
+    <aura:renderIf isTrue="{!v.displayCmp}">
+	    <div class="slds-page-header slds-align_absolute-center">
+	        <h1 class="slds-page-header__title slds-truncate slds-align-middle">Populate Base Rent RS</h1>
+	        <p class="slds-text-body_small slds-line-height_reset"></p>
+	    </div>
+	    
+	    <div style="text-align:center;font-size:18px;" class="slds align__absolute-center" >
+	        Are you sure you want to Populate Base Rent RS?
+	    </div><br/><br/>
+	    <div style="text-align:center;">
+	        <button  onclick="{!c.populateBaseRentRs}"  class="slds-button slds-button--success">
+	            Yes
+	        </button>&nbsp;
+	        <button onclick="{!c.close}"  class="slds-button slds-button--destructive">
+	            No
+	        </button>
+	    </div>
+	 </aura:renderIf>
+</aura:component>

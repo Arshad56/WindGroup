@@ -1,0 +1,1255 @@
+<!--
+*    Name              :        LOI Document
+*    Author            :        Mohd Anas
+*    Date              :        19 May 2017
+*    Description       :        LOI Document Generated as Pdf.
+-->
+<apex:page controller="LoiPdfDocumentController" sidebar="false" showHeader="false" renderAs="PDF" applyBodyTag="false"  applyHtmlTag="false">
+<html>
+<head>
+<style type="text/stylesheet">
+
+.content{
+    border:0px solid red;
+}
+.date>span{
+    margin-right:20px;
+}
+<!--------------------------document heading--------------------------------------------->
+.docHeading{
+    text-decoration:underline;
+    text-align:center;
+    text-transform:uppercase;
+    margin-top:35px;
+    margin-bottom:20px;
+}
+<!--------------------------Address BOX--------------------------------------------->
+.addressBox{
+    float:left;
+    width:100%;
+    border:0px solid red;
+    margin-bottom:10px;
+}
+.addressBox>div:first-child{
+    float:left;
+    margin-right:20px;
+}
+.addressBoxData{
+    float:left;
+    border:0px solid red;
+}
+
+<!--------------------------Offer Text BOX--------------------------------------------->
+.offerBox{
+    margin:10px 0px 30px 0px;
+    width:100%;
+}
+
+
+<!--------------------------intro para BOX--------------------------------------------->
+.introPara{
+    text-align:justify;
+}
+
+<!--------------------------Tables style  Premesis, Rent for year 1--------------------------------------------->
+table{
+    width:100%;
+    margin:15px 0px 15px 0px;
+}
+table>tr>th{
+    padding-bottom:10px;
+}
+.tableHeadingLabel{
+    text-decoration:underline;
+}
+table>tr>td{
+    padding-bottom:7px;
+    vertical-align:top;
+}
+.srNo{
+    width:7%;
+}
+.tableLabel{
+    width:23%;
+}
+.tableData{
+    width:70%;
+    text-align:justify;
+}
+.tableDataLarger{
+    width:93%;
+    text-align:justify;
+}
+.tableInSeven{
+     width:50%;
+     border:0px solid #000;
+}
+.tableInSeven>tr>th{
+    border:1px solid #000;
+    line-height:10px;
+    background-color:#A6A6A6;
+}
+.tableInSeven>tr>td{
+    border:1px solid #000;
+}
+<!--------------------------company Name For Signing BOX--------------------------------------------->
+.companyNameForSigning{
+    margin-top:50px;
+    page-break-after:always;
+}
+.thanking{
+    margin-top:50px;
+}
+<!--------------------------acceptance Block-------------------------------------------------------------->
+.acceptanceBlock{
+   page-break-after:always;
+}
+.acceptanceBlock> div:first-child{
+    text-decoration:underline;
+    text-transform:uppercase;
+    text-align:center;
+    font-weight:bold;
+    margin-bottom:20px;
+}
+.acceptancePara{
+    text-align:justify;
+    margin-bottom:20px;
+}
+.acceptanceSignBlock{
+    display:inline-Block;
+}
+.acceptanceTenantTag{
+    text-align:center;
+}
+.acceptanceSignSpace{
+    margin:200px 0px 30px 0px;
+    text-align:center;
+    border-top:1px solid #000;
+}
+<!-------------------------------------Annex Block-------------------------------------->
+.firstAnnex{
+    page-break-after:always;
+}
+.firstAnnex > div:first-child{
+    text-decoration:underline;
+    text-transform:uppercase;
+    text-align:center;
+    font-weight:bold;
+    margin-bottom:20px;
+}
+.firstAnnexAtachment{
+    border-bottom:1px solid #00;
+}
+<!-------------------------------------Attachment Block-------------------------------------->
+<!------------first Attachment Block--------------->
+.attachment{
+    page-break-after:always;
+}
+.attachment > div:first-child{
+    text-decoration:underline;
+    text-transform:uppercase;
+    text-align:center;
+    font-weight:bold;
+    margin-bottom:20px;
+}
+.attachmentHeading{
+   text-decoration:underline;
+   text-transform:uppercase;
+   padding-bottom:2px;
+}
+.attachmentDetails >table{
+   
+}
+.attachmentDetails >table>tr>td{
+    border:1px solid #000;
+    padding:0px 10px 0px 10px;
+}
+<!------------Second Attachment Block--------------->
+.attachmentSecond{
+}
+.attachmentSecond > div:first-child{
+    text-decoration:underline;
+    text-transform:uppercase;
+    text-align:center;
+    font-weight:bold;
+    margin-bottom:20px;
+}
+</style>
+</head>
+<body>
+<!----------------------------Repeated Header And Footer-------------------------------------->   
+   <c:LOI_Pdf_Document_Header_footer type="header">
+       <div>
+           <apex:image url="{!$Resource.windLogo}" height="90px"/>
+           <hr style="color:#FF223E;background-color:#FF223E;border:0px;height:3px;"/>
+       </div> 
+   </c:LOI_Pdf_Document_Header_footer>
+   
+   <c:LOI_Pdf_Document_Header_footer type="footer" >
+       <div style="color:rgb(0,54,94);">
+           <span class="pagenumber"/>
+       </div>
+   </c:LOI_Pdf_Document_Header_footer>
+<!----------------------------End Repeated Header And Footer-------------------------------------->   
+
+
+<!------------------------------------------Page Content-------------------------------------->    
+<div class="content">
+
+    <div class="date">
+        <span>Date:</span>
+        <apex:outputText value="{0,date,dd MMMM yyyy}">
+            <apex:param value="{!today()}" />
+        </apex:outputText>
+    </div>
+    
+    <div class="docHeading">
+        Confidential <br/> Subject to availability
+    </div>
+    
+    
+    <div class="addressBox">
+        <div>Attn:</div>
+        <div class="addressBoxData">
+            <apex:outputfield value="{!loi.Financial_Contact__r.name}"/><br/>
+            <apex:outputField value="{!loi.Tenant__r.Shop_Name_Printed__c }"/><br/>
+            <apex:outputField value="{!loi.Financial_Contact__r.title}"/><br/>
+            <apex:outputField value="{!loi.Tenant__r.name}"/><br/>
+            <apex:outputField value="{!loi.Tenant__r.billingStreet}"/>,&nbsp;
+            <apex:outputField value="{!loi.Tenant__r.billingCity}"/>,&nbsp;
+            <apex:outputField value="{!loi.Tenant__r.billingCountry}"/>
+            
+            
+        </div>
+    </div>
+    
+    <div style="clear:both;">
+        Dear Sir,
+    </div>
+    <div class="offerBox">
+        LETTER OF OFFER <br/>
+        LEASE OF&nbsp;
+        <apex:outputPanel >
+            <apex:repeat value="{!loi.LOI_Units__r}" var="l">
+                <apex:outputField value="{!l.unit__r.Level__c}"/>,&nbsp;
+                UNIT &nbsp;<apex:outputField value="{!l.unit__r.name}"/>,&nbsp;
+            </apex:repeat>
+        </apex:outputPanel>
+        
+        <apex:outputfield value="{!loi.property__r.name}" />,&nbsp;
+        <apex:outputfield value="{!loi.property__r.Address__c}"/>
+        <!--, 
+        ORCHARD MALL, Orchard Avenue, Singapore (“the Building”)-->
+
+    </div>
+    
+    <div class="introPara">
+      We, Newton Assets Management Co. Ltd., as the managing agent of Newton Commercial Assets ManagementCo. Ltd, 
+      (“the Landlord”), thank you for your interest to lease the above unit(s) (“the Premises”) and are pleased 
+      to offer <!--Alice Tun, Sarah, Director, Sarah AsiaLimited-->&nbsp;<apex:outputfield value="{!loi.Financial_Contact__r.name}"/>,
+            <apex:outputField value="{!loi.Tenant__r.Shop_Name_Printed__c }"/>,
+            <apex:outputField value="{!loi.Financial_Contact__r.title}"/>,
+            <apex:outputField value="{!loi.Tenant__r.name}"/> (“the Tenant”) a lease of the Premises (“the Lease”), 
+      on the principal terms and conditions set out in this letter (“Letter of Offer”):
+    </div>
+   
+    <div>
+    <!--------------------------------table for sr 1-------------------------------------------------------->
+        <table>
+            <tr>
+                <th class="srNo">1.</th>
+                <th colspan="2" class="tableHeadingLabel">The Premises</th>
+                
+            </tr>
+            <tr>
+                <td class="srNo">1.1</td>
+                <td class="tableLabel">Premises<div style="float:right;">: &nbsp;</div></td>
+                <td class="tableData">
+                    <apex:repeat value="{!loi.LOI_Units__r}" var="l">
+                        <apex:outputField value="{!l.unit__r.Level__c}"/>,&nbsp;
+                        UNIT &nbsp;<apex:outputField value="{!l.Unit__r.name}"/>
+                    </apex:repeat>
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">1.2</td>
+                <td class="tableLabel">Floor Area<div style="float:right;">: &nbsp;</div></td>
+                <td class="tableData">
+                    Approx 
+                    <apex:repeat value="{!loi.LOI_Units__r}" var="l">
+                        <apex:outputField value="{!l.Unit__r.NLA_SQF__c }"/>
+                    </apex:repeat>
+                    square feet
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">1.3</td>
+                <td class="tableLabel">Location<div style="float:right;">: &nbsp;</div></td>
+                <td class="tableData">The Premises are edged in red on the floor plan attached as Annex 1for identification purpose only.</td>
+            </tr>
+        </table>
+        <!--------------------------------table for sr 2-------------------------------------------------------->
+        <table>
+            <tr>
+                <th class="srNo">2.</th>
+                <th colspan="2" class="tableHeadingLabel">RentFor Year 1</th>
+                
+            </tr>
+            <tr>
+                <td class="srNo">2.1</td>
+                <td class="tableLabel">Rent<div style="float:right;">: &nbsp;</div></td>
+                <td class="tableData">
+                    <apex:repeat value="{!chargList}" var="charg">
+                        <apex:outputText value="{!charg.Currency_Code__c}"  rendered="{!if((charg.Charge_Rate__c != NUll && charg.Charge_Type__c == 'Advance Rental') ,true,false)}"  />&nbsp;
+                        <apex:outputText value="{!charg.Charge_Rate__c}" rendered="{!(IF((charg.Charge_Type__c == 'Advance Rental'),true,false))}"/>
+                    </apex:repeat>
+                    per square feet per month (“Fixed Rent”) (or)
+                    10%percent of the gross sales (“Percentage Rent”)as determined by the Landlord’s 
+                    point of sale system interface and levied in accordance with the same principles 
+                    set out in the specimen Lease attached as Attachment 2, whichever is higher.
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">2.2</td>
+                <td class="tableLabel">Service Charge<div style="float:right;">: &nbsp;</div></td>
+                <td class="tableData">
+                    <apex:repeat value="{!chargList}" var="charg">
+                        <apex:outputText value="{!charg.Currency_Code__c}"  rendered="{!if((charg.Charge_Rate__c != NUll && charg.Charge_Type__c == 'Service') ,true,false)}"  />&nbsp;
+                        <apex:outputText value="{!charg.Charge_Rate__c}" rendered="{!(IF((charg.Charge_Type__c == 'Service'),true,false))}"/>
+                    </apex:repeat>
+                    per square feet per month. The Service Charge is fixed
+                    for the whole duration of the Term.
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">2.3</td>
+                <td class="tableLabel"><div style="float:left;width:90%;">Extra Service Charge (F&amp;B Only)</div> <div style="float:right;">: &nbsp;</div></td>
+                <td class="tableData">
+                    US$ 0.25 per square feet per month for kitchen maintenance, pest control,...etc.
+                    (F&amp;B Only) The Extra Service Charge is fixed for the whole duration of the Term.
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">2.4</td>
+                <td class="tableLabel">Promotion Fund<div style="float:right;">: &nbsp;</div></td>
+                <td class="tableData">
+                    3% of the Fixed Rent per square feet per month. The Promotion Fund is fixed for the whole duration of the Term.
+                </td>
+            </tr>
+        </table>
+        <!--------------------------------table for sr 3-------------------------------------------------------->
+        <table>
+            <tr>
+                <th class="srNo">3.</th>
+                <th class="tableHeadingLabel">Term and Commencement Date</th>
+                
+            </tr>
+            <tr>
+                <td class="srNo">3.1</td>
+                
+                <td class="tableDataLarger">
+                    The term of the Lease (“the Term”) shall be for a period of&nbsp; 
+                   <apex:outputText value="{!yearList.size}"/> 
+                   year<apex:outputText rendered="{!(IF((yearList.size>1),true,false))}">s</apex:outputText> 
+                     <apex:variable var="c" value="{!0}" />   
+                    (<apex:repeat value="{!yearList}" var="yr">
+                        <apex:outputPanel rendered="{!NOT(c==0)}">,&nbsp;</apex:outputPanel>
+                        <apex:outputtext value="{!yr}"/> 
+                        <apex:variable var="c" value="{!c+1}"/> 
+                     </apex:repeat>).
+                     
+                    The Term shall commence on the date immediately after the expiration of the fitting-out period as set out in the Schedule
+                    1 of the specimen Lease attached as Attachment 2 (“Fitting-Out Period”)or such laterdate as the Landlord may in its absolute 
+                    discretion agree with the Tenant in writing (“Commencement Date”) or soft opening date.
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">3.2</td>
+                
+                <td class="tableDataLarger">
+                    The Rents for Year 2 (each also a “Term”) shall be as set forth below: 
+                    <table>
+                       
+                        <tr>
+                            <td class="srNo">3.2.1</td>
+                            <td class="tableLabel">Year 2<div style="float:right;">: &nbsp;</div></td>
+                            <td class="tableData">
+                                US$ 5.00 per square feet per month (or)9% percent of the gross sales as determined and levied in 
+                                accordance with the same principles set out in the specimen Lease attached as Attachment 2, whichever is higher.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="srNo">3.2.2</td>
+                            <td class="tableLabel">Year 3<div style="float:right;">: &nbsp;</div></td>
+                            <td class="tableData">
+                                US$ 5.00 per square feet per month(or)9% percent of the gross sales as determined and levied in
+                                accordance with the same principles set out in the specimen Lease attached as Attachment 2, whichever is higher.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="srNo">3.2.3</td>
+                            <td class="tableLabel">Year 4<div style="float:right;">: &nbsp;</div></td>
+                            <td class="tableData">
+                                US$ 5.00 per square feet per month (or)8% percent of the gross sales as determined and levied in accordance with
+                                the same principles set out in the specimen Lease attached as Attachment 2, whichever is higher.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="srNo">3.2.4</td>
+                            <td class="tableLabel">Year 5<div style="float:right;">: &nbsp;</div></td>
+                            <td class="tableData">
+                                US$ 5.00 per square feet per month (or)8% percent of the gross sales as determined and levied
+                                in accordance with the same principles set out in the specimen Lease attached as Attachment 2, whichever is higher.
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">3.3</td>
+                <td class="tableDataLarger">
+                    Save with the prior written consent of the Landlord, the Tenant shall not commence any business 
+                    operation or activity at the Premises before the Commencement Date.
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">3.4</td>
+                <td class="tableDataLarger">
+                    If the Landlord gives its consent to the Tenant commencing any business operation or activity at the Premises 
+                    before the Commencement Date, the applicable utilities charges shall be payable by the Tenant on and from the 
+                    date of commencement of such business operation or activity up to the Commencement Date. The utilities charges 
+                    shall be determined and levied in accordance with the same principles set out in the Schedule 3 of the specimen 
+                    Lease attached as Attachment 2.
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">3.5</td>
+                <td class="tableDataLarger">
+                    Any delay by the Tenant in:
+                    <table>
+                        <tr>
+                            <td class="srNo">(a)</td>
+                            <td class="tableDataLarger">
+                                taking possession of the Premises or accepting a handover of the Premises
+                                 for purposes of the Fitting-Out Works (as hereinafter defined);
+                            </td>
+                            
+                        </tr>
+                        <tr>
+                            <td class="srNo">(b)</td>
+                            <td class="tableDataLarger">
+                                carrying out the Fitting-Out Works and/or completing the Fitting-Out 
+                                Works during the Fitting-Out Period;
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="srNo">(c)</td>
+                            <td class="tableDataLarger">
+                                obtaining any relevant approval or consent from the relevant authorities
+                                to commence or conduct any business operation or activity at the Premises or otherwise in Myanmar; or
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="srNo">(d)</td>
+                            <td class="tableDataLarger">
+                                commencing any business operation at the Premises,
+                            </td>
+                        </tr>
+                    </table>
+                    shall not be a ground for postponing the commencement of the Term or the payment of the Rent, Service Charge, 
+                    Promotion Fund and/or any other amounts payable under this Letter of Offer or the Lease. It will also not relieve the 
+                    Tenant from complying with the Tenant&apos;s obligations under this Letter of Offer or the Lease.
+                </td>
+            </tr>
+        </table>
+        
+        <!--------------------------------table for sr 4-------------------------------------------------------->
+        <table>
+             <tr>
+                <th class="srNo">4.</th>
+                <th class="tableHeadingLabel">Permitted Use</th>
+            </tr>
+            <tr>
+                <td class="srNo">4.1</td>
+                <td class="tableDataLarger">
+                    The Tenant shall only use or occupy the Premises for the operation of &nbsp;
+                    <apex:outputField value="{!loi.Tenant__r.Trade_Category__c}"/>&nbsp;
+                    outlet under the name and style of &nbsp;
+                    <apex:outputField value="{!loi.Tenant__r.Shop_Name_Printed__c}"/>&nbsp;
+                    in accordance with the proposal submitted by the Tenant to the Landlord with respect to
+                    the Tenant’s business to be conducted in the Premises (“General Merchandising Plan”) and shall not in any way
+                    deviate therefrom or permit the Premises to be used for any other purpose.
+                </td>
+            </tr>
+        </table>
+        <!--------------------------------table for sr 5-------------------------------------------------------->
+        <table>
+             <tr>
+                <th class="srNo">5.</th>
+                <th class="tableHeadingLabel">Deposit</th>
+            </tr>
+            <tr>
+                <td class="srNo">5.1</td>
+                <td class="tableDataLarger">
+                    The Tenant shall pay to the Landlord a deposit (“Deposit”) equivalent to &nbsp;
+                    <apex:outputfield value="{!loi.LOI_Tenure_Mths__c}"/>&nbsp;<!--three (3)--> month&apos;s
+                    Fixed Rent amounting to 
+                    <apex:repeat value="{!dep}" var="loiDep">
+                        <apex:outputtext value="{!loiDep.Deposit_Amount__c}" rendered="{!(IF((loiDep.Deposit_Amount__c != NULL && loiDep.Deposit_Formula_Type__c == 'By Base Rent' && loiDep.Deposit_Type__c == 'Security'),true,false))}" />&nbsp;
+                        <apex:outputtext value="{!loiDep.Deposit_Amount__c}" rendered="{!(IF((loiDep.Deposit_Formula_Type__c == 'By Base Rent' && loiDep.Deposit_Type__c == 'Security'),true,false))}" />
+                    </apex:repeat>
+                    <!--US$ 32,257.50--> on such timing as may be agreed by the Landlord and the Tenant
+                    and in any event before the acceptance of this Letter of Offer.
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">5.2</td>
+                <td class="tableDataLarger">
+                    Upon the commencement of the Term and subject to the execution by the Landlord and the Tenant of the
+                    Lease Agreement and subject to the Tenant not being in breach of the terms of this Letter of Offer or
+                    the Lease, the Deposit shall be applied towards the payment of the deposit required to be paid by the
+                    Tenant under the said Lease.
+                </td>
+            </tr>
+        </table>
+        <!--------------------------------table for sr 6-------------------------------------------------------->
+        <table>
+             <tr>
+                <th class="srNo">6.</th>
+                <th class="tableHeadingLabel">Deposit</th>
+            </tr>
+            <tr>
+                <td class="srNo">6.1</td>
+                <td class="tableDataLarger">
+                    The Premises shall be handed over by the Landlord to the Tenant together with the items set out
+                    in the attached <u>Attachment 1</u>.
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">6.2</td>
+                <td class="tableDataLarger">
+                    All Fitting-Outworks, and any other works to be carried out other than during the Fitting-Out Period,
+                    shall be subject to the Landlord&apos;s written approval and if approved, shall be carried out by the Tenant
+                    at the Tenant&apos;s own costs and expense.
+                </td>
+            </tr>
+        </table>
+        <!--------------------------------table for sr 7-------------------------------------------------------->
+        <table>
+             <tr>
+                <th class="srNo">7.</th>
+                <th class="tableHeadingLabel">Deposit</th>
+            </tr>
+            <tr>
+                <td class="srNo">7.1</td>
+                <td class="tableDataLarger">
+                    The Tenant shall, at its own costs and expense, submit all architectural drawings, mechanical and electrical
+                    drawings, fire safety drawings, designs, specifications and other plans and drawings (“the Drawings”) required
+                    by the Landlord in respect of all works to be conducted by the Tenant for the fitting-out of the Premises, 
+                    including details of proposed materials to be used for the fitting-out(“Fitting-Out Works”) to the Landlord&apos;s
+                    designated consultants ("the Landlord Consultants") for approval.
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">7.2</td>
+                <td class="tableDataLarger">
+                    The Tenant shall, at its own costs and expense, comply with any changes and/or revisions to the Drawings and
+                    all other details and specifications relating to the Fitting-Out Works required by the Landlord Consultants and
+                    the relevant authorities including such changes and/or revisions as the Landlord determines to be compatible and
+                    consistent with the interior and exterior design, style, display, concept and the aesthetic value of the Building
+                    (“Aesthetic Changes”). As an incentive for the Tenant to adopt the Aesthetic Changes requested by the Landlord but
+                    not otherwise, the Landlord agrees that the Tenant shall be entitled to the following rebates with respect to the
+                    Rent payable for the Premises:
+                    
+                    <div align="center">
+                        <table cellspacing="0" class="tableInSeven">
+                            <tr>
+                                <th>Term</th>
+                                <th>Rebate</th>
+                            </tr>
+                            <tr>
+                                <td>Year 1</td>
+                                <td>10% of the Fixed Rent</td>
+                            </tr>
+                             <tr>
+                                <td>Year 2</td>
+                                <td>3% of the Fixed Rent</td>
+                            </tr>
+                        </table>
+                    </div>
+                   If the Tenant breaches any of the covenants, conditions, stipulations and agreements on its part to be performed
+                   or observed under this Lease during the Term, then the Landlord shall have the right to demand the Tenant to 
+                   reimburse and pay to the Landlord on demand an amount equivalent to the total rebate of the Fixed Rent received 
+                   up and until the date of the Tenant’s default, which the Tenant would have been liable to pay to the Landlord had 
+                   the Tenant not been granted with the said rebate. 
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">7.3</td>
+                <td class="tableDataLarger">
+                    Upon approval by the relevant authorities of the Drawings, the Tenant shall comply strictly with the Drawings and
+                     other details, plans and specifications relating to the Fitting-Out Works including the proposed materials to be 
+                     used for the Fitting-Out Works previously approved or required by the Landlord under Clauses 7.1 and 7.2 
+                     above(“Fitting-Out Plans”) in relation to the carrying out and completion of the Fitting-Out Works and procure 
+                     that the Fitting-Out Works are completed within the Fitting-Out Period. The Tenant shall, at its own costs and 
+                     expense, be responsible for obtaining and complying all other approvals and consents from the relevant authorities 
+                     for the Fitting-Out Works and Fitting-Out Plans.
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">7.4</td>
+                <td class="tableDataLarger">
+                    The Tenant shall, at its own costs and expense, comply with all and any laws, rules, regulations, directives, 
+                    notifications and requirements of the relevant authorities in relation to the Fitting-Out Works or in connection 
+                    with the execution of the Fitting-Out Plans. The Tenant shall further, at its own costs and expense, comply with 
+                    requirements of the fitting-out manual (“Fitting-Out Manual”) to be provided by the Landlord to the Tenant in 
+                    relation to the Fitting-Out Works and the execution of the Fitting-Out Plans.
+                </td>
+            </tr>
+        </table>
+        <!--------------------------------table for sr 8-------------------------------------------------------->
+        <table>
+             <tr>
+                <th class="srNo">8.</th>
+                <th class="tableHeadingLabel">Fitting-Out Period</th>
+            </tr>
+            <tr>
+                <td class="srNo">8.1</td>
+                <td class="tableDataLarger">
+                    The Landlord shall give seven (7) days&apos; written notice to the Tenant of the date on which 
+                    on-exclusive possession of the Premises will be delivered to the Tenant for the sole purpose of 
+                    carrying out the Fitting-Out Works ("the Handover Date").On a mutually-agreed time on the Handover 
+                    Date, the Landlord and the Tenant, or their respective authorized representatives, shall carry out 
+                    a joint inspection of the state and condition of the Premises. The Landlord and the Tenant, or their 
+                    respective authorized representatives shall immediately sign a written delivery report setting out 
+                    descriptions (and, where applicable, photographs) of the visible state and condition of the Premises,
+                    which report shall form an integral part of this Letter of Offer and the Lease. 
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">8.2</td>
+                <td class="tableDataLarger">
+                    The Landlord agrees to grant to the Tenant the Fitting-Out Period commencing on and from the Handover 
+                    Date to carry out the Fitting-Out Works. Unlessotherwise provided in this Letter of Offer, the Tenant 
+                    shall not be liable for any Rent, Service Charge or Promotion Fund during the Fitting-Out Period but shall 
+                    pay utilities charges in accordance with Clause 3.5. 
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">8.3</td>
+                <td class="tableDataLarger">
+                    The Tenant acknowledges and covenants that it shall not enter the Premises and commence the Fitting-Out 
+                    Works unless the Tenant has:
+                    <table>
+                        <tr>
+                            <td class="srNo">(a)</td>
+                            <td class="tableDataLarger">
+                                    complied with Clause 7;
+                            </td>
+                            
+                        </tr>
+                        <tr>
+                            <td class="srNo">(b)</td>
+                            <td class="tableDataLarger">
+                                paid the Deposit;
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="srNo">(c)</td>
+                            <td class="tableDataLarger">
+                                paid the Landlord a fitting-out deposit of
+                                <apex:repeat value="{!dep}" var="loiDep">&nbsp;
+                                    <apex:outputtext value="{!loiDep.Currency_Code__c}" rendered="{!(IF((loiDep.Deposit_Amount__c != NULL  && loiDep.Deposit_Type__c == 'Fit-out'),true,false))}" />&nbsp;
+                                    <apex:outputtext value="{!loiDep.Deposit_Amount__c}" rendered="{!(IF((loiDep.Deposit_Type__c == 'Fit-out'),true,false))}" />
+                                </apex:repeat>
+                                /-(“Fitting-Out Deposit”); and
+                            </td>
+                        </tr>
+                    </table> 
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">8.4</td>
+                <td class="tableDataLarger">
+                    The Landlord is not responsible nor liable for any damages, losses, liabilities, costs or expense suffered or 
+                    incurred by the Tenant for any delay and/or suspension of the Fitting-Out Works during the Fitting-Out Period 
+                    whether attributable to any act or omission of the Landlord or Other Authorized Occupiers (as hereinafter defined) 
+                    or any other reason whatsoever, and no compensation is payable by the Landlord to the Tenant for any such delay and/or 
+                    suspension. The Tenant&apos;s obligations under this Letter of Offer or the Lease will not be affected in any way by such delay
+                     and/or suspension. 
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">8.5</td>
+                <td class="tableDataLarger">
+                    During the Fitting-Out Period, the Tenant must not, without the prior written consent of the Landlord, access, 
+                    use or occupy the Premises for any purpose other than for the carrying out of the Fitting-Out Works. 
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">8.6</td>
+                <td class="tableDataLarger">
+                    During the Fitting-Out Period, the Landlord, other occupiers and tenants and their respective employees, agents, 
+                    consultants, contractors and workmen (“Other Authorized Occupiers”), shall be entitled to access the Premises and 
+                    the Building or any part thereof in order to carry out and complete all works to the Building or any part thereof 
+                    including the Premises and adjacent or adjoining premises, land or buildings("Other Works"). 
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">8.7</td>
+                <td class="tableDataLarger">
+                    The Tenant, its employees, agents, consultants, contractors, workmen, licensees and invitees shall co-ordinate 
+                    their respective activities with those of Other Authorized Occupiers, and must comply with all instructions of 
+                    the Landlord Consultants in connection with its undertaking and completion of the Fitting-Out Works. 
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">8.8</td>
+                <td class="tableDataLarger">
+                    The Tenant shall at its own costs and expense carry out expeditiously all rectification works or alterations or 
+                    additions that may from time to time be required by the Landlord or the relevant authorities in relation to or 
+                    arising out of the Fitting-Out Works so as to comply with and give effect to applicable laws including building 
+                    and fire safety laws, regulations and requirements. If the Tenant does not comply with any written notice issued 
+                    by the Landlord or the relevant authorities for such rectification works or alterations or additions within fourteen
+                     (14) days of the issue of such written notice, the Landlord shall be entitled to enter into the Premises to carry 
+                     out such rectification works or alterations or additions, and to recover from the Tenant the costs of such 
+                     rectification works or alterations or additions.
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">8.9</td>
+                <td class="tableDataLarger">
+                    The Tenant shall indemnify the Landlord from all damages, losses, liabilities, costs and expense, and all actions, 
+                    claims, demands and proceedings, suffered or incurred by the Landlord as a result of any breach by the Tenant of 
+                    any of its obligations under Clauses 7, 8 and 9. 
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">8.10</td>
+                <td class="tableDataLarger">
+                    The Tenant shall be responsible for all actions and omissions of the Tenant’s employees, agents, 
+                    consultants, contractors, workmen, invitees and licensees accessing or using or occupying the Premises 
+                    or the Building or any part thereof during the Fitting-Out Period or for the purposes of the Fitting-Out 
+                    Works and any action or omission by any of them shall be deemed an action or omission by the Tenant. 
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">8.11</td>
+                <td class="tableDataLarger">
+                    To enable the relevant authorities to carry out any inspection of the Premises or the Building including 
+                    any inspection for building and fire safety, electrical, mechanical, plumbing, sewerage and such other 
+                    inspections as may be deemed necessary by the said relevant authorities, the Tenant shall not carry out any 
+                    works on date(s) scheduled for such inspections, which date(s) shall be notified by the Landlord to the Tenant. 
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">8.12</td>
+                <td class="tableDataLarger">
+                    The Tenant shall not be entitled to claim against the Landlord in respect of:
+                    <table>
+                        <tr>
+                            <td class="srNo">(a)</td>
+                            <td class="tableDataLarger">
+                                    any inconvenience, disruption, delay or damage that the Other Works or the Other Authorized 
+                                    Occupiers may cause to the Tenant or the Fitting-Out Works, or the Tenant&apos;s business operation, 
+                                    whether during the Fitting-Out Period or before or after the commencement of business at the 
+                                    Premises; and/or
+                            </td>
+                            
+                        </tr>
+                        <tr>
+                            <td class="srNo">(b)</td>
+                            <td class="tableDataLarger">
+                                any delay in the completion of the Fitting-Out Works or Other Works.
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            
+        </table>
+        
+        <!--------------------------------table for sr 9-------------------------------------------------------->
+        <table>
+             <tr>
+                <th class="srNo">9.</th>
+                <th class="tableHeadingLabel">Opening of the Premises for Business</th>
+            </tr>
+            <tr>
+                <td class="srNo">9.1</td>
+                <td class="tableDataLarger">
+                    After the Fitting-Out Works are completed and before the Premises may be opened for any business 
+                    operation or activity, the Tenant shall:
+                    <table>
+                        <tr>
+                            <td class="srNo">(a)</td>
+                            <td class="tableDataLarger">
+                                    remove all equipment and refuse and debris related to the Fitting-Out Works from the 
+                                    Premises; and
+                            </td>
+                            
+                        </tr>
+                        <tr>
+                            <td class="srNo">(b)</td>
+                            <td class="tableDataLarger">
+                                notify the Landlord of the completion of the Fitting-Out Works in order for the Landlord 
+                                to inspect the Premises and for purposes of ascertaining that the Fitting-Out Works have been 
+                                completed to the satisfaction of the Landlord. 
+                            </td>
+                        </tr>
+                    </table>                    
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">9.2</td>
+                <td class="tableDataLarger">
+                    The Tenant shall not commence or conduct any business operation or activity at the Premises until 
+                    the Tenant has complied with all obligations assumed under this Letter of Offer and the Lease, including 
+                    this Clause 9 and Clause 11.
+                </td>
+            </tr>
+        </table>
+        <!--------------------------------table for sr 10-------------------------------------------------------->
+        <table>
+             <tr>
+                <th class="srNo">10.</th>
+                <th class="tableHeadingLabel">Re-entry by Landlord and Suspension of Services</th>
+            </tr>
+            <tr>
+                <td class="srNo">10.1</td>
+                <td class="tableDataLarger">
+                    If the Tenant:
+                    <table>
+                        <tr>
+                            <td class="srNo">(a)</td>
+                            <td class="tableDataLarger">
+                                withdraws or cancels or attempts to withdraw or cancel its acceptance 
+                                of this Letter of Offer or the Lease;
+                            </td>
+                            
+                        </tr>
+                        <tr>
+                            <td class="srNo">(b)</td>
+                            <td class="tableDataLarger">
+                                fails to pay any amount payable by Tenant pursuant to this Letter of Offer or the Lease; 
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="srNo">(c)</td>
+                            <td class="tableDataLarger">
+                                fails to comply with any of the terms of this Letter of Offer or the Lease; 
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="srNo">(d)</td>
+                            <td class="tableDataLarger">
+                                becomes insolvent, or is unable to pay its debts when they fall due; 
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="srNo">(e)</td>
+                            <td class="tableDataLarger">
+                                is declared bankrupt or goes into liquidation (whether compulsory or voluntary) 
+                                or any step or proceedings are commenced or taken against the Tenant in respect of such 
+                                bankruptcy or liquidation; or 
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="srNo">(f)</td>
+                            <td class="tableDataLarger">
+                                offers to or enters into any composition or arrangement with the Tenant’s creditors or 
+                                suffers any distress or execution to be levied on the Tenant’s assets, 
+                            </td>
+                        </tr>
+                    </table>
+                    the Landlord may, without prejudice to any other right or remedy (including any right to damages for any 
+                    ongoing breach of this Letter of Offer), at any time after the occurrence of such event, immediately terminate 
+                    the agreement constituted by this Letter of Offer by notice in writing to the Tenant, to forfeit and/or 
+                    re-enter into and upon and/or to exclude the Tenant from further access or use or occupation of the Premises 
+                    or any part thereof, and to forfeit and retain such of the Fitting-Out Deposit and Deposit received by the Landlord.<br/><br/>
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">10.2</td>
+                <td class="tableDataLarger">
+                    Upon such termination, forfeiture and/or re-entry and/or exclusion from possession, the 
+                    Tenant must indemnify the Landlord for all direct and indirect damages, losses, liabilities, 
+                    costs and expense (including legal costs) suffered or incurred by the Landlord as a result of 
+                    each such event described aforesaid and/or arising by reason of such termination (including all 
+                    costs and expenses which the Landlord may incur for the reinstatement of the Premises). In this 
+                    regard, the Tenant agrees that the damages and losses suffered or incurred by the Landlord arising 
+                    out of termination includes, and the Tenant shall immediately compensate and pay to the Landlord, 
+                    on demand,
+                    <table>
+                        <tr>
+                            <td class="srNo">(i)</td>
+                            <td class="tableDataLarger">
+                                an amount equivalent to the Fixed Rent, Service Charge and Promotion Fund which would 
+                                have been payable for the Premises during the Fitting-Out Period had the Tenant not been granted 
+                                a rent-free Fitting-Out Period, as if the Fitting-Out Period had formed part of the Term, and
+                            </td>
+                            
+                        </tr>
+                        <tr>
+                            <td class="srNo">(ii)</td>
+                            <td class="tableDataLarger">
+                                an amount equivalent to the Fixed Rent which the Tenant would have otherwise been obliged 
+                                to pay to the Landlord for the Term (as if the Lease had continued for the whole of the natural 
+                                duration of the Term), 
+                            </td>
+                        </tr>
+                    </table>
+                    provided that if the Tenant has made full payment as aforesaid, then the Landlord shall observe any obligation 
+                    imposed under any applicable laws to mitigate damages and to reimburse to the Tenant any amount received by the 
+                    Landlord, the receipt of which would result in the Landlord receiving compensation for damages twice over. 
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">10.3</td>
+                <td class="tableDataLarger">
+                    Upon such termination of the agreement constituted by this Letter of Offer, all obligations of the Landlord 
+                    under this Letter of Offer and the Lease arising therefrom shall absolutely cease and determine, but without 
+                    prejudice to any rights or remedies of the Landlord in respect of payment owing by the Tenant or any breach of 
+                    any term of this Letter of Offer or the Lease (antecedent or otherwise including the breach in respect of which 
+                    the termination, forfeiture and/or re-entry and/or exclusion from possession is made).For the avoidance of doubt, 
+                    Clause 14.6 of the specimen Lease attached as Attachment 2 will apply to any wrongful holding over by the Tenant.
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">10.4</td>
+                <td class="tableDataLarger">
+                    The Landlord shall not be liable or responsible for any loss or damage to the Tenant’s fixture, furnishings, 
+                    equipment or other belongings whatsoever and howsoever caused by or arising from the Landlord’s re-entry of 
+                    the Premises and its possession thereof upon or after such re-entry.
+                </td>
+            </tr>
+        </table>
+        <!--------------------------------table for sr 11-------------------------------------------------------->
+        <table>
+             <tr>
+                <th class="srNo">11.</th>
+                <th class="tableHeadingLabel">Opening of the Building</th>
+            </tr>
+            <tr>
+                <td class="srNo">11.1</td>
+                <td class="tableDataLarger">
+                    The Landlord may open the Building in phases to the public or for use and occupation at 
+                    the Landlord&apos;s discretion
+                </td>
+            </tr>
+        </table>
+        <!--------------------------------table for sr 12-------------------------------------------------------->
+        <table>
+             <tr>
+                <th class="srNo">12.</th>
+                <th class="tableHeadingLabel">Payments by Tenant</th>
+            </tr>
+            <tr>
+                <td class="srNo">12.1</td>
+                <td class="tableDataLarger">
+                    The first payment of the Fixed Rent shall be paid on the Handover Date or upon the signing 
+                    of the Lease (whichever is earlier), for the first three months’ period counted on and from the 
+                    Commencement Date. The second payment of the Fixed Rent shall be paid on or before the Commencement 
+                    Date, for the three months’ period counted on and from the next day following the expiration of the 
+                    first three months’ period. Each subsequent payment of the Fixed Rent shall be paid on or before the 
+                    start of each three months’ period without demand. The manner and conditions of payment of the Percentage 
+                    Rent, Service Charge and Promotion Fund are as contained in the specimen Lease attached as Attachment 2.
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">12.2</td>
+                <td class="tableDataLarger">
+                    If any money(s) due and payable to the Landlord under this Letter of Offer or the Lease should remain unpaid 
+                    after becoming due and payable (whether formally demanded or not), the Tenant shall be liable to pay interest 
+                    at the rate set out in the specimen Lease attached as Attachment 2on such outstanding monies calculated from 
+                    the date such monies first fell due for payment to the date of actual payment (before as well as after judgment). 
+                </td>
+            </tr>
+        </table>
+        <!--------------------------------table for sr 13-------------------------------------------------------->
+        <table>
+             <tr>
+                <th class="srNo">13.</th>
+                <th class="tableHeadingLabel">Execution of the Lease</th>
+            </tr>
+            <tr>
+                <td class="srNo">13.1</td>
+                <td class="tableDataLarger">
+                    The Tenant shall execute the Lease (in duplicate) prepared by the Landlord&apos;s solicitors in the Landlord&apos;s
+                     specimen form (attached to this Letter of Offer as Attachment 2), which may further incorporate the terms and 
+                     conditions of this Letter of Offer, and any other amendments agreed to by the Landlord and the Tenant.
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">13.2</td>
+                <td class="tableDataLarger">
+                    The Lease shall be stamped and dated accordingly, and completed with such amendments thereto as are
+                    <table>
+                        <tr>
+                            <td class="srNo">(a)</td>
+                            <td class="tableDataLarger">
+                                necessary for the purposes of updating the particulars of the Building or the Premise and 
+                                particulars of the parties hereto or
+                            </td>
+                            
+                        </tr>
+                        <tr>
+                            <td class="srNo">(b)</td>
+                            <td class="tableDataLarger">
+                                as reasonably necessitated by the circumstances so as to comply with and give effect to 
+                                applicable laws or 
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="srNo">(c)</td>
+                            <td class="tableDataLarger">
+                                agreed between the parties in writing before the execution of the same by the parties. 
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <!--------------------------------table for sr 14-------------------------------------------------------->
+        <table>
+             <tr>
+                <th class="srNo">14.</th>
+                <th class="tableHeadingLabel">Confidentiality</th>
+            </tr>
+            <tr>
+                <td class="srNo">14.1</td>
+                <td class="tableDataLarger">
+                    The Tenant shall keep confidential and shall not disclose the terms of this Letter of Offer 
+                    and/or the Lease or any matter relating thereto except with the prior written consent of the Landlord.
+                </td>
+            </tr>
+        </table>
+        <!--------------------------------table for sr 15-------------------------------------------------------->
+        <table>
+             <tr>
+                <th class="srNo">15.</th>
+                <th class="tableHeadingLabel">Other Terms and Conditions</th>
+            </tr>
+            <tr>
+                <td class="srNo">15.1</td>
+                <td class="tableDataLarger">
+                    In order for the Tenant to accept this Letter of Offer, the Tenant shall sign and return to the Landlord 
+                    no later than seven (7) days of the date of this Letter of Offer, this Letter of Offer and the Lease 
+                    (both in duplicate).
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">15.2</td>
+                <td class="tableDataLarger">
+                    The Landlord notifies further as follows:
+                    <table>
+                        <tr>
+                            <td class="srNo">(a)</td>
+                            <td class="tableDataLarger">
+                                The Tenant shall arrange for stamping and is liable to pay all stamp duty payable 
+                                on the Lease (including adjudication fee, if any).
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="srNo">(b)</td>
+                            <td class="tableDataLarger">
+                                The Tenant is liable to pay on a full indemnity basis all administrative charges, 
+                                legal fees and other cost, expense and disbursements which may be incurred by the Landlord 
+                                in consulting solicitors and/or in connection with the enforcement of the terms of this Letter 
+                                of Offer or the Lease or any actions, claims or proceedings by the Landlord against the 
+                                Tenant arising under this Letter of Offer or the Lease. 
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">15.3</td>
+                <td class="tableDataLarger">
+                    The offer constituted by this Letter of Offer shall lapse if it is not accepted in the manner described 
+                    in Clause 15.1within seven (7) days of the date of this Letter of Offer.
+                </td>
+            </tr>
+        </table>
+        <!--------------------------------table for sr 16-------------------------------------------------------->
+        <table>
+             <tr>
+                <th class="srNo">16.</th>
+                <th class="tableHeadingLabel">Governing Law &amp; Dispute Resolution</th>
+            </tr>
+            <tr>
+                <td class="srNo">16.1</td>
+                <td class="tableDataLarger">
+                    This Letter of Offer shall be governed by the laws of Myanmar.
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">16.2</td>
+                <td class="tableDataLarger">
+                    Except as may be otherwise agreed, any and all claims, demands, causes of action, disputes, 
+                    controversies and other matters in question arising out of or relation to this Letter of Offer, 
+                    including  any question regarding its breach, existence, effect, validity or termination, which the 
+                    parties do not resolve amicably within a period of ten (10) days, shall be referred to and finally 
+                    resolved by arbitration proceedings in Myanmar, according to the provisions of the Arbitration Law 2016, 
+                    the reference to which shall include the same as from time to time modified or re-enacted or substituted 
+                    after the date of this Letter of Offer (the “AL 2016”). 
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">16.3</td>
+                <td class="tableDataLarger">
+                    In the event of arbitration in Myanmar in accordance with the AL 2016, there shall be one arbitrator 
+                    appointed by the Singapore International Arbitration Center. The place of arbitration shall be Yangon, 
+                    Myanmar. If for any reason, any applicable laws do not permit the appointment of the said one arbitrator 
+                    by the Singapore International Arbitration Center or if the Singapore International Arbitration Center fails 
+                    to make such appointment, then the said one arbitrator shall be appointed in accordance with the AL 2016. 
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">16.4</td>
+                <td class="tableDataLarger">
+                    The language to be used in the arbitration shall be English. 
+                </td>
+            </tr>
+            <tr>
+                <td class="srNo">16.5</td>
+                <td class="tableDataLarger">
+                    The resulting arbitral award shall be final and binding, and judgment upon such award may be entered in 
+                    any court having jurisdiction thereof. 
+                </td>
+            </tr>
+        </table>
+    </div>
+        
+    <div class="thanking">
+        Yours faithfully
+    </div>
+    <div class="companyNameForSigning">
+        Newton Assets ManagementCo. Ltd. as agent for<br/>
+        Newton Commercial Assets ManagementCo. Ltd.
+
+    </div>
+    <!-----------------------------Acceptance Section------------------------------------------>
+     <div class="acceptanceBlock">
+         <div>
+             Acceptance
+         </div>
+         <div class="acceptancePara">
+             We,  <apex:outputField value="{!loi.Tenant__r.name}"/><!--Sarah Asia Limited--> by our duly authorized representative, hereby unconditionally accept your offer to 
+             lease the Premises to us on the aforesaid terms and conditions as well as the other terms and conditions as 
+             set out in the Specimen Lease.
+         </div>
+         <div class="acceptanceSignBlock">
+             <div class="acceptanceTenantTag">
+                 (By Tenant)
+             </div>
+             <div class="acceptanceSignSpace">
+                 For and on behalf of &nbsp;<apex:outputField value="{!loi.Tenant__r.name}"/><!--Sarah Asia Limited--><br/>
+                 <apex:outputField value="{!loi.Financial_Contact__r.name}"/><!-- Alice Tun--><br/>
+                <apex:outputField value="{!loi.Financial_Contact__r.title}"/><!-- Director-->
+             </div>
+             
+             <div>
+                 Date:<br/>
+                 Authorized Signatory &amp; Company Stamp
+             </div>
+         </div>
+     </div>
+     <!------------------------------Annex Block---------------------------------------------->
+     <div class="firstAnnex">
+         <div>
+             Annex 1<br/>
+             Floor Plan
+         </div>
+         <div class="firstAnnexAtachment">
+         <!--------------Attachment goes here---------------------->
+         </div>
+     </div>
+
+     <!------------------------------Attachment 1 details Block---------------------------------------------->
+     <div class="attachment">
+         <div>
+             ATTACHMENT 1
+         </div>
+         <div class="attachmentHeading">
+             LANDLORD’S PROVISIONS FOR
+         </div>
+         <div>
+             <apex:outputfield value="{!loi.Financial_Contact__r.name}"/><br/>
+            <apex:outputField value="{!loi.Tenant__r.Shop_Name_Printed__c }"/><br/>
+            <apex:outputField value="{!loi.Financial_Contact__r.title}"/><br/>
+            <apex:outputField value="{!loi.Tenant__r.name}"/><br/>
+            <apex:outputField value="{!loi.Tenant__r.billingStreet}"/>,&nbsp;
+            <apex:outputField value="{!loi.Tenant__r.billingCity}"/>,&nbsp;
+            <apex:outputField value="{!loi.Tenant__r.billingCountry}"/><!--Alice Tun, Sarah, Director, Sarah AsiaLimited, No 3, Orchard Road. Orchard Centre, Singapore-->
+         </div>
+         <div class="attachmentDetails">
+             <table>
+                <apex:repeat value="{!chkList}" var="chk">
+                 <tr>
+                     <td class="srNo"><apex:outputField value="{!chk.FM_SN__c}"/></td>
+                     <td><apex:outputField value="{!chk.Description__c}"/></td>
+                     <td><apex:outputField value="{!chk.Condition__c}"/></td>
+                 </tr>
+                 </apex:repeat>
+                 <!--<tr>
+                     <td class="srNo">2.</td>
+                     <td>PARTITION</td>
+                     <td>Dry wall partition</td>
+                 </tr>
+                 <tr>
+                     <td class="srNo">3.</td>
+                     <td>SHOP FRONT</td>
+                     <td>Open Shop Front</td>
+                 </tr>
+                 <tr>
+                     <td class="srNo">4.</td>
+                     <td>CEILING</td>
+                     <td>Exposed ceiling</td>
+                 </tr>
+                 <tr>
+                     <td class="srNo">5.</td>
+                     <td>PAINTING</td>
+                     <td>Base coat</td>
+                 </tr>
+                 <tr>
+                     <td class="srNo">6.</td>
+                     <td>AIR CON</td>
+                     <td>Centralized air con system (duct line up to shop front)</td>
+                 </tr>
+                 <tr>
+                     <td class="srNo">7.</td>
+                     <td>FIRE SYSTEM</td>
+                     <td>Sprinkler system, Fire alarm, Smoke detector </td>
+                 </tr>
+                 <tr>
+                     <td class="srNo">8.</td>
+                     <td>ELECTRICAL</td>
+                     <td>Private metering (dual reading), DB on each room, Emergency lighting point</td>
+                 </tr>
+                 <tr>
+                     <td class="srNo">9.</td>
+                     <td>INTERNET</td>
+                     <td>Data point</td>
+                 </tr>
+                 <tr>
+                     <td class="srNo">10.</td>
+                     <td>COMMUNICATION</td>
+                     <td>PABX telephone line</td>
+                 </tr>-->
+             </table>
+         </div>
+     </div>
+     
+      <!------------------------------Attachment 2 details Block---------------------------------------------->
+     <div class="attachmentSecond">
+         <div>
+             ATTACHMENT 2<br/>
+             SPECIMEN LEASE
+         </div>
+     </div>
+     
+</div>
+
+    </body></html>
+</apex:page>

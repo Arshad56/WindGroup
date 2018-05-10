@@ -1,0 +1,514 @@
+<apex:page controller="GenerateJournalVoucherController" tabStyle="Journal_Voucher__c" sidebar="false" id="pg">
+    <style>
+        select{
+            width: 172px;
+        }
+        
+         .activeTab {background-color: #236FBD; color:white; background-image:none}
+        .inactiveTab { background-color: lightgrey; color:black; background-image:none}
+    </style>
+    <script type="text/javascript">
+        function selectAllCheckboxes(obj,receivedInputID){
+            var inputCheckBox = document.getElementsByTagName("input");                  
+            for(var i=0; i<inputCheckBox.length; i++){          
+                if(inputCheckBox[i].id.indexOf(receivedInputID)!=-1){                                     
+                    inputCheckBox[i].checked = obj.checked;
+                }
+            }
+        }
+    </script>
+    
+    <apex:sectionHeader title="Generate JV" subtitle="Generate Journal Voucher"/>
+    <apex:form id="frm">
+        <apex:pageMessages escape="false"/>
+       <!-- <center><div style="font-size:18px;padding-top: 10px; padding-right: 30px; padding-bottom: 10px; padding-left: 80px;">Generate Journal Voucher</div></center>-->
+         <apex:tabPanel switchType="client" selectedTab="name2" id="AccountTabPanel" tabClass="activeTab" inactiveTabClass="inactiveTab">
+            <apex:tab label="Invoice" name="Invoice" id="tabOne">
+                
+                <apex:pageBlock id="filterblk">
+                    <apex:pageBlockSection id="filtersection">
+                        <apex:inputField value="{!rentRoll.Property__c}"/>
+                        <apex:selectList label="Billing Type" value="{!rentRoll.Billing_Type__c}" size="1">
+                            <apex:selectOptions value="{!BillingTypes}"/>
+                        </apex:selectList>
+                         <apex:selectList id="currCode" label="Currency Code"  value="{!sltdCurrCodeInv}" size="1">
+                            <apex:selectOptions value="{!CurrencyCode}"/>
+                        </apex:selectList>
+                        <apex:selectList value="{!year}" label="Year" size="1">
+                            <apex:selectOptions value="{!YearList}"/>
+                        </apex:selectList>
+                        <apex:outputLabel ></apex:outputLabel>
+                        <apex:selectList value="{!month}" label="Due Month" size="1">
+                            <apex:selectOptions value="{!MonthList}"/>
+                        </apex:selectList>
+                    </apex:pageBlockSection>
+                    <apex:pageBlockButtons location="bottom">
+                        <apex:commandButton value="Search" action="{!searchInvoices}"/>
+                    </apex:pageBlockButtons>
+                </apex:pageBlock>
+                
+                <apex:pageBlock rendered="{!invModList.size > 0}">
+                
+                    <div class="pbHeader">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tbody>
+								<tr>
+									<td style="text-align: right;font-size: 12px;padding: 0px; margin: 0px;">Fiscal Posting &nbsp;&nbsp;</td>
+									<td >
+										<div class="requiredInput">
+						                    <div class="requiredBlock"></div>
+						                   	<apex:selectList label="Fiscal Posting" value="{!selectedFPInv}" size="1" style="width:120px;margin-top: 3px;">
+					                       		<apex:selectOptions value="{!fiscalPeriodInv}" /> 
+					                   		 </apex:selectList>
+						                </div> 
+									</td>
+								</tr>
+								<tr>
+									<td class="pbTitle">&nbsp;</td>
+									<td class="pbButton ">
+										<apex:commandButton value="Generate" action="{!generateJournalVoucher}"/>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+                    <apex:outputPanel >
+                        <table width="100%" border="1" style="border-collapse:collapse;text-align:center;">
+                            <tr>
+                                <th style="text-align:center;" width="50">Select<br/>
+                                    <apex:inputCheckbox onClick="selectAllCheckboxes(this,'inputId')"/>
+                                </th>
+                                <th style="text-align:center;">Invoice Name</th>
+                                <th style="text-align:center;">Billing Type</th>
+                                <th style="text-align:center;">JV Status</th>
+                                <th style="text-align:center;">Tenant</th>
+                                <th style="text-align:center;">Currency Code</th>
+                                <th style="text-align:center;">Amount</th>
+                                <th style="text-align:center;">Invoice Date</th>
+                            </tr>
+                            <apex:repeat value="{!invModList}" var="inv">
+                                <tr>
+                                    <td>
+                                        <apex:inputCheckbox value="{!inv.isChek}" id="inputId"/>
+                                    </td>
+                                    <td><a href="/{!inv.inv.Id}" target="_blank">{!inv.inv.Name}</a></td>
+                                    <td>{!inv.inv.Billing_Type__c}</td>
+                                    <td>{!inv.inv.JV_Status__c}</td> 
+                                    <td><a href="/{!inv.inv.Tenant__c}" target="_blank">{!inv.inv.Account__c}</a></td>
+                                    <td>{!inv.inv.Currency_Code__c}</td>
+                                    <td><apex:outputField value="{!inv.inv.Total_Amount_Local__c}"/></td>
+                                    <td>
+                                        <apex:outputtext value="{0,date,dd/MM/yyyy}">
+                                            <apex:param value="{!inv.inv.Invoice_Date__c}"/>
+                                        </apex:outputtext> 
+                                    </td>
+                                </tr>
+                            </apex:repeat>
+                        </table>
+                    </apex:outputPanel>
+                </apex:pageblock>
+            </apex:tab>
+            
+            
+            <apex:tab label="Cash Receipt" name="Cash Receipt" id="tabTwo">
+                <apex:pageBlock >
+                    <apex:pageBlockSection >
+                       <apex:inputField value="{!crObj.Property__c}" />
+                       <apex:inputField value="{!crObj.Payment_Mode__c}" />
+                        <apex:selectList id="currCode" label="Currency Code"  value="{!sltdCurrCodeCR}" size="1">
+                            <apex:selectOptions value="{!CurrencyCode}"/>
+                        </apex:selectList>
+<!--                        <apex:inputField value="{!crObj.Payment_Currency__c}"  /> -->
+                       <apex:selectList value="{!yearCr}" label="Year" size="1">
+                           <apex:selectOptions value="{!YearList}"/>
+                       </apex:selectList>
+                       <apex:outputLabel ></apex:outputLabel>
+                       <apex:selectList value="{!monthcr}" label="Due Month" size="1">
+                            <apex:selectOptions value="{!MonthList}"/>
+                       </apex:selectList>   
+                    </apex:pageBlockSection>
+                    <apex:pageBlockButtons location="bottom">
+                        <apex:commandButton value="Search" action="{!searchCashReceipt}"/>
+                    </apex:pageBlockButtons>
+                </apex:pageBlock>
+                
+                <apex:pageBlock rendered="{!crModList.size > 0}">
+                	<div class="pbHeader">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tbody>
+								<tr>
+									<td style="text-align: right;font-size: 12px;padding: 0px; margin: 0px;">Fiscal Posting &nbsp;&nbsp;</td>
+									<td >
+										<div class="requiredInput">
+						                    <div class="requiredBlock"></div>
+						                   	<apex:selectList label="Fiscal Posting" value="{!selectedFPCR}" size="1" style="width:120px;margin-top: 3px;">
+					                       		<apex:selectOptions value="{!fiscalPeriodCR}" /> 
+					                   		 </apex:selectList>
+						                </div> 
+									</td>
+								</tr>
+								<tr>
+									<td class="pbTitle">&nbsp;</td>
+									<td class="pbButton ">
+										<apex:commandButton value="Generate" action="{!generateJournalVoucherCR}"/>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					
+                    <apex:outputPanel >
+                        <table width="100%" border="1" style="border-collapse:collapse;text-align:center;">
+                            <tr>
+                                <th style="text-align:center;" width="50">Select<br/>
+                                    <apex:inputCheckbox onClick="selectAllCheckboxes(this,'inputId')"/>
+                                </th>
+                                <th style="text-align:center;">Receipt Number</th>
+                                <th style="text-align:center;">Payment Mode</th>
+                                <th style="text-align:center;">JV Status</th>
+                                <th style="text-align:center;">Tenant</th>
+                                <th style="text-align:center;">Currency Code</th>
+                                <th style="text-align:center;">Payment Amount</th>
+                                <th style="text-align:center;">Payment Date</th>
+                            </tr>
+                            <apex:repeat value="{!crModList}" var="cr">
+                                <tr>
+                                    <td>
+                                        <apex:inputCheckbox value="{!cr.isChek}" id="inputId"/>
+                                    </td>
+                                    <td><a href="/{!cr.cr.Id}" target="_blank">{!cr.cr.Name}</a></td>
+                                    <td>{!cr.cr.Payment_Mode__c}</td>
+                                    <td>{!cr.cr.JV_Status__c}</td> 
+                                    <td><a href="/{!cr.cr.Tenant__c}" target="_blank">{!cr.cr.Tenant__r.Name}</a></td>
+                                    <td>{!cr.cr.Payment_Currency__c}</td>
+                                    <td><apex:outputField value="{!cr.cr.Payment_Amount__c}"/></td>
+                                    <td>
+                                        <apex:outputtext value="{0,date,dd/MM/yyyy}">
+                                            <apex:param value="{!cr.cr.Payment_Date__c}"/>
+                                        </apex:outputtext> 
+                                    </td>
+                                </tr> 
+                            </apex:repeat>
+                        </table>
+                    </apex:outputPanel>
+                </apex:pageblock>
+            </apex:tab>
+            <apex:tab label="Deposit" name="Deposit" id="tabThree">
+                <apex:pageBlock >
+                    <apex:pageBlockSection >
+                       <apex:inputField value="{!leaseObj.Property__c}" />
+                       <apex:inputField value="{!depObj.Deposit_Type__c}" />
+                       <apex:selectList id="currCode" label="Currency Code"  value="{!sltdCurrCodeDep}" size="1">
+                            <apex:selectOptions value="{!CurrencyCode}"/>
+                        </apex:selectList>
+<!--                        <apex:inputField value="{!depObj.Currency_Code__c}"  /> -->
+                       <apex:selectList value="{!yearDep}" label="Year" size="1">
+                           <apex:selectOptions value="{!YearList}"/>
+                       </apex:selectList>
+                       <apex:outputLabel ></apex:outputLabel>
+                       <apex:selectList value="{!monthDep}" label="Due Month" size="1">
+                            <apex:selectOptions value="{!MonthList}"/>
+                       </apex:selectList>   
+                    </apex:pageBlockSection>
+                    <apex:pageBlockButtons location="bottom">
+                        <apex:commandButton value="Search" action="{!searchDeposit}"/>
+                    </apex:pageBlockButtons>
+                </apex:pageBlock>
+                
+                <apex:pageBlock rendered="{!depModList.size > 0}">
+                    <div class="pbHeader">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tbody>
+								<tr>
+									<td style="text-align: right;font-size: 12px;padding: 0px; margin: 0px;">Fiscal Posting &nbsp;&nbsp;</td>
+									<td >
+										<div class="requiredInput">
+						                    <div class="requiredBlock"></div>
+						                   	<apex:selectList label="Fiscal Posting" value="{!selectedFPDep}" size="1" style="width:120px;margin-top: 3px;">
+					                       		<apex:selectOptions value="{!fiscalPeriodDep}" /> 
+					                   		 </apex:selectList>
+						                </div> 
+									</td>
+								</tr>
+								<tr>
+									<td class="pbTitle">&nbsp;</td>
+									<td class="pbButton ">
+										<apex:commandButton value="Generate" action="{!generateJournalVoucherDeposit}"/>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+                        
+                    <apex:outputPanel >
+                        <table width="100%" border="1" style="border-collapse:collapse;text-align:center;">
+                            <tr>
+                                <th style="text-align:center;" width="50">Select<br/>
+                                    <apex:inputCheckbox onClick="selectAllCheckboxes(this,'inputId')"/>
+                                </th>
+                                <th style="text-align:center;">Deposit Number</th>
+                                <th style="text-align:center;">Deposit Type</th>
+                                <th style="text-align:center;">JV Status</th>
+                                <th style="text-align:center;">Tenant</th>
+                                <th style="text-align:center;">Currency Code</th>
+                                <th style="text-align:center;">Deposit Amount</th>
+                                <th style="text-align:center;">Deposit Date</th>
+                            </tr>
+                            <apex:repeat value="{!depModList}" var="dep">
+                                <tr>
+                                    <td>
+                                        <apex:inputCheckbox value="{! dep.isChek}" id="inputId"/>
+                                    </td>
+                                    <td><a href="/{! dep.dep.Id}" target="_blank">{!dep.dep.Name}</a></td>
+                                    <td>{!dep.dep.Deposit_Type__c}</td>
+                                    <td>{!dep.dep.JV_Status__c}</td> 
+                                     <td><a href="/{!dep.dep.Lease_Unit__r.Lease_Agreement_No__r.Tenant__c}" target="_blank">{!dep.dep.Lease_Unit__r.Lease_Agreement_No__r.Tenant__r.Name}</a></td>
+                                    <td>{!dep.dep.Currency_Code__c}</td>
+                                    <td><apex:outputField value="{!dep.dep.Deposit_Amount__c}"/></td>
+                                    <td>
+                                        <apex:outputtext value="{0,date,dd/MM/yyyy}">
+                                            <apex:param value="{!dep.dep.Deposit_Date__c}"/>
+                                        </apex:outputtext> 
+                                    </td>
+                                </tr>
+                            </apex:repeat>
+                            </table>
+                     </apex:outputPanel>
+               </apex:pageBlock>
+          </apex:tab>
+          <apex:tab label="Payment Voucher" name="PaymentVoucher" id="tabFour">
+                <apex:pageBlock >
+                    <apex:pageBlockSection >
+                       <apex:inputField value="{!leasePVObj.Property__c}" />                      
+                        <apex:selectList value="{!pvObj.Refund_Mode__c}" label="Refund Mode" size="1" id="refundMode">
+                    		<apex:selectOptions value="{!PVRefundModeList}"/>
+                	  </apex:selectList>
+                       <apex:selectList id="currCode" label="Currency Code"  value="{!sltdCurrCodePV}" size="1">
+                            <apex:selectOptions value="{!CurrencyCode}"/>
+                        </apex:selectList>
+<!--                        <apex:inputField value="{!pvObj.Currency_Code__c}"  /> -->
+                       <apex:selectList value="{!yearPV}" label="Year" size="1">
+                           <apex:selectOptions value="{!YearList}"/>
+                       </apex:selectList>
+                       <apex:inputfield value="{!pvObj.Transaction_Type__c}" />
+                       <apex:selectList value="{!monthPV}" label="Due Month" size="1">
+                            <apex:selectOptions value="{!MonthList}"/>
+                       </apex:selectList>   
+                    </apex:pageBlockSection>
+                    <apex:pageBlockButtons location="bottom">
+                        <apex:commandButton value="Search" action="{!searchPV}"/>
+                    </apex:pageBlockButtons>
+                </apex:pageBlock>
+                
+                <apex:pageBlock rendered="{!pvModList.size > 0}">
+                    <div class="pbHeader">
+						<table border="0" cellpadding="0" cellspacing="0">
+							<tbody>
+								<tr>
+									<td style="text-align: right;font-size: 12px;padding: 0px; margin: 0px;">Fiscal Posting &nbsp;&nbsp;</td>
+									<td >
+										<div class="requiredInput">
+						                    <div class="requiredBlock"></div>
+						                   	<apex:selectList label="Fiscal Posting" value="{!selectedFPPV}" size="1" style="width:120px;margin-top: 3px;">
+					                       		<apex:selectOptions value="{!fiscalPeriodPV}" /> 
+					                   		 </apex:selectList>
+						                </div> 
+									</td>
+								</tr>
+								<tr>
+									<td class="pbTitle">&nbsp;</td>
+									<td class="pbButton ">
+										<apex:commandButton value="Generate" action="{!generateJournalVoucherPV}"/>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+                         
+                    <apex:outputPanel >
+                        <table width="100%" border="1" style="border-collapse:collapse;text-align:center;">
+                            <tr>
+                                <th style="text-align:center;" width="50">Select<br/>
+                                    <apex:inputCheckbox onClick="selectAllCheckboxes(this,'inputId')"/>
+                                </th> 
+                                <th style="text-align:center;">PV Number</th>
+                                <th style="text-align:center;">Transaction Type</th>
+                                <th style="text-align:center;">JV Status</th>
+                                <th style="text-align:center;">Refund Mode</th>
+                                <th style="text-align:center;">Tenant</th>
+                                <th style="text-align:center;">Currency Code</th>
+                                <th style="text-align:center;">Amount</th>
+<!--                                 <th style="text-align:center;">Deposit Date</th> -->
+                            </tr>
+                            <apex:repeat value="{!pvModList}" var="pv">
+                                <tr>
+                                    <td>
+                                        <apex:inputCheckbox value="{! pv.isChek}" id="inputId"/>
+                                    </td>
+                                    <td><a href="/{! pv.pv.Id}" target="_blank">{!pv.pv.Name}</a></td>
+                                    <td>{!pv.pv.Transaction_Type__c}</td>
+                                    <td>{!pv.pv.JV_Status__c}</td> 
+									<td>{!pv.pv.Refund_Mode__c}</td>
+                                    <td><a href="/{!pv.pv.Lease__r.Tenant__c}" target="_blank">{!pv.pv.Lease__r.Tenant__r.Name}</a></td>
+                                    <td>{!pv.pv.Currency_Code__c}</td>
+                                    <td><apex:outputField value="{!pv.pv.Amount__c	}"/></td>
+<!--                                     <td> -->
+<!--                                         <apex:outputtext value="{0,date,dd/MM/yyyy}"> -->
+<!--                                             <apex:param value="{!pv.pv.Deposit_Date__c}"/> -->
+<!--                                         </apex:outputtext>  -->
+<!--                                     </td> -->
+                                </tr>
+                            </apex:repeat>
+                            </table>
+                     </apex:outputPanel>
+               </apex:pageBlock>
+          </apex:tab>
+        </apex:tabPanel>
+            
+       <!-- 
+        <apex:actionFunction name="reload" action="{!reloadPg}" immediate="true" status="status" reRender="frm">
+            <apex:param name="selectAct" value="" assignTo="{!sltdAction}"/>
+        </apex:actionFunction>
+            
+        <apex:actionstatus id="status">
+            <apex:facet name="start">
+                <div class="waitingSearchDiv" id="el_loading" style="background-color: #fbfbfb;
+                    height: 100%;opacity:0.65;width:100%;"> 
+                </div>
+                <div class="waitingHolder" style="position:absolute;top: 180px;left:48%; opacity:1;z-index:100; width: 91px;">
+                    <img class="waitingImage" src="/img/loading.gif" title="Please Wait..." />
+                    <span class="waitingDescription">Loading...</span>
+                </div>
+            </apex:facet>
+        </apex:actionstatus>
+        
+        <apex:pageBlock  id="pb" mode="edit">  
+           <apex:pageBlockSection title="Inovice Section" collapsible="false" columns="2" rendered="{!If(sltdAction == 'Invoice',true,false)}">
+                   <apex:selectList value="{!sltdAction}" size="1" required="True"  onchange="reload(this.value);return false;" label="Action">
+                        <apex:selectOption itemLabel="Invoice" itemValue="Invoice"/>
+                        <apex:selectOption itemLabel="Cash Receipt" itemValue="Cash Receipt"/>
+                   </apex:selectList>
+                   <apex:outputLabel></apex:outputLabel>
+                   <apex:inputField required="true" value="{!rentRoll.Property__c}"/>
+                    <apex:selectList label="Billing Type" value="{!rentRoll.Billing_Type__c}" size="1">
+                        <apex:selectOptions value="{!BillingTypes}"/>
+                    </apex:selectList>
+                     <apex:selectList id="currCode" label="Currency Code"  value="{!sltdCurrCode}" size="1">
+                        <apex:selectOptions value="{!CurrencyCode}"/>
+                    </apex:selectList>
+                    <apex:selectList value="{!year}" label="Year" size="1">
+                        <apex:selectOptions value="{!YearList}"/>
+                    </apex:selectList>
+                    <apex:outputLabel ></apex:outputLabel>
+                    <apex:selectList value="{!month}" label="Due Month" size="1">
+                        <apex:selectOptions value="{!MonthList}"/>
+                    </apex:selectList>
+                </apex:pageBlockSection>  
+                    
+                <apex:pageBlockSection title="Cash Receipt Section" rendered="{!If(sltdAction == 'Cash Receipt',true,false)}">
+                       <apex:selectList value="{!sltdAction}" size="1" required="True"  onchange="reload(this.value);return false;" label="Action">
+                            <apex:selectOption itemLabel="Invoice" itemValue="Invoice"/>
+                            <apex:selectOption itemLabel="Cash Receipt" itemValue="Cash Receipt"/>
+                       </apex:selectList>
+                       <apex:outputLabel></apex:outputLabel>
+                       <apex:inputField  required="true" value="{!crObj.Property__c}" />
+                       <apex:inputField value="{!crObj.Payment_Mode__c}" />
+                       <apex:inputField value="{!crObj.Payment_Currency__c}"  />
+                       <apex:selectList value="{!year}" label="Year" size="1">
+                           <apex:selectOptions value="{!YearList}"/>
+                       </apex:selectList>
+                       <apex:outputLabel ></apex:outputLabel>
+                       <apex:selectList value="{!month}" label="Due Month" size="1">
+                            <apex:selectOptions value="{!MonthList}"/>
+                       </apex:selectList>                         
+                </apex:pageBlockSection>                      
+                
+                <apex:pageBlockButtons location="bottom">
+                    <apex:commandButton value="Search" action="{!searchData}"/>
+                </apex:pageBlockButtons>  
+          </apex:pageBlock>    
+        
+        <apex:pageBlock rendered="{!invModList.size > 0}">
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton value="Generate" action="{!generateJournalVoucher}"/>
+            </apex:pageBlockButtons>
+                
+            <apex:outputPanel >
+                <table width="100%" border="1" style="border-collapse:collapse;text-align:center;">
+                    <tr>
+                        <th style="text-align:center;" width="50">Select<br/>
+                            <apex:inputCheckbox onClick="selectAllCheckboxes(this,'inputId')"/>
+                        </th>
+                        <th style="text-align:center;">Invoice Name</th>
+                        <th style="text-align:center;">Billing Type</th>
+                        <th style="text-align:center;">JV Status</th>
+                        <th style="text-align:center;">Tenant</th>
+                        <th style="text-align:center;">Currency Code</th>
+                        <th style="text-align:center;">Amount</th>
+                        <th style="text-align:center;">Invoice Date</th>
+                    </tr>
+                    <apex:repeat value="{!invModList}" var="inv">
+                        <tr>
+                            <td>
+                                <apex:inputCheckbox value="{!inv.isChek}" id="inputId"/>
+                            </td>
+                            <td><a href="/{!inv.inv.Id}" target="_blank">{!inv.inv.Name}</a></td>
+                            <td>{!inv.inv.Billing_Type__c}</td>
+                            <td>{!inv.inv.JV_Status__c}</td> 
+                            <td><a href="/{!inv.inv.Tenant__c}" target="_blank">{!inv.inv.Account__c}</a></td>
+                            <td>{!inv.inv.Currency_Code__c}</td>
+                            <td><apex:outputField value="{!inv.inv.Total_Amount_Local__c}"/></td>
+                            <td>
+                                <apex:outputtext value="{0,date,dd/MM/yyyy}">
+                                    <apex:param value="{!inv.inv.Invoice_Date__c}"/>
+                                </apex:outputtext> 
+                            </td>
+                        </tr>
+                    </apex:repeat>
+                </table>
+            </apex:outputPanel>
+        </apex:pageblock>
+        
+         <apex:pageBlock rendered="{!crModList.size > 0}">
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton value="Generate" action="{!generateJournalVoucher}"/>
+            </apex:pageBlockButtons>
+                
+            <apex:outputPanel >
+                <table width="100%" border="1" style="border-collapse:collapse;text-align:center;">
+                    <tr>
+                        <th style="text-align:center;" width="50">Select<br/>
+                            <apex:inputCheckbox onClick="selectAllCheckboxes(this,'inputId')"/>
+                        </th>
+                        <th style="text-align:center;">Receipt Number</th>
+                        <th style="text-align:center;">Payment Mode</th>
+                        <th style="text-align:center;">JV Status</th>
+                        <th style="text-align:center;">Tenant</th>
+                        <th style="text-align:center;">Payment Currency</th>
+                        <th style="text-align:center;">Payment Amount</th>
+                        <th style="text-align:center;">Payment Date</th>
+                    </tr>
+                    <apex:repeat value="{!crModList}" var="cr">
+                        <tr>
+                            <td>
+                                <apex:inputCheckbox value="{!cr.isChek}" id="inputId"/>
+                            </td>
+                            <td><a href="/{!cr.cr.Id}" target="_blank">{!cr.cr.Name}</a></td>
+                            <td>{!cr.cr.Payment_Mode__c}</td>
+                            <td>{!cr.cr.JV_Status__c}</td> 
+                            <td><a href="/{!cr.cr.Tenant__c}" target="_blank">{!cr.cr.Tenant__r.Name}</a></td>
+                            <td>{!cr.cr.Payment_Currency__c}</td>
+                            <td><apex:outputField value="{!cr.cr.Payment_Amount__c}"/></td>
+                            <td>
+                                <apex:outputtext value="{0,date,dd/MM/yyyy}">
+                                    <apex:param value="{!cr.cr.Payment_Date__c}"/>
+                                </apex:outputtext> 
+                            </td>
+                        </tr>
+                    </apex:repeat>
+                </table>
+            </apex:outputPanel>
+        </apex:pageblock>
+        -->
+    </apex:form>       
+</apex:page>

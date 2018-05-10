@@ -1,0 +1,263 @@
+<apex:page showHeader="false" renderAs="pdf"  sidebar="false" standardStylesheets="false" applyBodyTag="false"  applyHtmlTag="false" controller="DepositPDFController">
+ <html> <!--    renderAs="pdf"-->
+    <head>
+        <style> 
+            @page {
+                size: letter;
+                margin-right:10px;
+                margin-left : 25px;  
+                margin-top: 0.2cm;
+                margin-bottom:30mm;
+                @top-center {
+                    content: '';
+                }                    
+                @bottom-center{
+                    content: element(footer);
+                }
+            }
+            div.header{
+                padding: 15px;
+            }
+            div.footer{
+                padding: 10px;
+                position: running(footer);
+            }
+            .pagenumber:before {
+                content: counter(page);
+            }
+            .pagecount:before {
+                content: counter(pages);
+            }
+            
+            .changingFonts{
+                font-weight:bolder;
+            }
+            .blank_row{
+                height: 25px; 
+                
+            }
+        </style>
+    </head>
+    <body style="font-size:14px;font-family: Arial Unicode MS;">
+    
+        <div class="header">
+            <table width="100%">
+                <tr>
+                    <td width="55%" valign="top" align="Center">
+                        <apex:image url="{! if(deposit.Lease__c !=null, deposit.Lease__r.Property__r.Logo__c, deposit.LOI__r.Property__r.Logo__c)}" style="margin-left:-120px" width="275" height="75" />
+                    </td>
+                    <td width="45%" >
+                        <div style="font-size:15px;font-weight:bold;font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                        {!if(deposit.Lease__c !=null,deposit.Lease__r.Property__r.Name,deposit.LOI__r.Property__r.Name)}
+                        <br/>
+                        <apex:outputText value="{!if(deposit.Lease__c !=null,deposit.Lease__r.Property__r.Address__c,deposit.LOI__r.Property__r.Address__c)}"/>
+                        </div>
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+            <hr size="5px"  style="margin-top: -1px;width: 103%;margin-left: -14px;" />
+        </div>
+        <div class="footer">
+            <table width="100%" style="font-family:Arial, Helvetica, sans-serif,Lucida Console;margin-bottom: 10px;">
+                <tr>
+                    <td>This invoice is computer generated. No signature is required.</td>
+                </tr>                
+            </table>
+            <center>Page <span class="pagenumber"/> of <span class="pagecount"/></center>
+        </div>
+        <div>
+        <center>            
+            <p style="font-size:17px;font-weight:bold;font-family:Arial, Helvetica, sans-serif,Lucida Console;margin-top: -10px">Letter of Request for Deposit</p>
+        </center>
+        </div>
+        <table border="0" width="100%" style="margin-top:-20px;">
+            <tr>
+                <td valign="top" width="58%" style="word-wrap:break-word;font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                    <b>Send to:</b><br/> 
+                    <apex:outputPanel rendered="{!deposit.Lease__r.Tenant__r.Name != null || deposit.LOI__r.Tenant__r.Name != null}">
+                    {!if(deposit.Lease__c !=null,deposit.Lease__r.Tenant__r.Name,deposit.LOI__r.Tenant__r.Name)}<br/>
+                    </apex:outputPanel>
+                    {!billingStreet}<br/>
+                    <apex:outputPanel rendered="{!AND(concatIncAddFields !=null, concatIncAddFields !='')}">
+                    <apex:outputText value="{!concatIncAddFields}"/>  
+                    <br/>
+                    </apex:outputPanel>   
+                    Tel: {!if(deposit.Lease__c !=null,deposit.Lease__r.Tenant__r.Phone,deposit.LOI__r.Tenant__r.Phone)}<br/>
+                    <table style="font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+	                    <tr>
+	                    	<td><b>Shop Name</b></td>
+	                    	<td>:</td>
+	                    	<td><b>{!if(deposit.Lease__c !=null,deposit.Lease__r.Tenant__r.Name,deposit.LOI__r.Tenant__r.Name)}</b></td>
+	                    </tr>
+	                    <tr>
+	                    	<td><b>Customer Code</b></td>
+	                    	<td>:</td>
+	                    	<td><b>{!if(deposit.Lease__c !=null,deposit.Lease__r.Tenant__r.Customer_Code__c,deposit.LOI__r.Tenant__r.Customer_Code__c)}</b></td>
+	                    </tr>
+	                    <tr>
+	                    	<td><b>Shop No</b></td>
+	                    	<td>:</td>
+	                    	<td><b>{!units}</b></td>
+	                    </tr>
+                    </table>
+<!--                     <b>Shop Name : {!deposit.Lease__r.Tenant__r.Name}</b><br/> -->
+<!--                     <b>Customer Code : {!deposit.Lease__r.Tenant__r.Customer_Code__c}</b><br/> -->
+<!--                     <b>Shop No &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {!units} </b>  -->
+                </td>
+                <td valign="top" width="48%" style="vertical-align:top;font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                    <table>
+                        <tr>
+                            <td width="48%" >Letter No </td>
+                            <td width="2%" >:</td>
+                            <td width="50%" >{!deposit.Name}</td>
+                        </tr>
+                        <tr>
+                            <td>Send Date</td>
+                            <td>:</td>
+                            <td>
+                                <apex:outputText value="{0,date,dd/MM/yyyy}">
+                                    <apex:param value="{!generatedDate}"/>
+                                </apex:outputText>
+                            </td>
+                        </tr>
+<!--                         <tr> -->
+<!--                             <td>Due Date</td> -->
+<!--                             <td>:</td> -->
+<!--                             <td> -->
+<!--                                 <apex:outputText value="{0,date,dd/MM/yyyy}"> -->
+<!--                                     <apex:param value="{!deposit.Lease__r.LOI_Signed_off_Date__c}"/> -->
+<!--                                 </apex:outputText> -->
+<!--                             </td> -->
+<!--                         </tr> -->
+                        <tr>
+                            <td>Amount Due ({!deposit.Currency_Code__c})</td>
+                            <td>:</td>
+                            <td>
+                                <apex:outputText value="{0,number,###,###,##0.00}">
+                                    <apex:param value="{!deposit.Deposit_Amount__c}"/>
+                                </apex:outputText>                            
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>LOI/LA No</td>
+                            <td>:</td>
+                            <td>{!if(deposit.Lease__c !=null,deposit.Lease__r.Name,deposit.LOI__r.Name)}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">
+                                <apex:image url="https://www.barcodesinc.com/generator_files/image.php?code={!deposit.Name}&style=197&type=C128B&width=310&height=50&xres=1&font=3"/>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+            <div    style="min-height: 260px;">
+            <table width="100%" cellspacing="0" cellpadding="0" style="-fs-table-paginate: paginate;">
+                <thead  style="font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <tr>
+                    <td colspan="5" style="height: 15px"></td>
+                </tr>
+                <tr>
+                    <th width="30%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;">Description</th>
+                    <th width="15%" height="35px;" style="text-align: center;border-top:0.5px solid black;border-bottom:0.5px solid black;">Unit No</th>
+                    <th width="10%" height="35px;" style="text-align: center;border-top:0.5px solid black;border-bottom:0.5px solid black;">Period<br/>(month)</th>
+                    <th width="10%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;">Area<br/>(Sqft)</th>
+                    <th width="15%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;">Rate<br/>({!deposit.Currency_Code__c})</th>
+                    <th width="20%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;">Total Amount<br/>({!deposit.Currency_Code__c})</th>
+                </tr>
+                </thead>
+                <tbody style="font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                     <apex:repeat value="{!deposits}" var="dp">
+                    <tr style="height:25px;">
+                        <td> {!dp.Description__c} </td>
+                        <td style="padding-right:5px;text-align: center;">{!if(deposit.Lease_Unit__c !=null,dp.Lease_Unit__r.Unit__r.Name,dp.LOI_Unit__r.Unit__r.Name)}</td>
+                        <td style="padding-right:5px;text-align: center;">{!dp.Number_of_Months__c}</td>
+                        <td style="text-align:right;">
+                            {!if(deposit.Lease_Unit__c !=null,dp.Lease_Unit__r.Area_Sq_Ft__c,dp.LOI_Unit__r.Area_Sq_Ft__c)}
+                        </td>                        
+                        <td style="text-align:right;">
+                           <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!dp.Deposit_Rate__c}"/>
+                            </apex:outputText>
+                        </td>
+                        <td style="text-align:right;">
+                            <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!dp.Deposit_Amount__c}"/>
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                    </apex:repeat>
+                    </tbody>
+                    </table>
+                    </div>
+                 <table width="100%" cellspacing="0" cellpadding="0" style="-fs-table-paginate: paginate;">
+                 <tbody style="font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <tr>
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;font-weight:bold;" colspan="5"><div style="margin: 5px;margin-left: 0px">Grand Total</div></td>
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!grandTotal}"/>
+                        </apex:outputText>
+                    </td>
+                </tr>
+                
+                </tbody>
+            </table>
+             
+        <div style="page-break-inside:avoid;">
+            <table width="100%" style="font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <tr style="height: 9px;">
+                    <td>
+                    <div    style="min-height: 8px;">&nbsp;</div>  
+                    <apex:outputText style="font-weight:bold;" escape="false" value="Exchange Rate : " rendered="{!deposit.Currency_Code__c != $Label.Default_Currency}"/>
+                    <apex:outputText style="font-weight:bold;" value="{0,number,###,###,##0.00}" rendered="{!deposit.Currency_Code__c != $Label.Default_Currency}">
+                           <apex:param value="{!deposit.Exchange_Rate__c}"/>
+                       </apex:outputText>
+                       <apex:outputPanel rendered="{!deposit.Currency_Code__c != $Label.Default_Currency}">
+                       		<div style="height: 8px;">&nbsp;</div>
+                       </apex:outputPanel>
+                       </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table width="100%">
+                           <apex:repeat value="{!bankInfoList}" var="bnk">
+	                         	<tr>
+				                    <td style="border-bottom:1px solid black;font-weight:bold;" colspan = "6">Currency : {!bnk.Currency_Code__c}</td>
+				                </tr>
+	                            <tr>
+	                                <td width="18%" >Beneficiary Name</td><td width="2%">:</td><td width="30%">{!bnk.Beneficiary_Name__c}</td>
+	                                <td width="18%">Swift Code</td><td width="2%">:</td><td width="30%">{!bnk.Swift_Code__c}</td>
+	                            </tr>
+	                            <tr>
+	                                <td>Account No.</td><td>:</td><td>{!bnk.Account_No__c}</td>
+	                                <td>Branch Name</td><td>:</td><td>{!bnk.Branch_Name__c}</td>
+	                            </tr>
+	                            <tr>
+	                                <td >Bank Name</td><td>:</td><td>{!bnk.Bank_Name__c}</td>
+	                                <td>Bank Address</td><td>:</td><td>{!bnk.Bank_Address__c}</td>
+	                            </tr>
+	                            <tr>	<td  style="border-top:1px solid black;font-weight:bold;"  colspan="6">
+		                            	<div style="height: 8px;">&nbsp;</div>
+		                            	</td>
+	                            </tr>
+                            </apex:repeat>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="word-wrap:break-word;font-weight:bold;">
+                        Remarks :  <br/>
+                        <apex:outputText value="{!if(deposit.Lease__c !=null,deposit.Lease__r.Property__r.Remarks_Other_Invoices__c,deposit.LOI__r.Property__r.Remarks_Other_Invoices__c)}"/>
+                        <div style="height: 8px;"></div>
+                    </td>
+                </tr>
+            </table>
+            
+        </div>
+        
+    </body>
+</html>
+</apex:page>

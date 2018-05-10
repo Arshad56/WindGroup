@@ -1,0 +1,52 @@
+<aura:component controller="RelinkRentSchedule_Aura" implements="force:hasRecordId,force:lightningQuickActionWithoutHeader">
+	    <aura:attribute name="recordId" type="String"/> 
+	    <aura:attribute name="isShowReason" type="Boolean" default="false"/>  
+	    
+	    <aura:attribute name="meterNo" type="String"/>
+	    <aura:attribute name="oldMeterNo" type="String"/>
+	    <aura:attribute name="status" type="String"/>
+	    <aura:attribute name="startDate" type="Date"/>
+	    <aura:attribute name="endDate" type="Date"/>
+	    
+	    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+	    
+	    <div class="slds-page-header slds-align_absolute-center">
+	        <h1 class="slds-page-header__title slds-truncate slds-align-middle">Relink Rent Schedule</h1>
+	        <p class="slds-text-body_small slds-line-height_reset"></p>
+	    </div>
+    	<div class="slds-grid slds-wrap">
+    		<div class="slds-size_1-of-1 slds-small-size_1-of-1 slds-medium-size_1-of-1 slds-large-size_1-of-1 slds-p-around_xx-small">
+    			<div class="slds-form-element">
+    				<lightning:input aura:id="meterNo" label="Meter No" name="myname" value="{!v.meterNo}"  required="true"/>
+    			</div>
+    		</div>
+    		<div class="slds-size_1-of-1 slds-small-size_1-of-1 slds-medium-size_1-of-1 slds-large-size_1-of-1 slds-p-around_xx-small">
+    			<div class="slds-form-element">
+					<ui:inputSelect value="{!v.status}" aura:id="stat"  label="Status"  required="true">
+				             <ui:inputSelectOption text="Active" label="Link"/>
+				             <ui:inputSelectOption text="Inactive" label="Unlink"/>
+				    </ui:inputSelect>
+				</div>
+    		</div>
+    		<div class="slds-size_1-of-1 slds-small-size_1-of-1 slds-medium-size_1-of-1 slds-large-size_1-of-1 slds-p-around_xx-small">
+    			<div class="slds-form-element">
+    				<lightning:input type="date" label="Start Date" name="date" value="{!v.startDate}"  required="true" aura:id="startDate"  />
+    			</div>
+    		</div>
+    		<div class="slds-size_1-of-1 slds-small-size_1-of-1 slds-medium-size_1-of-1 slds-large-size_1-of-1 slds-p-around_xx-small">
+    			<div class="slds-form-element">
+    				<lightning:input type="date" label="End Date" name="date"  value="{!v.endDate}"  required="true" aura:id="endDate"  />
+    			</div>
+    		</div>
+    	</div>
+    	<br/>
+        <div class="slds-page-footer" style="text-align:right;">
+            <button  onclick="{!c.close}"  class="slds-button slds-button_neutral">
+                Cancel
+            </button>
+            <button  onclick="{!c.relinkSave}"  class="slds-button slds-button_brand">
+                Save
+            </button>
+        </div>
+    
+</aura:component>

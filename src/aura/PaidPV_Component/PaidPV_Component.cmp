@@ -1,0 +1,39 @@
+<!-- 
+Author Name- Arshad Shaikh	
+Date - 24th April 2018
+Description - To Void  PV
+ -->
+ <aura:component controller="VoidPV_Controller" implements="force:hasRecordId,force:lightningQuickActionWithoutHeader" >
+	<aura:attribute name="recordId" type="String"/>
+	
+    <aura:attribute name="chqNO" type="String"/> 
+    <aura:attribute name="isShowReason" type="Boolean" default="false"/>   
+    <aura:attribute name="displayCmp" type="Boolean" default="false"/>
+     
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:renderIf isTrue="{!v.displayCmp}">
+	     <div class="slds-page-header slds-align_absolute-center">
+	        <h1 class="slds-page-header__title slds-truncate slds-align-middle" title="Add Contacts">Void Payment Voucher</h1>
+	        <p class="slds-text-body_small slds-line-height_reset"></p>
+	    </div>
+	    
+	    <div class="slds-grid slds-grid_vertical" >
+	         <div class="slds-col">
+	         		<br/>
+			        <ui:inputText label="Please Enter Cheque No" value="{!v.chqNO}" aura:id="chqNo" required="true" class="txtArea"/>
+			        <br/>
+			        <div style="text-align:right;">
+			            <button  onclick="{!c.close}"  class="slds-button slds-button_neutral">
+			                Cancel
+			            </button>
+			            <button  onclick="{!c.savePV}"  class="slds-button slds-button_brand">
+			                Ok
+			            </button>
+			        </div>
+				        
+	         </div>
+	    </div>
+     </aura:renderIf>
+	
+</aura:component>

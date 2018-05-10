@@ -1,0 +1,61 @@
+<aura:component controller="PaymentVoucherRefund_Aura" implements="force:hasRecordId,force:lightningQuickActionWithoutHeader" >
+	<aura:attribute name="recordId" type="String"/>
+	
+	<aura:attribute name="pvStatus" type="String"/> 
+	<aura:attribute name="leaseId" type="String"/>
+    <aura:attribute name="pvCurrency" type="String"/> 
+    <aura:attribute name="pvBalance" type="String"/> 
+    <aura:attribute name="paymentMode" type="String"/> 
+    <aura:attribute name="tenantId" type="String"/>
+    
+    <aura:attribute name="displayCmp" type="Boolean" default="false"/>
+     
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:renderIf isTrue="{!v.displayCmp}">
+	    <div class="slds-page-header slds-align_absolute-center">
+	        <h1 class="slds-page-header__title slds-truncate slds-align-middle" title="Add Contacts">Void Payment Voucher</h1>
+	        <p class="slds-text-body_small slds-line-height_reset"></p>
+	    </div>
+	    
+	    <div class="slds-grid slds-grid_vertical" >
+	         <div class="slds-col">
+         		<div class="slds-grid slds-wrap">
+		    		<div class="slds-size_1-of-1 slds-small-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-2 slds-p-around_xx-small">
+						<div class="slds-form-element">
+							<lightning:input value="{!v.pvCurrency}" label="Payment Voucher Currency" disabled="true"/>
+						</div>
+					</div>
+					<div class="slds-size_1-of-1 slds-small-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-2 slds-p-around_xx-small">
+						<div class="slds-form-element">
+							<lightning:input value="{!v.pvBalance}" label="Payment Voucher Balance" disabled="true"/>
+						</div>
+					</div>
+					<div class="slds-size_1-of-1 slds-small-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-2 slds-p-around_xx-small">
+						<div class="slds-form-element">
+							<lightning:input value="{!v.pvStatus}" label="Payment Voucher Status" disabled="true"/>
+						</div>
+					</div>
+		    		<div class="slds-size_1-of-1 slds-small-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-2 slds-p-around_xx-small">
+						<div class="slds-form-element">
+							<ui:inputSelect value="{!v.paymentMode}" aura:id="popt"  label="Payment Mode"  required="true">
+					             <ui:inputSelectOption text="Cash" label="Cash"/>
+					             <ui:inputSelectOption text="Cheque" label="Cheque"/>
+						    </ui:inputSelect>
+						</div>
+		    		</div>
+    			</div>
+    			<br/>
+		        
+	         </div>
+	    </div>
+	    <footer class="slds-card__footer slds-text-align_right">
+            <button  onclick="{!c.close}"  class="slds-button slds-button_neutral">
+                Cancel
+            </button>
+            <button  onclick="{!c.savePVrefund}"  class="slds-button slds-button_brand">
+                Refund
+            </button>
+       </footer>
+     </aura:renderIf>
+</aura:component>

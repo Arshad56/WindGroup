@@ -1,0 +1,6 @@
+<apex:page controller="AWSIntegrationVFController" sidebar="true" showheader="true" action="{!queryDateandEndPoint}">
+    
+    <apex:form >
+      <apex:iframe src="https://2dfloorplan.dev:80/floorPlanDemo/a01O000000lUTrcIAG/Level%201/White%20Sands" scrolling="true" id="theIframe"/>
+    </apex:form>
+</apex:page>

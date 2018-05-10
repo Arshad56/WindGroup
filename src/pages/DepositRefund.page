@@ -1,0 +1,18 @@
+<apex:page controller="DepositRefundController"> 
+    <apex:sectionHeader title="Deposit Refund" subtitle="Deposit Refund"/>
+    <apex:form >
+        <apex:outputText value="{!warningMsg}" style="color:blue"/>
+        <apex:pageBlock >
+            <apex:pageMessages />
+            <apex:pageBlockSection columns="1">
+                <apex:inputField value="{!deposit.PV_Currency_Code__c}" required="true"/>
+                <apex:inputField value="{!deposit.Requested_Amount__c}" required="true"/>
+                <apex:inputField value="{!deposit.Refund_Mode__c}" required="true"/>
+            </apex:pageBlockSection>
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton value="Refund" action="{!refund}"/>
+                <apex:commandButton value="Cancel" action="{!cancel}" immediate="true"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

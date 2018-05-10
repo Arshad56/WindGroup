@@ -1,0 +1,844 @@
+<apex:page controller="LoiPdfDocumentController" renderAs="PDF" sidebar="false" showHeader="false" applyBodyTag="false"  applyHtmlTag="false">
+<!-- renderAs="PDF"  -->
+<html>
+<head>
+	<style>
+		 body,td { 
+			font-family: "Arial Black", Arial, sans-serif;
+		    font-size: medium; 
+		    padding: 6px;
+    		padding-bottom: 9px;
+		 }
+	     @page {
+	         size: letter;
+	         margin-right:25px; 
+	         margin-left : 25px;  
+	         margin-top: 150px;
+	         margin-bottom:75px;
+	         @top-center {
+	             content: element(header); 
+	         }                    
+	         @bottom-center{
+	             content: element(footer);
+	         }
+	     }
+	     div.header{
+	         padding: 15px;
+	         padding-bottom: 0px;
+	         position: running(header);
+	     } 
+	     div.footer{
+	         padding: 5px;
+	         padding-bottom: 1px;
+	         position: running(footer);
+	     }
+	     .pagenumber:before {
+	         content: counter(page);
+	     }
+	     .pagecount:before {
+	         content: counter(pages);
+	     }
+	     .changingFonts{
+	         font-weight:bolder;
+	     }
+	     .blank_row{
+	         height: 25px; 
+	     }
+	     .divA{
+		  height: 4px;
+		  border-bottom: 5px solid #c59696;
+		}
+		.divB{
+		  height: 1px;
+		  border-bottom: 1px solid #c59696;
+		  padding-bottom: 0px;
+		  margin-bottom: 0px;
+		}​
+		.bigFont{
+			font-size:      18px;
+			font-family:Arial, Helvetica, sans-serif,Lucida Console;
+            font-weight:    bold;
+		}
+		.subHeaderFont{
+			font-size:      16px;
+            font-weight:    100;
+		}
+		.dataTable tr{
+			vertical-align: top;
+		}
+		.unitTable th{
+			border:0.5px solid black;
+			text-align:center;
+			vertical-align: middle;
+		}
+		.unitTable td{
+			border:0.5px solid black;
+			text-align:center;
+		}
+		.gtoTable td{
+			padding-bottom: 2px;
+			margin-bottom: 2px;
+			padding-top: 2px;
+			margin-top: 2px;
+		}
+	 </style>
+</head>
+<body>
+	<div class="header"> 
+          	<div align="center" >
+     			<apex:image url="{!loi.Property__r.Logo__c}"  width="275" height="110" style="vertical-align:center;"/>
+     		</div>
+			<div class="divA"></div>
+			<div class="divB"></div>​
+      </div>
+      <div class="footer">
+      	  	<div class="divA"></div>
+			<div class="divB"></div>​
+			<div style="color: #9f9fa9;font-size: 10px;font-weight: 800;margin-top: -12px;">
+				<div align="right">
+					<Span style="font-family: Cambria, Georgia, serif;font-size: 14px;">Page <span class="pagenumber"/></Span>
+				</div>
+<!-- 				<div align="center">{!loi.Property__r.Address__c}</div> -->
+<!-- 				<div align="center">Email-XXXXXXXXXX Website-{!loi.Property__r.Website__c}</div> -->
+			</div>
+      </div>
+      
+      <div class="date" align="right">
+        <span>Date- </span>
+        <apex:outputText value="{0,date,dd/MM/yyyy}">
+            <apex:param value="{!today()}" />
+        </apex:outputText> 
+    </div>
+    
+    
+    <table class="dataTable">
+    	<tr>
+    		<td></td>
+    		<td colspan="2"><div class="bigFont"><b>LETTER OF INTENT OF RETAIL SPACE IN {!loi.Property__r.Name}</b></div></td>
+    	</tr>
+    	<tr>
+    		<td></td>
+    		<td colspan="2"><div class="subHeaderFont">SUBJECT TO SPACE AVAILIBILITY, CONTRACT TERMS &amp; FULL DEPOSIT PAYMENT</div></td>
+    	</tr>
+    	<tr>
+    		<td>1.</td>
+    		<td style="width:250px">Landlord</td>
+    		<td>{!loi.property__r.Landlord__r.name}</td>
+    	</tr>
+    	<tr>
+    		<td>2.</td>
+    		<td>Landlord’s Authorized Agent	</td>
+    		<td>{!loi.property__r.Landlords_Authorized_Agent__r.name}</td>
+    	</tr>
+    	<tr>
+    		<td>3.</td>
+    		<td>Tenant	Name</td>
+    		<td>{!loi.Contact__r.name}</td>
+    	</tr> 
+    	<tr>
+    		<td>4.</td>
+    		<td valign="top">Building</td>
+    		<td valign="top">{!loi.Property__r.Address__c}</td>
+    	</tr>
+    	<tr>
+    		<td>5.</td>
+    		<td>Premises</td>
+    		<td>Room No. 
+    		 <apex:variable var="count" value="{!1}"/>
+    		<apex:repeat value="{!loi.LOI_Units__r}" var="un">
+				({!un.Unit__r.name} <apex:outputText value="{!If(loi.LOI_Units__r.size > count,', ','')}"/>),
+				<apex:variable value="{!count+1}" var="count"/>
+			</apex:repeat> 
+			Please refer to the marked in red in the attached floor plan.</td>
+    	</tr>
+    	<tr>
+    		<td>6.</td>
+    		<td>Shop Name </td>
+    		<td>{!loi.Tenant__r.name}</td>
+    	</tr>
+    	<tr>
+    		<td>7.</td>
+    		<td>Permitted Use</td>
+    		<td>{!loi.Trade_Category__c}</td>
+    	</tr>
+    	<tr>
+    		<td></td>
+    		<td colspan="2">We are pleased to offer you a lease of the retail space in {!loi.Property__r.Name} based on the following terms and conditions as stipulated hereinafter.
+    		</td>
+    	</tr>
+    	<tr>
+    		<td>8.</td>
+    		<td>Proposed Area</td>
+    		<td></td>
+    	</tr>
+    	<tr>
+    		<td colspan="3">
+				<table class="unitTable" width="100%" cellspacing="0" cellpadding="0" style="-fs-table-paginate: paginate;">
+					<tr>
+						<th >Shop No</th>
+						<th>Level</th>
+						<th>Area<br/>(Sq.Meter)</th>
+						<th>Area<br/>(Sq.ft)</th>
+						<th>Rental Rate<br/>(Per Sq.ft)<br/>{!appliedCurrency}</th>
+						<th>Rental Per Month<br/>({!appliedCurrency})</th>
+					</tr>
+					<apex:repeat value="{!loi.LOI_Units__r}" var="un">
+					<tr>
+						<td style="border:0.5px solid black;">{!un.Unit__r.name}</td>
+						<td style="border:0.5px solid black;">{!un.Unit__r.level__r.name}</td>
+						<td style="border:0.5px solid black;">{!un.Unit__r.NLA_SQM__c}</td>
+						<td style="border:0.5px solid black;">{!un.Unit__r.NLA_SQF__c}</td>
+						<td style="border:0.5px solid black;">{!IF(CONTAINS(ChkMapKey,un.Id),loiChrgeMap[un.Id].Charge_Rate__c,0)} </td>
+						<td style="border:0.5px solid black;">
+							<apex:outputText value="{0, number, ###,##0.00}">
+				                <apex:param value="{!IF(CONTAINS(ChkMapKey,un.Id),loiChrgeMap[un.Id].Charge_Rate__c * un.Unit__r.NLA_SQF__c,0)}" />
+				            </apex:outputText>
+						</td>
+					</tr>
+					</apex:repeat>
+				</table>
+			</td>
+    	</tr>
+    	<tr>
+    		<td style="padding-bottom: 0px;margin-bottom: 0px;">9.</td>
+    		<td colspan="2" style="padding-bottom: 0px;margin-bottom: 0px;">Monthly Service Charge, Maintenance, Utilities, Advertisement &amp; Promotion, Telecommunication Services, Commercial Tax</td>
+    	</tr>
+    	<tr>
+    		<td colspan="3" style="padding-top: 0px;margin-top: 0px;">
+    			<apex:variable var="i" value="{!1}"/>
+				<table width="100%" cellspacing="0" cellpadding="0" style="-fs-table-paginate: paginate;">
+					<apex:repeat value="{! lOIChrgStr }" var="chrg">
+						<tr>
+							<td style="border:0.5px solid black; width : 40%;vertical-align: middle;">
+								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{!i}.&nbsp;&nbsp;
+				                <apex:variable var="i" value="{!i+1}"/>
+				                {!chrg.ChargeName}
+				            </td>
+							<td style="border:0.5px solid black;">{!chrg.Description}</td>
+						</tr>
+					</apex:repeat>
+				</table>
+			</td>
+    	</tr>
+    	<tr>
+    		<td></td>
+    		<td colspan="2">The service charges are subject to change by the Landlord if government tariff rates are increased by more than 5% from current tariff rates.</td>
+    	</tr>
+    	<tr>
+    		<td style="padding-bottom: 0px;margin-bottom: 0px;">10.</td>
+    		<td colspan="2" style="padding-bottom: 0px;margin-bottom: 0px;">Handover and Commencement Date</td>
+    	</tr>
+    	<tr>
+    		<td style="padding-bottom: 0px;margin-bottom: 0px;padding-top: 0px;margin-top: 0px;"></td>
+    		<td style="padding-bottom: 0px;margin-bottom: 0px;padding-top: 0px;margin-top: 0px;">Handover date</td>
+    		<td style="padding-bottom: 0px;margin-bottom: 0px;padding-top: 0px;margin-top: 0px;">-&nbsp;{! if(loi.Handover_Date__c != null , if(Month(loi.Handover_Date__c) <=3, 'Q1', 
+    			   if(Month(loi.Handover_Date__c) <=6, 'Q2',
+    			   if(Month(loi.Handover_Date__c) <=9, 'Q3', 
+    			   									   'Q4') )),'')} 
+    			   &nbsp;{!Year(loi.Handover_Date__c)}
+    		</td>
+    	</tr>
+    	<tr>
+    		<td style="padding-top: 0px;margin-top: 0px;"></td>
+    		<td style="padding-top: 0px;margin-top: 0px;">Commencement date</td>
+    		<td style="padding-top: 0px;margin-top: 0px;">
+	    		-&nbsp;<apex:outputText value="{0,date,dd.MM.yyyy}">
+		            <apex:param value="{!loi.LOI_Start_Date__c}" />
+		        </apex:outputText>  ~  &nbsp;
+		        <apex:outputText value="{0,date,dd.MM.yyyy}">
+		            <apex:param value="{!loi.Original_End_Date__c}" />
+		        </apex:outputText>
+	        </td>
+    	</tr> 
+    	<tr>
+    		<td  style="padding-bottom: 0px;margin-bottom: 0px;">11.</td>
+    		<td colspan="2"  style="padding-bottom: 0px;margin-bottom: 0px;">Contract Tenure</td>
+    	</tr>
+    	<tr>
+    		<td style="padding-bottom: 0px;margin-bottom: 0px;padding-top: 0px;margin-top: 0px;"></td>
+    		<td colspan="2" style="padding-bottom: 0px;margin-bottom: 0px;padding-top: 0px;margin-top: 0px;">{!tenureYear} Year + Option to renew for further {!renewalYear} Year</td>
+    	</tr>
+    	<tr>
+    		<td style="padding-top: 0px;margin-top: 0px;"></td>
+    		<td colspan="2" style="padding-top: 0px;margin-top: 0px;">From &nbsp; 
+								<apex:outputText value="{0,date,dd.MM.yyyy}">
+						            <apex:param value="{!loi.LOI_Start_Date__c}" />
+						        </apex:outputText> to &nbsp;
+								<apex:outputText value="{0,date,dd.MM.yyyy}">
+						            <apex:param value="{!loi.LOI_End_Date__c}" />
+						        </apex:outputText>
+		     </td>
+    	</tr>
+    	<tr>
+    		<td  style="padding-bottom: 0px;margin-bottom: 0px;">12.</td>
+    		<td colspan="2"  style="padding-bottom: 0px;margin-bottom: 0px;">Rental Rate
+    		<apex:variable var="i" value="{!1}"/>
+    		</td>
+    	</tr>
+<!--     	GTO Higher Non Tiered -->
+    	<apex:repeat value="{! higherGTOWrap }" var="highGTO">
+			<tr>
+				<td ></td>
+				<td colspan="2" style="text-align: justify;">The &nbsp;{!if(i==1,'1st',if(i==2,'2nd',if(i==3,'3rd',Text(i)+'th')))}&nbsp; year rent shall be&nbsp; {!highGTO.baseRentChrg.Charge_Rate__c}&nbsp; {!highGTO.baseRentChrg.Currency_Code__c} &nbsp; per square feet (or) Gross Turnover (GTO) 
+								Revenue Sharing of  {!highGTO.gtoChrg.Charge_Rate__c} % on every month whichever is higher of the month for the contract term.
+				<apex:variable var="i" value="{!i+1}"/>				
+				</td>
+			</tr>
+		</apex:repeat>
+<!--     	GTO SUM Non Tiered -->
+		<apex:variable var="i" value="{!1}"/>
+    	<apex:repeat value="{! sumGTOWrap }" var="sumGTO">
+			<tr>
+				<td></td>
+				<td colspan="2"  style="text-align: justify;">The &nbsp;{!if(i==1,'1st',if(i==2,'2nd',if(i==3,'3rd',Text(i)+'th')))}&nbsp; year rent shall be &nbsp;{!sumGTO.baseRentChrg.Charge_Rate__c} &nbsp; {!sumGTO.baseRentChrg.Currency_Code__c} &nbsp; per square feet and Gross Turn Over (GTO) 
+											sharing {!sumGTO.gtoChrg.Charge_Rate__c} % on every month for the contract term.
+				<apex:variable var="i" value="{!i+1}"/>				
+				</td>
+			</tr>
+		</apex:repeat>
+<!--     	GTO Higher Tiered -->
+	<apex:variable var="i" value="{!1}"/>
+	<apex:repeat value="{! tieredHigherGTOWrap }" var="highGTO">
+	    <tr>
+	        <td></td>
+	        <td colspan="2">The &nbsp;{!if(i==1,'1st',if(i==2,'2nd',if(i==3,'3rd',Text(i)+'th')))}&nbsp; year rent shall be&nbsp; {!highGTO.baseRentChrg.Charge_Rate__c}&nbsp; {!highGTO.gtoChrg.Currency_Code__c}&nbsp; per square feet per 
+	            month  (“Fixed Rent”) (or) % percent <!-- &nbsp; {!highGTO.gtoChrg.Type__c}&nbsp; --> of the gross sales (“Percentage Rent”) as determined by the Landlord’s point of sale system whichever is higher. For GTO sales revenue sharing, 
+	            refer to the table below:
+	        <apex:variable var="i" value="{!i+1}"/>             
+	        </td>
+	    </tr>
+	    <tr>
+	        <td></td>
+	        <td colspan="2">
+	            <table  style="border-collapse: collapse;text-align: Left; width:50%"  class="gtoTable">
+				    <tr>
+				        <td style="border:1px solid black;font-weight:bold;text-align:left;" >{!highGTO.gtoChrg.Currency_Code__c} Amount Per Year</td>
+				        <td style="border:1px solid black;font-weight:bold;text-align:center;">GTO %</td>
+				    </tr>
+				<!-- 	                <tr>  -->
+				<!-- 	                    <td style="border:1px solid black;text-align:left;" >Tier Lower Limit</td> -->
+				<!-- 	                    <td style="border:1px solid black;text-align:right;">{!highGTO.gtoChrg.Tiered_Lower_Limit__c}</td> -->
+				<!-- 	                </tr> -->
+				    <tr>
+				        <td style="border:1px solid black;width:40px;">
+				            At to the first &nbsp;
+				            <apex:outputText escape="false" rendered="{!highGTO.gtoChrg.Tier_1_Upper_Limit__c != 0}" value="{0, number, ###,##0}">
+				                <apex:param value="{!highGTO.gtoChrg.Tier_1_Upper_Limit__c}" />
+				            </apex:outputText>
+				        </td>
+				        <td style="border:1px solid black;width:25px;text-align:center;">
+				            <apex:outputText value="{0, number, ###,##0.00}">
+				                <apex:param value="{!highGTO.gtoChrg.Tier_1_Rate__c * 100}" />
+				            </apex:outputText>
+				        </td>
+				    	
+				    </tr>
+				    <apex:outputPanel layout="none" rendered="{!highGTO.gtoChrg.Tier_1_Upper_Limit__c != null}">
+				        <tr>
+				            <td style="border:1px solid black;">
+				                <apex:outputText escape="false" value="Next " rendered="{!highGTO.gtoChrg.Tier_2_Upper_Limit__c != null}"/>
+				            	<apex:outputText escape="false" rendered="{!highGTO.gtoChrg.Tier_2_Upper_Limit__c != 0}" value="{0, number, ###,##0}">
+				                    <apex:param value="{!highGTO.gtoChrg.Tier_2_Upper_Limit__c - highGTO.gtoChrg.Tier_1_Upper_Limit__c}" />
+				                </apex:outputText>
+				            	<apex:outputText escape="false" value=" and above" rendered="{!highGTO.gtoChrg.Tier_2_Upper_Limit__c == null}"/>
+				            </td>
+				            <td style="border:1px solid black;text-align:center;">
+				                <apex:outputText value="{0, number, ###,##0.00}">
+				                    <apex:param value="{!highGTO.gtoChrg.Tier_2_Rate__c * 100}" />
+				                </apex:outputText>
+				            </td>
+				        </tr>
+				    </apex:outputPanel>
+				    <apex:outputPanel layout="none" rendered="{!highGTO.gtoChrg.Tier_2_Upper_Limit__c != null}">
+				        <tr>
+				            <td style="border:1px solid black;">
+				            	<apex:outputText escape="false" value="Next " rendered="{!highGTO.gtoChrg.Tier_3_Upper_Limit__c != null}"/>
+				            	<apex:outputText escape="false" rendered="{!highGTO.gtoChrg.Tier_3_Upper_Limit__c != 0}" value="{0, number, ###,##0}">
+				                <apex:param value="{!highGTO.gtoChrg.Tier_3_Upper_Limit__c - highGTO.gtoChrg.Tier_2_Upper_Limit__c}" />
+				            </apex:outputText>
+				            	<apex:outputText escape="false" value=" and above" rendered="{!highGTO.gtoChrg.Tier_3_Upper_Limit__c == null}"/>
+				            </td>
+				            <td style="border:1px solid black;text-align:center;">
+				                <apex:outputText value="{0, number, ###,##0.00}">
+				                    <apex:param value="{!highGTO.gtoChrg.Tier_3_Rate__c * 100}" />
+				                </apex:outputText>
+				            </td>
+				        </tr>
+				    </apex:outputPanel>
+				    <apex:outputPanel layout="none" rendered="{!highGTO.gtoChrg.Tier_3_Upper_Limit__c != null}">
+				        <tr>
+				            <td style="border:1px solid black;">
+				            	<apex:outputText escape="false" value="Next " rendered="{!highGTO.gtoChrg.Tier_4_Upper_Limit__c != null}"/>
+				            	<apex:outputText escape="false" rendered="{!highGTO.gtoChrg.Tier_4_Upper_Limit__c != 0}" value="{0, number, ###,##0}">
+				                <apex:param value="{!highGTO.gtoChrg.Tier_4_Upper_Limit__c - highGTO.gtoChrg.Tier_3_Upper_Limit__c}" />
+				            </apex:outputText>
+				            	<apex:outputText escape="false" value=" and above" rendered="{!highGTO.gtoChrg.Tier_4_Upper_Limit__c == null}"/>
+				            </td>
+				            <td style="border:1px solid black;text-align:center;">
+				                <apex:outputText value="{0, number, ###,##0.00}">
+				                    <apex:param value="{!highGTO.gtoChrg.Tier_4_Rate__c * 100}" />
+				                </apex:outputText>
+				            </td>
+				        </tr>
+				    </apex:outputPanel>
+				    <apex:outputPanel layout="none" rendered="{!highGTO.gtoChrg.Tier_4_Upper_Limit__c != null}">
+				        <tr>
+				            <td style="border:1px solid black;">
+				            	<apex:outputText escape="false" value="Next " rendered="{!highGTO.gtoChrg.Tier_5_Upper_Limit__c != null}"/>
+				            	<apex:outputText escape="false" rendered="{!highGTO.gtoChrg.Tier_5_Upper_Limit__c != 0}" value="{0, number, ###,##0}">
+				                <apex:param value="{!highGTO.gtoChrg.Tier_5_Upper_Limit__c - highGTO.gtoChrg.Tier_4_Upper_Limit__c}"/>
+				            </apex:outputText>
+				           		<apex:outputText escape="false" value=" and above" rendered="{!highGTO.gtoChrg.Tier_5_Upper_Limit__c == null}"/>
+				            </td>
+				            <td style="border:1px solid black;text-align:center;">
+				                <apex:outputText value="{0, number, ###,##0.00}">
+				                    <apex:param value="{!highGTO.gtoChrg.Tier_5_Rate__c * 100}" />
+				                </apex:outputText>
+				            </td>
+				        </tr>
+				    </apex:outputPanel>
+				    <apex:outputPanel layout="none" rendered="{!highGTO.gtoChrg.Tier_5_Upper_Limit__c != null}">
+				        <tr>
+				            <td style="border:1px solid black;">
+				            	<apex:outputText escape="false" value="Next " rendered="{!highGTO.gtoChrg.Tier_6_Upper_Limit__c != null}"/>
+				            	<apex:outputText escape="false" rendered="{!highGTO.gtoChrg.Tier_6_Upper_Limit__c != 0}" value="{0, number, ###,##0}">
+				                <apex:param value="{!highGTO.gtoChrg.Tier_6_Upper_Limit__c  - highGTO.gtoChrg.Tier_5_Upper_Limit__c}"/>
+				            </apex:outputText>
+				            	<apex:outputText escape="false" value=" and above" rendered="{!highGTO.gtoChrg.Tier_6_Upper_Limit__c == null}"/>
+				            </td>
+				            <td style="border:1px solid black;text-align:center;">
+				                <apex:outputText value="{0, number, ###,##0.00}">
+				                    <apex:param value="{!highGTO.gtoChrg.Tier_6_Rate__c * 100}" />
+				                </apex:outputText>
+				            </td>
+				        </tr>
+				    </apex:outputPanel>
+				    <apex:outputPanel layout="none" rendered="{!highGTO.gtoChrg.Tier_6_Upper_Limit__c != null}">
+				        <tr>
+				            <td style="border:1px solid black;">
+				            	<apex:outputText escape="false" value="Next " rendered="{!highGTO.gtoChrg.Tier_7_Upper_Limit__c != null}"/>
+				            	<apex:outputText escape="false"  rendered="{!highGTO.gtoChrg.Tier_7_Upper_Limit__c != 0}" value="{0, number, ###,##0}">
+				                <apex:param value="{!highGTO.gtoChrg.Tier_7_Upper_Limit__c - highGTO.gtoChrg.Tier_6_Upper_Limit__c}" />
+				            </apex:outputText>
+				            	<apex:outputText escape="false" value=" and above" rendered="{!highGTO.gtoChrg.Tier_7_Upper_Limit__c == null}"/>
+				            </td>
+				            <td style="border:1px solid black;text-align:center;">
+				                <apex:outputText value="{0, number, ###,##0.00}">
+				                    <apex:param value="{!highGTO.gtoChrg.Tier_7_Rate__c * 100}" />
+				                </apex:outputText>
+				            </td>
+				        </tr> 
+				    </apex:outputPanel>
+				    <apex:outputPanel layout="none" rendered="{!highGTO.gtoChrg.Tier_7_Upper_Limit__c != null}">
+				        <tr>
+				            <td style="border:1px solid black;">
+				            <apex:outputText escape="false" value="Next " rendered="{!highGTO.gtoChrg.Tier_8_Upper_Limit__c != null}"/>
+				            	<apex:outputText escape="false" rendered="{!highGTO.gtoChrg.Tier_8_Upper_Limit__c != 0}" value="{0, number, ###,##0}">
+				                <apex:param value="{!highGTO.gtoChrg.Tier_8_Upper_Limit__c  - highGTO.gtoChrg.Tier_7_Upper_Limit__c}" />
+				            </apex:outputText>
+				            	<apex:outputText escape="false" value=" and above  " rendered="{!highGTO.gtoChrg.Tier_8_Upper_Limit__c == null}"/>
+				            </td>
+				            <td style="border:1px solid black;text-align:center;">
+				                <apex:outputText value="{0, number, ###,##0.00}">
+				                    <apex:param value="{!highGTO.gtoChrg.Tier_8_Rate__c * 100}" />
+				                </apex:outputText>
+				            </td>
+				        </tr>
+				    </apex:outputPanel>
+				    <apex:outputPanel layout="none" rendered="{!highGTO.gtoChrg.Tier_8_Upper_Limit__c != null}">
+				        <tr>
+				            <td style="border:1px solid black;" >
+				            <apex:outputText escape="false" value="and above " rendered="{!highGTO.gtoChrg.Tier_9_Rate__c != null}"/>
+				            </td>
+				            <td style="border:1px solid black;text-align:center;">
+				                <apex:outputText value="{0, number, ###,##0.00}">
+				                    <apex:param value="{!highGTO.gtoChrg.Tier_9_Rate__c * 100}" />
+				                </apex:outputText>
+				            </td>
+				            
+				        </tr>
+				    </apex:outputPanel>
+				</table>
+	        </td> 
+	    </tr>
+	</apex:repeat>
+<!--     	GTO SUM Tiered -->		
+	<apex:variable var="i" value="{!1}"/> 
+	<apex:repeat value="{! tieredSumGTOWrap }" var="sumGTO" >
+	    <tr>
+	        <td></td>
+	        <td colspan="2"  style="text-align: justify;">The &nbsp;{!if(i==1,'1st',if(i==2,'2nd',if(i==3,'3rd',Text(i)+'th')))}&nbsp; year rent shall be&nbsp; {!sumGTO.baseRentChrg.Charge_Rate__c}&nbsp; {!sumGTO.gtoChrg.Currency_Code__c}&nbsp; per square feet per 
+	            month (“Fixed Rent”) (and) % percent  <!-- &nbsp; {!sumGTO.gtoChrg.Type__c}&nbsp;--> of the gross sales (“Percentage Rent”) as determined by the Landlord’s point of sale system. For GTO sales revenue sharing, 
+	            refer to the table below:
+	        <apex:variable var="i" value="{!i+1}"/>             
+	        </td>
+	    </tr>
+	    <tr>
+	        <td></td>
+	        <td colspan="2">
+	            <table  style="border-collapse: collapse;text-align: Left; width:50%"  class="gtoTable">
+	                <tr>
+	                    <td style="border:1px solid black;font-weight:bold;text-align:left;" >{!sumGTO.gtoChrg.Currency_Code__c} Amount Per Year</td>
+	                    <td style="border:1px solid black;font-weight:bold;text-align:center;">GTO %</td>
+	                </tr>
+<!-- 	                <tr>  -->
+<!-- 	                    <td style="border:1px solid black;text-align:left;" >Tier Lower Limit</td> -->
+<!-- 	                    <td style="border:1px solid black;text-align:right;">{!sumGTO.gtoChrg.Tiered_Lower_Limit__c}</td> -->
+<!-- 	                </tr> -->
+	                <tr>
+	                    <td style="border:1px solid black;width:40px;">
+	                        At to the first &nbsp;
+	                        <apex:outputText escape="false" rendered="{!sumGTO.gtoChrg.Tier_1_Upper_Limit__c != 0}" value="{0, number, ###,##0}">
+	                            <apex:param value="{!sumGTO.gtoChrg.Tier_1_Upper_Limit__c}" />
+	                        </apex:outputText>
+	                    </td>
+	                    <td style="border:1px solid black;width:25px;text-align:center;">
+		                    <apex:outputText value="{0, number, ###,##0.00}">
+	                            <apex:param value="{!sumGTO.gtoChrg.Tier_1_Rate__c * 100}" />
+	                        </apex:outputText>
+                        </td>
+	                	
+	                </tr>
+	                <apex:outputPanel layout="none" rendered="{!sumGTO.gtoChrg.Tier_1_Upper_Limit__c != null}">
+	                    <tr>
+	                        <td style="border:1px solid black;">
+	                            <apex:outputText escape="false" value="Next " rendered="{!sumGTO.gtoChrg.Tier_2_Upper_Limit__c != null}"/>
+	                        	<apex:outputText escape="false" rendered="{!sumGTO.gtoChrg.Tier_2_Upper_Limit__c != 0}" value="{0, number, ###,##0}">
+		                            <apex:param value="{!sumGTO.gtoChrg.Tier_2_Upper_Limit__c - sumGTO.gtoChrg.Tier_1_Upper_Limit__c}" />
+		                        </apex:outputText>
+	                        	<apex:outputText escape="false" value=" and above" rendered="{!sumGTO.gtoChrg.Tier_2_Upper_Limit__c == null}"/>
+	                        </td>
+	                        <td style="border:1px solid black;text-align:center;">
+			                    <apex:outputText value="{0, number, ###,##0.00}">
+		                            <apex:param value="{!sumGTO.gtoChrg.Tier_2_Rate__c * 100}" />
+		                        </apex:outputText>
+	                        </td>
+	                    </tr>
+	                </apex:outputPanel>
+	                <apex:outputPanel layout="none" rendered="{!sumGTO.gtoChrg.Tier_2_Upper_Limit__c != null}">
+	                    <tr>
+	                        <td style="border:1px solid black;">
+	                        	<apex:outputText escape="false" value="Next " rendered="{!sumGTO.gtoChrg.Tier_3_Upper_Limit__c != null}"/>
+	                        	<apex:outputText escape="false" rendered="{!sumGTO.gtoChrg.Tier_3_Upper_Limit__c != 0}" value="{0, number, ###,##0}">
+	                            <apex:param value="{!sumGTO.gtoChrg.Tier_3_Upper_Limit__c - sumGTO.gtoChrg.Tier_2_Upper_Limit__c}" />
+	                        </apex:outputText>
+	                        	<apex:outputText escape="false" value=" and above" rendered="{!sumGTO.gtoChrg.Tier_3_Upper_Limit__c == null}"/>
+	                        </td>
+	                        <td style="border:1px solid black;text-align:center;">
+			                    <apex:outputText value="{0, number, ###,##0.00}">
+		                            <apex:param value="{!sumGTO.gtoChrg.Tier_3_Rate__c * 100}" />
+		                        </apex:outputText>
+	                        </td>
+	                    </tr>
+	                </apex:outputPanel>
+	                <apex:outputPanel layout="none" rendered="{!sumGTO.gtoChrg.Tier_3_Upper_Limit__c != null}">
+	                    <tr>
+	                        <td style="border:1px solid black;">
+	                        	<apex:outputText escape="false" value="Next " rendered="{!sumGTO.gtoChrg.Tier_4_Upper_Limit__c != null}"/>
+	                        	<apex:outputText escape="false" rendered="{!sumGTO.gtoChrg.Tier_4_Upper_Limit__c != 0}" value="{0, number, ###,##0}">
+	                            <apex:param value="{!sumGTO.gtoChrg.Tier_4_Upper_Limit__c - sumGTO.gtoChrg.Tier_3_Upper_Limit__c}" />
+	                        </apex:outputText>
+	                        	<apex:outputText escape="false" value=" and above" rendered="{!sumGTO.gtoChrg.Tier_4_Upper_Limit__c == null}"/>
+	                        </td>
+	                        <td style="border:1px solid black;text-align:center;">
+			                    <apex:outputText value="{0, number, ###,##0.00}">
+		                            <apex:param value="{!sumGTO.gtoChrg.Tier_4_Rate__c * 100}" />
+		                        </apex:outputText>
+	                        </td>
+	                    </tr>
+	                </apex:outputPanel>
+	                <apex:outputPanel layout="none" rendered="{!sumGTO.gtoChrg.Tier_4_Upper_Limit__c != null}">
+	                    <tr>
+	                        <td style="border:1px solid black;">
+	                        	<apex:outputText escape="false" value="Next " rendered="{!sumGTO.gtoChrg.Tier_5_Upper_Limit__c != null}"/>
+	                        	<apex:outputText escape="false" rendered="{!sumGTO.gtoChrg.Tier_5_Upper_Limit__c != 0}" value="{0, number, ###,##0}">
+	                            <apex:param value="{!sumGTO.gtoChrg.Tier_5_Upper_Limit__c - sumGTO.gtoChrg.Tier_4_Upper_Limit__c}"/>
+	                        </apex:outputText>
+	                       		<apex:outputText escape="false" value=" and above" rendered="{!sumGTO.gtoChrg.Tier_5_Upper_Limit__c == null}"/>
+	                        </td>
+	                        <td style="border:1px solid black;text-align:center;">
+			                    <apex:outputText value="{0, number, ###,##0.00}">
+		                            <apex:param value="{!sumGTO.gtoChrg.Tier_5_Rate__c * 100}" />
+		                        </apex:outputText>
+	                        </td>
+	                    </tr>
+	                </apex:outputPanel>
+	                <apex:outputPanel layout="none" rendered="{!sumGTO.gtoChrg.Tier_5_Upper_Limit__c != null}">
+	                    <tr>
+	                        <td style="border:1px solid black;">
+	                        	<apex:outputText escape="false" value="Next " rendered="{!sumGTO.gtoChrg.Tier_6_Upper_Limit__c != null}"/>
+	                        	<apex:outputText escape="false" rendered="{!sumGTO.gtoChrg.Tier_6_Upper_Limit__c != 0}" value="{0, number, ###,##0}">
+	                            <apex:param value="{!sumGTO.gtoChrg.Tier_6_Upper_Limit__c  - sumGTO.gtoChrg.Tier_5_Upper_Limit__c}"/>
+	                        </apex:outputText>
+	                        	<apex:outputText escape="false" value=" and above" rendered="{!sumGTO.gtoChrg.Tier_6_Upper_Limit__c == null}"/>
+	                        </td>
+	                        <td style="border:1px solid black;text-align:center;">
+			                    <apex:outputText value="{0, number, ###,##0.00}">
+		                            <apex:param value="{!sumGTO.gtoChrg.Tier_6_Rate__c * 100}" />
+		                        </apex:outputText>
+	                        </td>
+	                    </tr>
+	                </apex:outputPanel>
+	                <apex:outputPanel layout="none" rendered="{!sumGTO.gtoChrg.Tier_6_Upper_Limit__c != null}">
+	                    <tr>
+	                        <td style="border:1px solid black;">
+	                        	<apex:outputText escape="false" value="Next " rendered="{!sumGTO.gtoChrg.Tier_7_Upper_Limit__c != null}"/>
+	                        	<apex:outputText escape="false"  rendered="{!sumGTO.gtoChrg.Tier_7_Upper_Limit__c != 0}" value="{0, number, ###,##0}">
+	                            <apex:param value="{!sumGTO.gtoChrg.Tier_7_Upper_Limit__c - sumGTO.gtoChrg.Tier_6_Upper_Limit__c}" />
+	                        </apex:outputText>
+	                        	<apex:outputText escape="false" value=" and above" rendered="{!sumGTO.gtoChrg.Tier_7_Upper_Limit__c == null}"/>
+	                        </td>
+	                        <td style="border:1px solid black;text-align:center;">
+			                    <apex:outputText value="{0, number, ###,##0.00}">
+		                            <apex:param value="{!sumGTO.gtoChrg.Tier_7_Rate__c * 100}" />
+		                        </apex:outputText>
+	                        </td>
+	                    </tr> 
+	                </apex:outputPanel>
+	                <apex:outputPanel layout="none" rendered="{!sumGTO.gtoChrg.Tier_7_Upper_Limit__c != null}">
+	                    <tr>
+	                        <td style="border:1px solid black;">
+	                        <apex:outputText escape="false" value="Next " rendered="{!sumGTO.gtoChrg.Tier_8_Upper_Limit__c != null}"/>
+	                        	<apex:outputText escape="false" rendered="{!sumGTO.gtoChrg.Tier_8_Upper_Limit__c != 0}" value="{0, number, ###,##0}">
+	                            <apex:param value="{!sumGTO.gtoChrg.Tier_8_Upper_Limit__c  - sumGTO.gtoChrg.Tier_7_Upper_Limit__c}" />
+	                        </apex:outputText>
+	                        	<apex:outputText escape="false" value=" and above  " rendered="{!sumGTO.gtoChrg.Tier_8_Upper_Limit__c == null}"/>
+	                        </td>
+	                        <td style="border:1px solid black;text-align:center;">
+			                    <apex:outputText value="{0, number, ###,##0.00}">
+		                            <apex:param value="{!sumGTO.gtoChrg.Tier_8_Rate__c * 100}" />
+		                        </apex:outputText>
+	                        </td>
+	                    </tr>
+	                </apex:outputPanel>
+	                <apex:outputPanel layout="none" rendered="{!sumGTO.gtoChrg.Tier_8_Upper_Limit__c != null}">
+	                    <tr>
+	                        <td style="border:1px solid black;">
+	                        <apex:outputText escape="false" value="and above " rendered="{!sumGTO.gtoChrg.Tier_9_Rate__c != null}"/>
+	                        </td>
+	                        <td style="border:1px solid black;text-align:center;">
+			                    <apex:outputText value="{0, number, ###,##0.00}">
+		                            <apex:param value="{!sumGTO.gtoChrg.Tier_9_Rate__c * 100}" />
+		                        </apex:outputText>
+	                        </td>
+	                        
+	                    </tr>
+	                </apex:outputPanel>
+	            </table>
+	        </td> 
+	    </tr>
+	</apex:repeat>
+    	<tr>
+    		<td>13.</td>
+    		<td colspan="2">Payment Term</td>
+    	</tr>
+    	<tr> 
+    		<td></td>
+    		<td colspan="2" >(13.1) Security Deposit  
+    						<div  style="text-align: justify;">
+	    						<apex:repeat value="{!loi.deposits__r}" var="dep1">
+	    						<br/>
+									The tenant is required to pay the security deposit amounting to 
+									<apex:outputpanel rendered="{!dep1.Deposit_Formula_Type__c != 'By Fixed'}">
+										{! depositMonthsString[dep1.Id] }&nbsp;({!dep1.Number_of_Months__c}) month’s 
+										rent totaling amount of {!dep1.Currency_Code__c} – 
+									</apex:outputpanel>
+									<apex:outputText value="{0,number,###,###,##0.00}">
+		                                  <apex:param value="{! dep1.Deposit_Amount__c }"/>
+		                            </apex:outputText> only ( 
+									{! depositCurrency[dep1.Id] }
+		 							 {! dep1.Currency_Code__c } Only/-) upon acceptance signing of Letter of Intent.<br/>
+	 							 </apex:repeat>
+ 							 </div>
+			</td>
+    	</tr> 
+<!--     	<tr> -->
+<!--     		<td></td> -->
+<!--     		<td colspan="2">(13.2) Rental Payment Terms</td> -->
+<!--     	</tr> -->
+    	<tr>
+    		<td></td>
+    		<td colspan="2">
+				<table cellspacing="0" cellpadding="0" style="-fs-table-paginate: paginate;">
+					<tr>
+						<td colspan="3"  style="padding-left: 0px;margin-left: 0px;">(13.2) Rental Payment Terms</td>
+					</tr>
+					<tr>
+						<td style="border:0.5px solid black;width:50px">&nbsp;&nbsp;&nbsp;&nbsp;1.</td>
+						<td style="border:0.5px solid black;">Upon signing of Letter of Intent (Deposit)</td>
+						<td style="border:0.5px solid black;">{!depositMonths} Months Rental</td>
+					</tr>
+					<tr>
+						<td style="border:0.5px solid black;">&nbsp;&nbsp;&nbsp;&nbsp;2.</td>
+						<td style="border:0.5px solid black;">Upon signing of Lease Agreement </td>
+						<td style="border:0.5px solid black;">{!depositMonths} Months Rental</td>
+					</tr>
+					<tr>
+						<td style="border:0.5px solid black;">&nbsp;&nbsp;&nbsp;&nbsp;3.</td>
+						<td style="border:0.5px solid black;">Opening</td>
+						<td style="border:0.5px solid black;">{!depositMonths} Months Rental</td>
+					</tr>
+				</table><br/>
+				* Quarterly payment for subsequent rental payment.
+			</td>
+    	</tr>
+    	<tr>
+    		<td></td>
+    		<td colspan="2">(13.3) Other Charges<br/>
+							Monthly utilities charges shall be payable on a monthly basis as invoiced to the Tenant.</td>
+    	</tr>
+    	<tr>
+    		<td>14.</td>
+    		<td colspan="2">Handover Condition</td>
+    	</tr>
+    	<tr> 
+    		<td></td>
+    		<td colspan="2">
+    		<apex:variable var="i" value="{!1}"/>
+    			<table width="100%" cellspacing="0" cellpadding="0" style="-fs-table-paginate: paginate;">
+					<apex:repeat value="{! keyValues }" var="chk">
+						<tr>
+							<td style="border:0.5px solid black; width : 40%;vertical-align: middle;">
+				                {!i}.&nbsp; {!chk}
+				                <apex:variable var="i" value="{!i+1}"/>
+				            </td>
+							<td style="border:0.5px solid black;">
+								<apex:repeat value="{!handoverMapList[chk]}" var="items">
+									{!items}<br/>
+								</apex:repeat>
+							</td>
+						</tr>
+					</apex:repeat>
+				</table>
+			</td>
+    	</tr>
+    	<tr>
+    		<td>15.</td>
+    		<td colspan="2">Renovation Period</td>
+    	</tr>
+    	<tr>
+    		<td></td>
+    		<td colspan="2" style="text-align: justify;">Renovation period shall be &nbsp;{!if(loi.Fit_Out_Period_Months__c != null,loi.Fit_Out_Period_Months__c,0)}&nbsp; month and &nbsp;{!if(loi.Fit_Out_Period_Days__c != null,loi.Fit_Out_Period_Days__c,0)}&nbsp; day, starting from the notice date of LOI, without rental 
+    						charges to open the subject shop lot(s).The tenant, shall at its own cost &amp; expenses applied 
+    						for the required business &amp; operational licenses from the respective local authority and submit 
+    						all related renovation plans &amp; drawings, M&amp;E and architectural drawings to the Landlord for 
+    						approval and to carry out the renovation works in accordance to the mall Fit Out Guide &amp; Policy 
+    						and other related local authority legal compliance upon receiving the written approval 
+    						from the Landlord.  During the fitting out and renovation period, the Tenant undertakes to 
+    						comply to carry out the subject works under the inspection and supervision of the Landlord’s 
+    						Mechanical, Engineering &amp; Architect team.
+			</td>
+    	</tr>
+    	<tr>
+    		<td>16.</td>
+    		<td colspan="2">Price Validity</td>
+    	</tr>
+    	<tr>
+    		<td></td>
+    		<td colspan="2">
+    			This proposal is valid for {!loi.LOI_Validity_Week__c} from the date hereon. <br/> <br/> 
+
+				<div  style="text-align: justify;">The tenant is required to send back this Letter of Intent (LOI) with signature of acceptance. The following documents have to be submitted to {!loi.Property__r.Name} (Centre Management Office) upon acceptance of this proposal.
+				</div>
+				<br/><br/>1.	Company Profile
+				<br/>2.	Company registration copy
+				<br/>3.	Form 6 &amp; 26 copy
+				<br/>4.	Trade license certificate copy
+				<br/>5.	Franchise / Authorized letter copy
+				<br/>6.	Color photos of latest shop (shop front &amp; interior)
+				<br/>7.	Guarantee letter for the assign person
+				</td>
+    	</tr>
+    	<tr>
+    		<td>17.</td>
+    		<td colspan="2">Violation of Intellectual Property </td>
+    	</tr>
+    	<tr>
+    		<td></td>
+    		<td colspan="2" >
+    		
+    						<div style="text-align: justify;">It is a violation of Intellectual Property law to trade/sell unlicensed, copy, fake or 
+    						reproduction of products, merchandise and services. The management and owner of 
+   							the shopping mall strongly prohibits and disallowed its Tenants at {!loi.Property__r.Name} Yangon 
+   							shopping mall from trading and online sale of all types of subject illegal, fake, copy, 
+   							unlicensed or reproduction of products, merchandise and services.<br/></div>
+   							<div style="text-align: justify;">
+							The management and owner of the shopping mall reserved its right and discretion to serve a 
+							24 hours eviction notice and forfeiture of the total sum of the Tenant(s) security deposit 
+							in the event the subject tenant(s) is found breaking or in violation of the Intellectual 
+							Property Rights Law. In no event shall the management, its trustees, directors, officers, 
+							employees, and affiliates be liable for any causes of action or damages, including any direct, 
+							indirect, special, or consequential damages, arising out of the violation of the Intellectual 
+							Property Rights Law.<br/>
+							<br/> </div>
+							<apex:image url="{!burmeseTextUrl}" style="margin-left:-10px" width="100%" height="330" />
+							
+			</td>
+    	</tr>
+    	<tr>
+    		<td>18.</td>
+    		<td colspan="2">Disclaimer</td>
+    	</tr>
+    	<tr>
+    		<td></td>
+    		<td colspan="2" >
+    						<div style="text-align: justify;">
+    						“Notwithstanding to the contrary contained in this LOI, the Landlord may at any time 
+    						in its absolute discretion propose alternative premises within the building to the Tenant. 
+   							If the Tenant agrees to such said alternative premises, then the same shall be deemed 
+   							substituted for the premised described in this LOI. If the Tenant does not agree to such 
+   							said alternative premises and/or any other substitute premises as proposed by the Landlord , 
+   							then on written notice issued by the Landlord to the Tenant, all agreements, understanding 
+   							and negotiations between the Landlord and the Tenant for the lease of premises as contemplated 
+   							by the LOI will terminate, without the Landlord and the Tenant for the lease of premises as 
+   							contemplated by the LOI will terminate, without the Landlord incurring any liability 
+   							whatsoever the Tenant, provided however that the Landlord will forthwith refund to the Tenant 
+   							any security deposit received without interest.”
+   							</div>
+   							<br/><br/>
+   			</td>
+    	</tr>
+    	<tr>
+    		<td colspan="3">
+	    		<div style="page-break-inside:avoid;">
+					<table width="100%">
+						<tr>
+							<td></td>
+							<td align="center">(Tenant Acceptance)<br/><br/></td>
+							<td></td>
+							<td align="center">(Landlord’s representative)</td>
+						</tr>
+						<tr>
+							<td>Sign</td>
+							<td>__________________________________</td>
+							<td></td>
+							<td  align="center">__________________________________</td>
+						</tr>
+						<tr>
+							<td valign="top">Name</td>
+							<td align="center">{!loi.Tenant_Name_Acceptance__c}</td>
+							<td></td>
+							<td align="center">
+								{!loi.Landlord_s_representative__c}
+							</td>
+						</tr>
+						<tr>
+							<td valign="top" >Post</td>
+							<td align="center">{!loi.Tenant_Position__c}</td>
+							<td></td>
+							<td align="center">{!loi.Landlord_s_Position__c}</td>
+						</tr>
+						<tr>
+							<td valign="top">Address</td>
+							<td align="center">{!loi.Tenant_Address__c} </td>
+							<td></td>
+							<td align="center">{!loi.Landlord_s_Address__c}</td>
+						</tr>
+					</table>
+				</div>
+			</td>
+    	</tr>
+    </table>
+</body>
+</html>
+</apex:page>

@@ -1,0 +1,5 @@
+<apex:page tabStyle="Request__c" standardController="Request__c">
+<script>
+        window.location.href="/a1V/e?ent=01I28000001FNXv&Name=--System Generated--&nooverride=1&00N7F00000HCfVR=SF&retURL=%2Fa1V%2Fo&save_new_url=/a1V/e"
+    </script>
+</apex:page>

@@ -1,0 +1,58 @@
+@isTest(seeAllData=false)
+public with sharing class TaskHistory_Test {
+	static testMethod void runCounterOnNULL() {
+		Count_Index__c setting = new Count_Index__c();
+		setting.Name = 'Request_ST_Index';
+		setting.Count__c = null;
+		insert setting;
+	
+		Count_Index__c setting1 = new Count_Index__c();
+		setting1.Name = 'Task_ST_Index';
+		setting1.Count__c = null;
+		insert setting1;
+
+		Property__c prop = new Property__c();
+        prop.Name = 'TestProperty';
+        prop.Deposit_Refund_Index__c = null;
+        insert prop;
+        
+	    Test.startTest();
+	    Request__c rr = new Request__c();
+	    rr.name = 'TestRec'; 
+	    rr.Property__c = prop.Id;
+	    insert rr;
+	    
+        List<Task> ttList= new List<Task>();
+	    task t = new task(
+				        WhatID = rr.id,
+				        Subject='Donni',
+				        Status='New',
+				        Property__c = prop.Id);
+	    ttList.add(t);  
+	    t = new task(
+				        WhatID = rr.id,
+				        Subject='Donni',
+				        Status='New',
+				        Property__c = prop.Id);
+	    ttList.add(t);
+	    t = new task(
+				        WhatID = rr.id,
+				        Subject='Donni',
+				        Status='New' );
+	    ttList.add(t);
+	    insert ttList;
+	    ttList[0].Description = 'test Description';
+	    ttList[1].Description = 'test Description';
+	    ttList[2].Description = 'test Description'; 
+	    update ttList;
+	    
+	    PageReference pageRef = Page.TaskHistory;
+		Test.setCurrentPage(pageRef);
+		pageRef.getParameters().put('Id', ttList[0].Id);
+		ApexPages.StandardController sc = new ApexPages.StandardController(ttList[0]);
+		TaskHistory_Extension testAccPlan = new TaskHistory_Extension(sc);
+	    
+	    //Double dd = testAccPlan.offset();
+	    Test.setCurrentPage(pageRef);
+	}
+}

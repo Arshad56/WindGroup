@@ -1,0 +1,32 @@
+<aura:component controller="CancelLoiCompController" implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" >
+    <aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="reason" type="String"/>
+    <aura:attribute name="isShowReason" type="Boolean" default="false"/>    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:renderIf isTrue="{!v.isShowReason}">
+        <ui:inputText label="Reason for Cancellation" value="{!v.reason}" aura:id="inputReason" required="true"/>
+        <br/><br/>
+        <div style="text-align:center;">
+            <button  onclick="{!c.saveCancelLOI}"  class="slds-button slds-button_brand">
+                Save
+            </button>
+        </div>
+        
+        <aura:set attribute="else">
+            <div style="text-align:center;font-size:18px;" class="slds align__absolute-center" >
+                Are you sure you want to Cancel this LOI?
+            </div><br/><br/>
+            <div style="text-align:center;">
+                <button  onclick="{!c.checkReason}"  class="slds-button slds-button--success">
+                    Yes
+                </button>&nbsp;
+                <button onclick="{!c.close}"  class="slds-button slds-button--destructive">
+                    No
+                </button>
+            </div>
+            
+        </aura:set>
+    </aura:renderIf>     
+    
+</aura:component>

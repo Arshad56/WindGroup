@@ -1,0 +1,117 @@
+<apex:page controller="ResurveyController" docType="html-5.0" sidebar="false" showheader="false" id="pg">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<style>
+    alignCenter{ 
+        text-align:center;
+    }
+</style>
+    <apex:form id="frm">
+    <apex:actionFunction name="search" action="{!search}" status="status"  rerender="frm"/>
+    <apex:actionFunction name="generate" action="{!generate}" status="status" rerender="frm"/>
+        <center><div style="font-size:18px;padding-top: 10px; padding-right: 130px; padding-bottom: 10px; ">Re-Survey</div></center>
+        
+        <apex:actionStatus id="status">
+           <apex:facet name="start">
+           <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.25; z-index: 1000; background-color: infobackground;">
+               &nbsp;
+           </div>
+           <div style="position: fixed; left: 0; top: 0; bottom: 0; right: 0; z-index: 1001; margin: 15% 50%">
+               <div style="width: 125px;">
+                   <img src="/img/loading.gif" style="float: left; margin: 8px;" />
+                   <span style="display: inline-block; padding: 10px 0px;">Please Wait...</span>
+                </div>
+            </div>
+            </apex:facet>
+        </apex:actionStatus>
+        <apex:pageMessages />
+        
+        <apex:pageBlock rendered="{!showDetail}" id="miscblock">
+                <apex:pageBlockSection columns="1">
+                    <apex:outputText label="Current NLA (SQF)" value="{0, number, ###,##0.00}">
+                        <apex:param value="{!oldNLA}" />
+                    </apex:outputText>
+                    <apex:pageBlockSectionItem >
+                        <apex:outputLabel value="New NLA (SQF)" />
+                        <apex:outputPanel >
+                            <div class="requiredInput">
+                                <div class="requiredBlock"></div>
+                                <apex:inputfield value="{!unitOnUI.NLA_SQF__c}"/>
+                            </div>
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+                    <apex:pageBlockSectionItem >
+                        <apex:outputLabel value="Effective Date" />
+                        <apex:outputPanel >
+                            <div class="requiredInput">
+                                <div class="requiredBlock"></div>
+                                <apex:inputfield value="{!unitOnUI.Start_Date__c}"/>
+                            </div>
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+                    
+                </apex:pageBlockSection>
+                <apex:pageBlockButtons >
+                    <apex:commandButton value="Next" onclick="search(); this.disabled='true'; return false;" status="status" />
+                    <apex:commandButton value="Close" rendered="{!$CurrentPage.parameters.isLightning != 'true'}" onclick="window.close();" status="status" />  
+                    <apex:commandButton value="Close" rendered="{!$CurrentPage.parameters.isLightning == 'true'}" action="/{!selectedunit.Id}"/>      
+                </apex:pageBlockButtons>
+        </apex:pageBlock>
+        <apex:pageBlock id="wrapTable"  rendered="{!showTable}">  
+            <apex:pageBlockButtons >
+                    <apex:commandButton value="Back" action="{!back}"  rerender="frm" status="status" />
+                    <apex:commandButton value="Generate" onclick="generate();this.disabled='true'; this.value='Generating...'; return false;" status="status" />                
+                </apex:pageBlockButtons>
+            <table border="1" width="100%" style="border-collapse:collapse;text-align:center;" >
+                    <tr> 
+                        <th style="text-align:center;widh:250px;">Charge Name</th>
+                        <th style="text-align:center;widh:60px;" >Charge Type</th> 
+                        <th style="text-align:center;widh:40px;" >Currency Code</th>
+                        <th style="text-align:center;widh:40px;" >Exchange Rate</th>
+                        <th style="text-align:center;widh:30px;" >Amount</th>
+                        <th style="text-align:center;widh:15px;" >Apply <br/>Comm Tax</th>
+                        <th style="text-align:center;widh:40px;" >Remarks</th>
+                        <th style="text-align:center;widh:50px;" >Add/Remove</th>
+                    </tr>
+                    <apex:variable var="paren" value="{!0}" id="paren" />
+                    <apex:repeat value="{!allIds}" var="luId" id="lst">
+                    <tr> 
+                        <td colspan="7" style="text-align: left;padding: 10px;"> Lease Unit : <b> <a href="/{!mapLU[luId].Id}" target="_blank"><apex:outputText value="{!mapLU[luId].name}"/></a></b></td>
+                    </tr>
+                    <apex:variable var="rowNum" value="{!1}" id="rowNum" />
+                        <apex:repeat value="{!maplistRsWrap[luId]}" var="rsWrap" id="lst">
+                            <tr>
+                                <td>{!rsWrap.rs.Lease_Charge__r.name}</td>
+                                <td>{!rsWrap.rs.Charge_Type__c}</td>
+                                <td>{!rsWrap.rs.Currency_Code__c}</td>
+                                <td>{!rsWrap.rs.Exchange_Rate__c}</td>
+                                <td><apex:input value="{!rsWrap.amount}" id="amt"/></td>
+                                <td><apex:inputcheckbox value="{!rsWrap.commTax}" id="tax"/> </td>
+                                <td style="padding: 0px;margin: opx;"><apex:inputTextarea value="{!rsWrap.remark}" id="rmk" /></td>
+                               <td style="text-align: left;">&nbsp;&nbsp;&nbsp;
+                                     <apex:commandButton action="{!addRow}" status="status" style="padding: 5px;" image="/img/cal/addNew_on.gif" rerender="wrapTable">
+                                        <apex:param name="toAddRow" value="{!rowNum-1}" />
+                                        <apex:param name="luId" value="{!luId}" />
+                                    </apex:commandButton>
+                                    <apex:commandButton action="{!delRow}" status="status" style="padding: 3.5px;padding-left: 5px;padding-right: 5px;" image="/img/func_icons/remove12_on.gif" rerender="wrapTable">
+                                        <apex:param name="toDelRow" value="{!rowNum-1}" />
+                                        <apex:param name="luId" value="{!luId}" />
+                                    </apex:commandButton>
+                                    <apex:variable var="rowNum" value="{!rowNum+1}" />
+                               </td>
+                            </tr>
+                        </apex:repeat>
+                        <apex:variable var="paren" value="{!paren+1}" />
+                    </apex:repeat>
+            </table>
+            <script>
+                if ({!closePage}) {
+                     if("{!$CurrentPage.parameters.isLightning}" != 'true'){
+                         window.close();
+                     }else{
+                         window.location.href = "/{!selectedunit.Id}";
+                     }
+                }
+            </script>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

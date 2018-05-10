@@ -1,0 +1,74 @@
+<apex:page lightningStylesheets="true" docType="html-5.0" sidebar="false" id="GenerateLOIPage" controller="GenerateLOIController" tabstyle="LOI__c" >
+<script>
+     function disableOnSubmit(input) {
+     document.getElementById('GenerateLOIPage:frm:status.start').style.display='block';
+        }
+</script>
+    <apex:sectionHeader title="LOI" subtitle="Generate LOI"/>
+    
+    <center>
+        <apex:image value="{!$Resource.GenerateLOIStep3}" style="width:20%;"/>
+    </center>
+    <apex:form id="frm">
+         <apex:actionstatus id="status">
+            <apex:facet name="start">
+                <div class="waitingSearchDiv" id="el_loading" style="background-color: #fbfbfb;
+                       height: 100%;opacity:0.65;width:100%;">
+                </div>
+                <div class="waitingHolder" style="position:absolute;top: 200px;left:48%; opacity:1;z-index:100; width: 91px;">
+                        <img class="waitingImage" src="/img/loading.gif" title="Please Wait..." />
+                        <span class="waitingDescription">Loading...</span>
+                </div>
+            </apex:facet>
+        </apex:actionstatus>    
+        <apex:pageMessages escape="false"/>
+        <apex:pageBlock id="pb" >
+       
+        <apex:variable var="sr" value="{!0}"/>
+        <apex:pageBlockButtons id="pbButton">
+            <apex:commandButton action="/apex/generateloistep2" value="Back"/>
+           
+            
+            <apex:commandButton value="Save" action="{!SaveLOI}" onclick="disableOnSubmit(this);" />
+            
+           <apex:commandButton action="/home/home.jsp" value="Cancel"/>
+        </apex:pageBlockButtons>
+            <apex:pageBlockSection title="Handover Conditions" columns="1">
+            
+                <apex:pageBlockTable value="{!itemListTemp}"  var="item">
+                    <!--<apex:column headerValue="Check List Item No">
+                        <apex:commandLink onclick="window.open('/{!item.id}')" ><apex:outputField value="{!item.Name}"/></apeX:commandLink>
+                    </apex:column>-->
+                    <apex:column headerValue="S/N" style="width:10%;">
+                        <apex:outputField value="{!item.SN__c}"/>
+                    </apex:column>
+                    <apex:column headerValue="Description" style="width:30%;">
+                        <apex:outputField value="{!item.Description__c}"/>
+                    </apex:column>
+                    <apex:column headerValue="Condition" style="width:40%;">
+                        <apex:outputField value="{!item.Condition__c}"/>
+                    </apex:column>
+                     
+                     
+                    <apex:column headerValue="Number">
+                        <apex:outputField value="{!item.Number__c}"/>
+                    </apex:column>
+                     <!--
+                    <apex:column headerValue="Item Types" >
+                        <apex:outputField value="{!item.Item_Type__c}"  style="width:95%;"/>
+                    </apex:column>-->
+                    <!--<apex:column headerValue="Remark" style="width:30%;">
+                        <apex:inputTextarea value="{!item.Remarks__c}" style="width:90%;"/>
+                    </apex:column>-->
+                    <!--
+                    <apex:column headerValue="S/N">
+                        <apex:outputField value="{!item.SN__c}"  style="width:95%;"/>
+                    </apex:column>
+                    <apex:column headerValue="Checklist Status">
+                        <apex:outputField value="{!item.Checklist_Status__c}"  style="width:95%;"/>
+                    </apex:column>-->
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

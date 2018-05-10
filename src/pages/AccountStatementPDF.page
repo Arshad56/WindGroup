@@ -1,0 +1,166 @@
+<apex:page controller="AccountStatementPDFCntrl"  showHeader="false" sidebar="false" renderAs="pdf" standardStylesheets="false" applyBodyTag="false"  applyHtmlTag="false">
+  <html>
+     <head>
+        <style>
+        .headers{
+        font-size:10px;
+        font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        @page {    
+        margin-top:100px;
+        margin-bottom:80px;
+        size: letter;
+        @top-center {
+            content: element(header);
+             }
+        @bottom-left {
+                content: element(footer);
+            }
+        }                       
+        div.header {
+        padding: 10px;
+        position: running(header);
+        }
+        div.footer {
+        display: block;
+        padding: 0px;
+        position: running(footer);
+        
+        }
+        .pagenumber:before {
+        content: counter(page);
+        }
+        .pagecount:before {
+        content: counter(pages);
+        }
+        
+        
+        .changingFonts{
+        font-weight:bolder;
+        }
+        .blank_row{
+        height: 25px; 
+        
+        }
+        .CurrencyLeft{
+            border-bottom:1px solid #e9e9e9;text-align:left;
+        }
+        .CurrencyRight{
+            border-bottom:1px solid #e9e9e9;text-align:right;
+        }
+        </style>
+        </head>
+    <body style="font-size:14px;font-family: Arial Unicode MS;">    
+       
+        <div class="header">
+            <table width="100%">
+                <tr>
+                    <td width="55%" valign="top" align="Center">
+                        <apex:image url="{!pro.Logo__c}" style="margin-left:-120px" width="275" height="75" rendered="{!pro.Logo__c!=null}"/>
+                       </td>
+                    <td width="45%" >
+                        
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+            <hr size="5px"  style="margin-top: -1px;width: 103%;margin-left: -14px;" />
+        </div>
+        
+        <div class="footer">
+            <table width="100%" style="font-family:Arial, Helvetica, sans-serif,Lucida Console;margin-bottom: 10px;">
+                <!--<tr>
+                    <td>This invoice is computer generated. No signature is required.</td>
+                </tr>-->                
+            </table>
+            <center>Page <span class="pagenumber"/> of <span class="pagecount"/></center>
+        </div>
+        <center>            
+            <p style="font-size:17px;font-weight:bold;font-family:Arial, Helvetica, sans-serif,Lucida Console;margin-top: -10px">
+                <apex:outputText >Statement of Accounts</apex:outputText>
+            </p>
+        </center>
+        
+        <table border="0" width="100%" style="margin-top:-20px;">
+            <tr>
+                <td valign="top" width="58%" style="word-wrap:break-word;font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                    <b>Customer:</b><br/> 
+                    <apex:outputPanel rendered="{!tenant.Name !=null}">
+                        {!tenant.Name}<br/>
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!AND(tenant.BillingStreet!=null, tenant.BillingStreet!='')}">
+                        {!tenant.BillingStreet},<br/>
+                    </apex:outputPanel>
+                    Tel: <apex:outputText value="{!tenant.Phone}" rendered="{!tenant.Phone!=null}"/>
+                    <br/>
+                    <b>Customer Code : {!tenant.Customer_Code__c}</b><br/>
+                   <!-- <b>Shop Name : {!tenant.Name}</b><br/>
+                    <b>Shop No &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:  </b> -->
+                </td>
+            
+                <td valign="top" width="58%" style="word-wrap:break-word;font-family:Arial, Helvetica, sans-serif,Lucida Console;">                   
+                </td>
+            </tr>
+         </table>
+         <br/>
+         
+          <table width="100%" cellspacing="0" cellpadding="0">
+            <tbody style="display:table-row-group; font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <tr style="font-size:13px;">
+                    <th width="20%" height="35px;" style="border-top:1px solid black;border-bottom:1px solid black;text-align:center;">Cash Receipt No.</th>
+                    <th width="20%" height="35px;" style="border-top:1px solid black;border-bottom:1px solid black;text-align:center;">Invoice No/Deposit No</th>
+                    <th width="9%" height="35px;" style="border-top:1px solid black;border-bottom:1px solid black;text-align:center;">Type</th>
+                    <th width="17%" height="35px;" style="border-top:1px solid black;border-bottom:1px solid black;text-align:center;">Amount ({!$Label.Default_Currency})</th>
+                    <th width="11%" height="35px;" style="border-top:1px solid black;border-bottom:1px solid black;text-align:center;">Date</th>
+                    <th width="23%" height="35px;" style="border-top:1px solid black;border-bottom:1px solid black;text-align:center;">Remarks</th>
+                </tr>
+                
+                <apex:repeat value="{!DepoInvList}" var="depInv">
+                    <tr style="height:25px; font-size:11px;">
+                        <td style="border-bottom:1px solid #e9e9e9;">{!depInv.caseRecNo}</td>
+                        <td style="border-bottom:1px solid #e9e9e9;">{!depInv.invDepNo}</td>
+                        <td style="border-bottom:1px solid #e9e9e9;">{!depInv.billingType}</td>
+                        <td style="border-bottom:1px solid #e9e9e9;padding-left:10px;">
+                             <apex:outPutText value="{0,number,###,###,##0.00}" style="float:Right;">
+                                 <apex:param value="{!depInv.amount}"/>
+                             </apex:outputText>
+                             <br/>
+                             <apex:outputText rendered="{!IF(depInv.currencyType != $Label.Default_Currency, true, false)}"  style="float:{!if(depInv.currencyType != $Label.Default_Currency,'Left','Right')}">
+                                 {!depInv.currencyType}:&nbsp;
+                                 <apex:outPutText value="{0,number,###,###,##0.00}">
+                                     <apex:param value="{!depInv.locCurren}"/>
+                                 </apex:outputText>
+                             </apex:outputText>
+                        </td>
+                        <td style="border-bottom:1px solid #e9e9e9;text-align:center;">
+                             <apex:outputtext value="{0,date,dd/MM/yy}">
+                                    <apex:param value="{!depInv.invDepDate}"/>
+                                </apex:outputtext> 
+                        </td>
+                        <td style="border-bottom:1px solid #e9e9e9;"><span style="padding-left:3px;">{!depInv.remarks}</span></td>
+                       <!-- <td style="text-align:right;">
+                            <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!cd.Amount_Paid__c}"/>
+                            </apex:outputText>
+                        </td>-->
+                    </tr>
+                </apex:repeat>
+                <tr style="height:25px;  font-size:13px;">
+                        <td style="border-top:1px solid black;border-bottom:1px solid black;"></td>
+                        <th style="border-top:1px solid black;border-bottom:1px solid black;" colspan="2">Outstanding Amount</th>
+                        <th style="border-top:1px solid black;border-bottom:1px solid black;text-align:right;">
+                            <apex:outPutText value="{0,number,###,###,##0.00}">
+                                 <apex:param value="{!outstandingAmount}"/>
+                             </apex:outputText>
+                        </th>
+                        <td style="border-top:1px solid black;border-bottom:1px solid black;"></td>
+                        <td style="border-top:1px solid black;border-bottom:1px solid black;"></td>
+                    </tr>
+                
+                
+            </tbody>
+        </table>
+         
+    </body>
+  </html>
+</apex:page>

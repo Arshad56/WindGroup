@@ -1,0 +1,9 @@
+.THIS .cuf-content{
+    padding:0px !important;
+}
+
+.THIS .modal-body .scrollable .slds-modal__content .slds-p-around--medium{
+    height: auto !important;
+    max-height: 300px;
+    padding: 0px !important;
+}

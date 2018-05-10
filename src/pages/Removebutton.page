@@ -1,0 +1,33 @@
+<apex:page >
+<script language="JavaScript">
+
+    //alert('testlol');
+    var myElements = $(".btnImportant");
+    alert(myElements.length);
+    
+    for (var i=0;i<myElements.length;i++) {
+        alert(myElements.eq(i).attr("value"));
+    }
+
+function CustomApproval()
+{
+    var s=document.getElementsByTagName('input');
+    for(var i=0; i< s.length ; i++){
+        if(s[i].className.indexOf('btnImportant') != -1)
+        {
+            alert('test2');
+            s[i].style.display='none';
+        }
+    }
+    alert(divs.length);}var oldonload = window.onload; 
+    
+    if (typeof window.onload != 'function'){
+        alert('test4');
+        window.onload = oldonload;
+    } 
+    else { 
+        alert('test3');
+        window.onload = function() {if (oldonload) {oldonload();}CustomApproval();}
+    } 
+</script>
+</apex:page>

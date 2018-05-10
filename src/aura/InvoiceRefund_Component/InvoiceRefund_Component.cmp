@@ -1,0 +1,66 @@
+<aura:component controller="InvoiceRefund_Controller" implements="force:hasRecordId,force:lightningQuickActionWithoutHeader">
+    <aura:attribute name="recordId" type="String"/> 
+    <aura:attribute name="reason" type="String"/>
+    <aura:attribute name="isShowReason" type="Boolean" default="false"/>  
+    <aura:attribute name="showInterface" type="Boolean" default="false"/>  
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:attribute name="selectedCurr" type="String" />
+    <aura:attribute name="picklistValuesCurr" type="String[]" />
+    
+    <aura:attribute name="selectedPO" type="String" />
+    <aura:attribute name="requestedAmount" type="Decimal" />
+    <aura:attribute name="invBal" type="Decimal" />
+    
+    <aura:renderIf isTrue="{!v.showInterface}">
+	    <div class="slds-page-header slds-align_absolute-center">
+	        <h1 class="slds-page-header__title slds-truncate slds-align-middle">Invoice Refund</h1>
+	        <p class="slds-text-body_small slds-line-height_reset"></p>
+	    </div>
+	    <aura:renderIf isTrue="{!v.isShowReason}">
+	    	<div class="slds-grid slds-wrap">
+	    		<div class="slds-size_1-of-1 slds-small-size_1-of-1 slds-medium-size_1-of-1 slds-large-size_1-of-1 slds-p-around_xx-small">
+					<div class="slds-form-element">
+						<c:PicklistValues sObjectName="Invoice__c" label="Refund Currency" fieldName="Refund_Currency_Code__c" selectedValue="{!v.selectedCurr}" />
+					</div>
+				</div>
+	    		<div class="slds-size_1-of-1 slds-small-size_1-of-1 slds-medium-size_1-of-1 slds-large-size_1-of-1 slds-p-around_xx-small">
+	    			<div class="slds-form-element">
+	    				<ui:inputNumber aura:id="reqAmt" required="true" class="slds-input" value="{!v.requestedAmount}" label="Requested Amount" />
+	    			</div>
+	    		</div>
+	    		<div class="slds-size_1-of-1 slds-small-size_1-of-1 slds-medium-size_1-of-1 slds-large-size_1-of-1 slds-p-around_xx-small">
+	    			<div class="slds-form-element">
+						<ui:inputSelect value="{!v.selectedPO}" aura:id="popt"  label="Payment Mode"  required="true">
+					             <ui:inputSelectOption text="Cash" label="Cash"/>
+					             <ui:inputSelectOption text="Cheque" label="Cheque"/>
+					    </ui:inputSelect>
+					</div>
+	    		</div>
+	    	</div>
+	    	<br/>
+	        <div class="slds-page-footer" style="text-align:right;">
+	            <button  onclick="{!c.close}"  class="slds-button slds-button_neutral">
+	                Cancel
+	            </button>
+	            <button  onclick="{!c.refundInvoice}"  class="slds-button slds-button_brand">
+	                Save
+	            </button>
+	        </div>
+				        
+	        <aura:set attribute="else">
+	            <div style="text-align:center;font-size:18px;" class="slds align__absolute-center" >
+	                There are outstanding payment for the tenant. Do you still want to proceed to refund?
+	            </div><br/><br/>
+	            <div style="text-align:center;">
+	                <button  onclick="{!c.checkReason}"  class="slds-button slds-button--success">
+	                    Yes
+	                </button>&nbsp;
+	                <button onclick="{!c.close}"  class="slds-button slds-button--destructive">
+	                    No
+	                </button>
+	            </div>
+	        </aura:set>
+	    </aura:renderIf>  
+    </aura:renderIf> 
+</aura:component>

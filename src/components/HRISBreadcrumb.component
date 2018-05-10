@@ -1,0 +1,11 @@
+<apex:component >
+  <center>
+        <a href="/apex/HRISRequisitionStep1"><apex:image url="{!URLFOR($Resource.SGLHR,'sglhr/RPStep1.PNG')}" /></a>
+        <a href=""><apex:image url="{!URLFOR($Resource.SGLHR,'sglhr/RPStep7.1.PNG')}"/></a>
+        <a href="/apex/HRISEvaluationStep1"><apex:image url="{!URLFOR($Resource.SGLHR,'sglhr/RPStep2.1.PNG')}"/></a>
+        <a href="/apex/HRISHireStep1"><apex:image url="{!URLFOR($Resource.SGLHR,'sglhr/RPStep3.PNG')}" /></a>
+        <a href="/apex/HRISOnboardingStep1"><apex:image url="{!URLFOR($Resource.SGLHR,'sglhr/RPStep4.PNG')}"/></a>
+        <a href="/apex/HRISJobChangeStep1"><apex:image url="{!URLFOR($Resource.SGLHR,'sglhr/RPStep5.PNG')}" /></a>
+        <a href="/apex/HRISOffboardingStep1"><apex:image url="{!URLFOR($Resource.SGLHR,'sglhr/RPStep6.PNG')}" /></a>
+    </center>
+</apex:component>

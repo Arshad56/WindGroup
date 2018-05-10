@@ -1,0 +1,72 @@
+<apex:page controller="CreateInvoiceReceiptController" sidebar="false" doctype="html-5.0" id="pg">
+    <apex:form id="frm">
+        <center><div style="font-size:18px;padding-top: 10px; padding-right: 130px; padding-bottom: 10px; ">Create Invoice Receipt</div></center>
+        <apex:pageBlock rendered="{!goodReceiptList.size==0}">
+            <Center>No Good Receipts are found under this Purchase Order.</center>
+        </apex:pageBlock>
+        <apex:pageMessages />
+        <apex:pageBlock rendered="{!goodReceiptList.size>0}">
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton value="Create Invoice Receipt" action="{!CreateInvoiceReceipt}"/>
+            </apex:pageBlockButtons>
+            <apex:variable value="{!0}" var="i"/>
+            <table border="1" width="100%" style="border-collapse:collapse;text-align:center;">
+                <tr>
+                    <th style="text-align:center;" width="50">✔<br/>
+                        <apex:inputCheckbox onclick="selectAllCheckboxes(this,'inputId');return false;"/>
+                    </th>
+                    <th style="text-align:center;" width="200">Goor Receipt No.</th>
+                    <th style="text-align:center;" width="200">Quantity</th>
+                    <th style="text-align:center;" width="200">Total Amount</th>                    
+                    <th style="text-align:center;" width="180">GR Date</th>
+                    <th style="text-align:center;" width="300">Remarks</th>
+                </tr>
+                <apex:repeat value="{!goodReceiptList}" var="grWrap">
+                <tr>
+                    <td>
+                        <apex:inputCheckBox value="{!grWrap.isSelected}" id="inputId" onChange="selRecord(this.id,{!i});return false;"/>
+                    </td>
+                    <td style="text-align:left;">
+                        <a href="/{!grWrap.GoodReceipt.Id}" target="_blank"><apex:outputText value="{!grWrap.GoodReceipt.Name}"/></a>
+                    </td>
+                    <td>
+                        <apex:outputField value="{!grWrap.GoodReceipt.GR_Quantity__c}"/>                        
+                    </td>
+                    <td>
+                        {!grWrap.GoodReceipt.Currency_Code__c} : <apex:outputField value="{!grWrap.GoodReceipt.GR_Amount__c}"/>
+                    </td>
+                    <td>
+                        <apex:outputField value="{!grWrap.GoodReceipt.GR_Date__c}"/>
+                    </td>
+                    <td>
+                        <apex:inputTextarea value="{!grWrap.Remarks}" style="width: 350px;"/>
+                        <apex:variable value="{!i+1}" var="i"/>
+                    </td>
+                </tr>
+                </apex:repeat>
+            </table>
+        </apex:pageBlock>
+    </apex:form>
+    <script>
+        
+        function selectAllCheckboxes(obj,receivedInputID){
+            var inputCheckBox = document.getElementsByTagName("input");                  
+            for(var i=0; i<inputCheckBox.length; i++){          
+                if(inputCheckBox[i].id.indexOf(receivedInputID)!=-1){                                     
+                    inputCheckBox[i].checked = obj.checked;
+                }
+            }
+            disablefields();
+            calculation();
+        }
+        
+        function selRecord(myid,number){
+            document.getElementById("pg:frm:pblk:lst:"+number+":amt").disabled = !document.getElementById(myid).checked;
+            //document.getElementById("pg:frm:pblk:lst:"+number+":rmk").disabled = !document.getElementById(myid).checked;
+            if(document.getElementById("pg:frm:pblk:lst:"+number+":pnlty")!=null){
+                document.getElementById("pg:frm:pblk:lst:"+number+":pnlty").disabled = !document.getElementById(myid).checked;
+            }
+            calculation();
+        }
+    </script>
+</apex:page>

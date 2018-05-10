@@ -1,0 +1,50 @@
+<aura:component controller="ChangeLeaseStartDateCmpController" implements="force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global" >
+    <aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="msgStr" type="String" default=''/>
+    <aura:attribute name="lease" type="Lease__c"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="options" type="List"/>
+    
+    <aura:attribute name="IsSpinner" type="Boolean" default="false"/>
+    <aura:if isTrue="{!v.IsSpinner}">
+        <lightning:spinner variant="brand"  size="large" />
+    </aura:if>
+    
+    
+    <div style="text-align:center;font-size:18px;" class="slds align__absolute-center" >
+        WARNING: Are you sure you want to <b>Change Lease Start Date </b> for this Lease along with Lease Unit(s).
+        All Rent Schedule and Monthly Lease Plan will be modified.
+    </div><br/>
+    <aura:if isTrue="{!v.msgStr != ''}">
+        <ui:message title="Error" severity="error"  closable="true">
+            {!v.msgStr}
+        </ui:message>
+    </aura:if>
+    <div class="slds-grid slds-gutters">
+        <div class="slds-col">
+            <ui:inputDate aura:id="expdate" required="true"  label="Change Lease Start Date" value="{!v.lease.Lease_Start_Date__c}" class="field" displayDatePicker="true" />     
+        </div>
+        <div class="slds-col">
+            <lightning:input type="number" required="true" value="{!v.lease.Lease_Tenure_Mths__c}"  name="number" label="Lease Tenure (Mths)"/>
+        </div>
+        <div class="slds-col">
+            <lightning:select name="Lease Tenure"  label="Lease Tenure (Days) " required="true"  value="{!v.lease.Lease_Tenure_Days__c}">
+                <aura:iteration var="option" items="{! v.options }">
+                    <option value="{!option}">{!option}</option>
+                </aura:iteration>
+            </lightning:select>
+        </div>
+    </div>
+    
+    
+    
+    <br/><br/>
+    <div style="text-align:center;">
+        <button  onclick="{!c.saveLease}"  class="slds-button slds-button--success">
+            Proceed
+        </button>&nbsp;
+        <button onclick="{!c.close}"  class="slds-button slds-button--destructive">
+            Cancel
+        </button>
+    </div>
+</aura:component>

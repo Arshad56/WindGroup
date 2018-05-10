@@ -1,0 +1,11 @@
+<apex:page showHeader="false" sidebar="false" controller="ClosePOController">
+    <apex:form >
+        <center>
+        <br/><br/>
+        Are you sure you want to close this Purchase Order?
+        <br/>
+        <apex:commandButton value="Yes" action="{!Yes}" oncomplete="window.opener.location = '/{!poId}';window.close();"/>
+        <apex:commandButton value="No" onClick="window.close();"/>
+        </center>
+    </apex:form>
+</apex:page>

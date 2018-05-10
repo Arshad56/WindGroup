@@ -1,0 +1,494 @@
+<apex:page lightningStylesheets="true" controller="GenerateRentRollController" id="pg" sidebar="false">
+<style>
+    .paginator .left {
+        position: absolute;
+        left: 0;
+        bottom: 2px;
+    }
+    body .pbBody table.list tr.headerRow td, body .pbBody 
+    table.list tr.headerRow th{
+        font-size: 1.09em;
+    }
+    body .pbBody table.list tr.dataRow th, body .pbBody table.list tr.dataRow td {
+        font-size: 1.06em;
+    }
+    tr.dataRow:hover { 
+           background-color: #cce9ff;
+    };
+    .listViewport .bottomNav {
+        border: 1px solid #b5b9bb;
+        background: #f2f3f3;
+    }
+</style>
+<script>
+    function setDefaultCharge(val){
+        if(val=='Rent' || val=='GTO Rent'){
+            document.getElementById("pg:frm:filterblk:filtersection:chgType").disabled = true;
+        }else{
+            document.getElementById("pg:frm:filterblk:filtersection:chgType").disabled = false;
+        }        
+        document.getElementById("pg:frm:filterblk:filtersection:chgType").value = '';
+    }
+    
+    function populateExchangeRate(rname,rid){
+        if(document.getElementById("pg:frm:filterblk:filtersection:exRate:ratename")!=null){
+            document.getElementById("pg:frm:filterblk:filtersection:exRate:ratename").value = rname;
+            document.getElementById("pg:frm:filterblk:filtersection:exRate:rateid").value = rid;
+        }
+        
+        if(document.getElementById("pg:frm:gtofilterblk:filtersection:exRate:ratename")!=null){
+            document.getElementById("pg:frm:gtofilterblk:filtersection:exRate:ratename").value = rname;
+            document.getElementById("pg:frm:gtofilterblk:filtersection:exRate:rateid").value = rid;
+        }
+        
+        updateConversionRate();
+    }
+</script>
+<script type="text/javascript">
+      function selectAllCheckboxes(obj,receivedInputID){
+          var inputCheckBox = document.getElementsByTagName("input");                  
+          for(var i=0; i<inputCheckBox.length; i++){          
+              if(inputCheckBox[i].id.indexOf(receivedInputID)!=-1){                                     
+                  inputCheckBox[i].checked = obj.checked;
+              }
+          }
+      }
+      
+  </script>
+    
+    <apex:form id="frm">
+        <apex:actionFunction name="selectAllToApprove" action="{!selectAllToApprove}" reRender="frm"/>
+        <apex:actionFunction name="currencyCodeChange" action="{!currencyCodeChange}" reRender="frm"/>
+        <apex:actionFunction name="updateConversionRate" action="{!updateConversionRate}" reRender="frm"/>
+        <apex:actionFunction name="search" action="{!Search}"/>
+        <apex:actionFunction name="searchGTO" action="{!searchGTO}"/>
+        <apex:actionFunction name="approve" action="{!approve}"/>
+        <apex:actionFunction name="reCalcGtoAmount" action="{!reCalcGtoAmount}"/>
+        <apex:actionFunction name="refresh" action="{!refresh}" status="statusPaging" reRender="panel" />
+        <apex:actionFunction name="dataRowChange" action="{!dataRowChange}" reRender="panel" status="statusPaging"/>
+        <apex:tabPanel >
+            <apex:tab label="Generate Rent Roll" name="Generate Rent Roll" id="tab1">
+                <center><div style="font-size:18px;padding-top: 10px; padding-right: 30px; padding-bottom: 10px; padding-left: 80px;">Generate Rent Roll</div></center>
+                <apex:pageMessages />
+                <!-------------------------------- Search Filters Starts -------------------------------->
+                <apex:pageBlock id="filterblk">
+                    <apex:pageBlockSection id="filtersection">
+                        <apex:inputField value="{!rentRoll.Property__c}"/>
+                        <apex:selectList value="{!chargeMethod}" label="Charge Method" size="1">
+                            <apex:selectOptions value="{!chargeMethodList}"/>
+                        </apex:selectList>
+                        
+                        <apex:selectList value="{!year}" label="Year" size="1" onChange="search();return false;">
+                            <apex:selectOptions value="{!YearList}"/>
+                        </apex:selectList>
+                        <apex:selectList value="{!batch}" label="Billing Type" size="1" onchange="setDefaultCharge(this.value);search();return false;">
+                            <apex:selectOptions value="{!batchList}"/>
+                        </apex:selectList>                
+                        <apex:selectList value="{!month}" label="Due Month" size="1" onChange="search();return false;">
+                            <apex:selectOptions value="{!MonthList}"/>
+                        </apex:selectList>
+                        <apex:selectList value="{!chargeType}" label="Charge Type" size="1" id="chgType">
+                            <apex:selectOptions value="{!ChargeTypeList}"/>
+                        </apex:selectList>
+                        
+                        <apex:inputField value="{!rentRoll.Expected_Invoice_Date__c}"/>
+                        <apex:inputField value="{!rentRoll.Comm_Tax_Applicable__c}" required="true" onChange="search();return false;"/>
+                        <apex:inputField value="{!rentRoll.Currency_Code__c}" required="true" onchange="currencyCodeChange();return false;"/>
+                        <apex:outputLabel />
+                        <apex:pageBlockSectionItem rendered="{!rentRoll.Currency_Code__c!= $Label.Default_Currency}" id="exRate">
+                            <apex:outputLabel value="Exchange Rate"/>
+                            <apex:outputPanel >
+                                <apex:inputText value="{!exRateName}" id="ratename"/>
+                                <a onClick="window.open('/apex/ExchangeRateLookup?curCode={!rentRoll.Currency_Code__c}','','height=500px,width=700px,top=200px,left=200px');">
+                                <img src="/img/s.gif" alt="Ex Rate Lookup (New Window)" class="lookupIcon" onblur="this.className = 'lookupIcon';" onfocus="this.className = 'lookupIconOn';" onmouseout="this.className = 'lookupIcon';this.className = 'lookupIcon';" onmouseover="this.className = 'lookupIconOn';this.className = 'lookupIconOn';" title="Ex Rate Lookup (New Window)"/>
+                                </a>
+                                <apex:inputHidden value="{!exRateId}" id="rateid"/>
+                            </apex:outputPanel>
+                        </apex:pageBlockSectionItem>
+                        <apex:outputLabel />
+                        <apex:pageBlockSectionItem rendered="{!rentRoll.Currency_Code__c!= $Label.Default_Currency }">
+                            <apex:outputLabel value="Exchange Rate"/>
+                            <apex:outputPanel >
+                                {!$Label.Default_Currency}                          
+                                <apex:outputtext value="{0,number,###,###.00}">
+                                    <apex:param value="{!exRate}"/>
+                                </apex:outputtext> 
+                                ({!$Label.Default_Currency}/{!rentRoll.Currency_Code__c})
+                            </apex:outputPanel>
+                        </apex:pageBlockSectionItem>
+                         
+                    </apex:pageBlockSection>
+                    <apex:pageBlockButtons location="bottom">
+                        <apex:commandButton value="Search" onclick="search(); this.disabled='true'; this.value='Searching...'; return false;"/>
+                    </apex:pageBlockButtons>
+                </apex:pageBlock>
+                <!-------------------------------- Search Filters Ends -------------------------------->
+                
+                <apex:outputPanel id="panel">
+                    <apex:pageblock rendered="{!rentScheduleList.size > 0}">
+                    
+                    <apex:pageBlockButtons location="top">
+                        <!--<apex:commandButton value="Search" action="{!Search}"/> -->
+                        <apex:commandButton value="Generate" onclick="approve(); this.disabled='true'; this.value='Generating...'; return false;"/>
+                        <apex:commandButton value="Refresh" onclick="refresh(); this.disabled='true'; this.value='Refreshing...'; return false;"/>
+                        <apex:commandButton value="Refresh Ex Rate" action="{!refreshExRate}" rendered="{!batch=='GTO Rent' && rentRoll.Currency_Code__c!= $Label.Default_Currency}" status="statusPaging"/>
+                        <a href="/{!$Label.GenerateRentRollReportId}?pv0={!propertyName}&pv1={!batchId}&pv2={!bilingDate}&pv3={!IF(batch=='GTO Rent','GTO Rent',IF(chargeType!=null,chargeType,chargeTypeWithoutGTO))}&pv4={!rentRoll.Currency_Code__c}&pv5={!rentRoll.Comm_Tax_Applicable__c}" target="_blank">Preview Report</a>
+                    </apex:pageBlockButtons>
+                    
+                 <!-------------------------------- Pagination Starts here  -------------------------------->
+                 
+                 <apex:outputPanel layout="block" styleClass="listViewport" style="width: 600px;margin: 0 auto;">
+                        <div class="bottomNav">
+                            <div class="paginator">
+                                <apex:panelGrid id="gridPaging"  columns="3" width="100%" columnclasses="left, center, right">
+                
+                                    <apex:panelGroup >
+                                        <span class="selectorTarget">
+                                            <strong>
+                                                <apex:outputText value="showing {0}-{1} of {2}">
+                                                    <apex:param value="{!startIdx}" />
+                                                    <apex:param value="{!endIdx}" />
+                                                    <apex:param value="{!totalRecords}" />
+                                                </apex:outputText>
+                                            </strong>
+                                        </span>
+                                        <span>&nbsp;&nbsp;</span>
+                                        <apex:actionStatus id="statusPaging">
+                                            <apex:facet name="start">
+                                                <img src="/img/loading.gif" height="14px" width="14px"/>
+                                            </apex:facet>
+                
+                                            <apex:facet name="stop">
+                                                <img src="/img/s.gif" height="14px" width="14px"/>
+                                            </apex:facet>
+                                        </apex:actionStatus>
+                                    </apex:panelGroup>
+                
+                                    <apex:panelGroup >
+                                        <span>
+                                            <strong>Data Row</strong>&nbsp;
+                                            <apex:selectList value="{!dataRow}" label="Data Row " size="1" onChange="dataRowChange();return false;">
+                                                <apex:selectOptions value="{!DataRowList}"/>
+                                            </apex:selectList>&nbsp;
+                                        </span>
+                                        <span class="prevNextLinks">
+                                            <span class="prevNext">
+                                                <apex:commandLink id="linkMoveFirst"
+                                                    immediate="true"
+                                                    status="statusPaging"
+                                                    action="{!moveFirst}"
+                                                     rerender="panel"
+                                                     rendered="{!hasPrevious}">
+                
+                                                    <img src="/s.gif" title="First Page" alt="First Page" class="first" />
+                                                </apex:commandLink>
+                
+                                                <apex:outputPanel layout="none"
+                                                    rendered="{!NOT(hasPrevious)}">
+                
+                                                    <apex:image url="/s.gif" title="First Page" alt="First Page" styleclass="firstoff" />
+                                                </apex:outputPanel>
+                                            </span>
+                
+                                            <span class="prevNext">
+                                                <apex:commandLink id="linkMovePrev"
+                                                    immediate="true"
+                                                    title="Previous"
+                                                    status="statusPaging"
+                                                    action="{!doPrevious}"
+                                                    rerender="panel"
+                                                     rendered="{!hasPrevious}">
+                                                    <img src="/s.gif" title="Previous" alt="Previous" class="prev" />
+                                                    <span>Previous</span>
+                                                </apex:commandLink>
+                
+                                                <apex:outputPanel layout="none"
+                                                    rendered="{!NOT(hasPrevious)}">
+                                                    <apex:image url="/s.gif" title="Previous" alt="Previous" styleclass="prevoff" />
+                                                    <span>Previous</span>
+                                                </apex:outputPanel>
+                                            </span>
+                
+                                            <span class="prevNext">
+                                                <apex:commandLink id="linkMoveNext"
+                                                    immediate="true"
+                                                    title="Next"
+                                                    status="statusPaging"
+                                                    action="{!doNext}"
+                                                    rerender="panel"
+                                                     rendered="{!hasNext}">
+                
+                                                    <span>Next</span>
+                                                    <img src="/s.gif" title="Next" alt="Next" class="next" />
+                                                </apex:commandLink>
+                
+                                                <apex:outputPanel layout="none"
+                                                    rendered="{!NOT(hasNext)}">
+                                                    <span>Next</span>
+                                                    <apex:image url="/s.gif" title="Next" alt="Next" styleclass="nextoff" />
+                                                </apex:outputPanel>
+                                            </span>
+                
+                                            <span class="prevNext">
+                                                <apex:commandLink id="linkMoveLast"
+                                                    immediate="true"
+                                                    status="statusPaging"
+                                                    action="{!moveLast}"
+                                                    rerender="panel"
+                                                     rendered="{!hasNext}">
+                
+                                                    <img src="/s.gif" title="Last Page" alt="Last Page" class="last" />
+                                                </apex:commandLink>
+                
+                                                <apex:outputPanel layout="none"
+                                                     rendered="{!NOT(hasNext)}">
+                
+                                                    <apex:image url="/s.gif" title="Last Page" alt="Last Page" styleclass="lastoff" />
+                                                </apex:outputPanel>
+                                            </span>
+                                        </span>
+                                    </apex:panelGroup>
+                
+                                    <apex:panelGroup >
+                                        <span class="selectorTarget">
+                                            <strong>
+                                                <apex:outputText value="Page {0} of {1}">
+                                                    <apex:param value="{!page}" />
+                                                    <apex:param value="{!totalPages}" />
+                                                </apex:outputText>
+                                            </strong>
+                                        </span>
+                                    </apex:panelGroup>
+                                </apex:panelGrid> 
+                            </div>
+                        </div>
+                    </apex:outputPanel>
+                 
+                 <!-------------------------------- Pagination Ends here  -------------------------------->
+                 <br/>
+               
+                    <table width="100%" border="1" style="border-collapse:collapse;text-align:center;" class="list">
+                        <thead>
+                            <tr class="headerRow">
+                                <th class="headerRow" scope="col" style="text-align:center;" width="50" >Select<br/>
+                                    <apex:inputCheckbox value="{!SelectAll}" onClick="selectAllCheckboxes(this,'inputId')"/>
+                                </th>
+                                <th class="headerRow" scope="col" style="text-align:center;" width="180">
+                                          
+                                        <apex:commandLink status="statusPaging" action="{!resort}" reRender="panel">
+                                            Tenant {!if(sortOrder == 'Asc','▲','▼')}
+                                        </apex:commandLink>
+                                </th>
+                                <th class="headerRow" scope="col" style="text-align:center;" width="120">Unit</th>
+                                <th class="headerRow" scope="col" style="text-align:center;" width="200">Charge</th>
+                                <th class="headerRow" scope="col" style="text-align:center;" width="80">Due Month</th>
+                                <th class="headerRow" scope="col" style="text-align:center;" width="80">Rent Month</th>
+                                <apex:outputPanel rendered="{!batch=='GTO Rent'}" layout="none">
+                                    <th class="headerRow" scope="col" style="text-align:center;" width="80">Rent By</th>
+                                </apex:outputPanel>
+                                <apex:outputPanel rendered="{!batch=='GTO Rent'}" layout="none">
+                                    <th class="headerRow" scope="col" style="text-align:center;" width="80">Ex Rate</th>
+                                </apex:outputPanel>
+                                <apex:outputPanel rendered="{!rentRoll.Comm_Tax_Applicable__c=='Yes'}" layout="none">
+                                    <th class="headerRow" scope="col" style="text-align:center;" width="80">Comm Tax Amount</th>
+                                </apex:outputPanel>
+                                <th class="headerRow" scope="col" style="text-align:center;" width="120">Amount</th>
+                                <th class="headerRow" scope="col" style="text-align:center;" width="100">Area (SqFt)</th>
+                                <apex:outputPanel layout="none" rendered="{!batch!='Rent'}">
+                                <th class="headerRow" scope="col" style="text-align:center;" width="100">Usage</th>
+                                </apex:outputPanel>
+                                <apex:outputPanel layout="none" rendered="{!batch=='Rent'}">
+                                <th class="headerRow" scope="col" style="text-align:center;" width="100">Withholding Tax Rate</th>
+                                </apex:outputPanel>
+                                <th class="headerRow" scope="col" style="text-align:center;" width="80">Charge Rate</th>
+                                <th class="headerRow" scope="col" style="text-align:center;" width="230">Comments</th>
+                                <th class="headerRow" scope="col" style="text-align:center;" width="50">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <apex:repeat value="{!rentScheduleList}" var="rs">
+                                <tr class="dataRow">
+                                    <td>
+                                        <apex:inputCheckbox value="{!rs.Approved__c}" id="inputId"/>
+                                    </td>
+                                    <td align="left">{!rs.Tenant__c}</td>
+                                    <td align="left">{!rs.Unit__r.Name}</td>
+                                    <td align="left">{!rs.Lease_Charge__r.Name}</td>
+                                    <td>
+                                        <apex:outputtext value="{0, date, MMM-YY }">
+                                            <apex:param value="{!rs.Billing_Date__c}"/>
+                                        </apex:outputtext> 
+                                    </td>
+                                    <td>
+                                        <apex:outputtext value="{0, date, MMM-YY }">
+                                            <apex:param value="{!rs.Start_Date__c}"/>
+                                        </apex:outputtext> 
+                                    </td>
+                                    <apex:outputPanel rendered="{!batch=='GTO Rent'}" layout="none">
+                                    <td>
+                                        <apex:outputField value="{!rs.GTO_Rent_By__c}"/>
+                                    </td>
+                                    </apex:outputPanel>
+                                    <apex:outputPanel rendered="{!batch=='GTO Rent'}" layout="none">
+                                    <td>
+                                        <apex:outputField value="{!rs.Exchange_Rate__c}"/>
+                                    </td>
+                                    </apex:outputPanel>
+                                    <apex:outputPanel rendered="{!rentRoll.Comm_Tax_Applicable__c=='Yes'}" layout="none">
+                                    <td>
+                                        <apex:outputField value="{!rs.Comm_Tax_Amount__c}"/>
+                                    </td>
+                                    </apex:outputPanel>
+                                    <td align="right"><apex:outputField value="{!rs.Amount__c}"/></td>
+                                    <td align="right">{!rs.Area_ft__c}</td>
+                                    <apex:outputPanel layout="none" rendered="{!batch!='Rent'}">
+                                    <td align="right">{!rs.Total_Units__c}</td>
+                                    </apex:outputPanel>
+                                    <apex:outputPanel layout="none" rendered="{!batch=='Rent'}">
+                                    <td align="right">{!rs.Withholding_Tax_Rate__c}</td>
+                                    </apex:outputPanel>
+                                    <td  align="right"><apex:outputField value="{!rs.Lease_Charge__r.Charge_Rate__c}"/></td>
+                                    <td align="right">{!rs.Comments__c}</td>
+                                    <td><a href="/{!rs.Lease_Charge__c}" target="_blank">Details</a></td>
+                                </tr>
+                            </apex:repeat>
+                        </tbody>
+                    </table>
+                </apex:pageblock>
+                </apex:outputPanel>
+            </apex:tab>
+            <apex:tab label="Calculate GTO" name="Calculate GTO" id="tab2">
+                <center><div style="font-size:18px;padding-top: 10px; padding-right: 30px; padding-bottom: 10px; padding-left: 80px;">Calculate GTO</div></center>
+                <apex:pageMessages />
+                <apex:pageBlock id="gtofilterblk">
+                    <apex:pageBlockSection id="filtersection">
+                        <apex:inputField value="{!gtorentRoll.Property__c}"/>
+                        <apex:inputField value="{!gtorentRoll.Currency_Code__c}" required="true" onchange="currencyCodeChange();return false;"/>
+                        
+                        <apex:selectList value="{!gtoyear}" label="Year" size="1" onChange="searchGTO();return false;">
+                            <apex:selectOptions value="{!YearList}"/>
+                        </apex:selectList>
+                        <apex:outputLabel rendered="{!gtorentRoll.Currency_Code__c == $Label.Default_Currency}"/>
+                        <apex:pageBlockSectionItem rendered="{!gtorentRoll.Currency_Code__c!= $Label.Default_Currency}" id="exRate">
+                            <apex:outputLabel value="Exchange Rate"/>
+                            <apex:outputPanel >
+                                <apex:inputText value="{!exRateName}" id="ratename"/>
+                                <a onClick="window.open('/apex/ExchangeRateLookup?curCode={!gtorentRoll.Currency_Code__c}','','height=500px,width=700px,top=200px,left=200px');">
+                                <img src="/img/s.gif" alt="Ex Rate Lookup (New Window)" class="lookupIcon" onblur="this.className = 'lookupIcon';" onfocus="this.className = 'lookupIconOn';" onmouseout="this.className = 'lookupIcon';this.className = 'lookupIcon';" onmouseover="this.className = 'lookupIconOn';this.className = 'lookupIconOn';" title="Ex Rate Lookup (New Window)"/>
+                                </a>
+                                <apex:inputHidden value="{!exRateId}" id="rateid"/>
+                            </apex:outputPanel>
+                        </apex:pageBlockSectionItem>
+                        <apex:selectList value="{!gtomonth}" label="Due Month" size="1" onChange="searchGTO();return false;">
+                            <apex:selectOptions value="{!MonthList}"/>
+                        </apex:selectList>
+                        <apex:outputLabel rendered="{!gtorentRoll.Currency_Code__c == $Label.Default_Currency}"/>
+                        <apex:pageBlockSectionItem rendered="{!gtorentRoll.Currency_Code__c!= $Label.Default_Currency }">
+                            <apex:outputLabel value="Exchange Rate"/>
+                            <apex:outputPanel >
+                                {!$Label.Default_Currency}                          
+                                <apex:outputtext value="{0,number,###,###.00}">
+                                    <apex:param value="{!exRate}"/>
+                                </apex:outputtext> 
+                                ({!$Label.Default_Currency}/{!gtorentRoll.Currency_Code__c})
+                            </apex:outputPanel>
+                        </apex:pageBlockSectionItem>
+                        
+
+                        <apex:selectList value="{!gtoDataRow}" label="Data Row " size="1" onChange="searchGTO();return false;">
+                            <apex:selectOptions value="{!DataRowList}"/>
+                        </apex:selectList>
+                        
+                    </apex:pageBlockSection>
+                    <apex:pageBlockButtons location="bottom">
+                        <apex:commandButton value="Search" onclick="searchGTO(); this.disabled='true'; this.value='Searching...'; return false;"/>
+                    </apex:pageBlockButtons>
+                </apex:pageBlock>
+                
+                <apex:pageblock rendered="{!gtoRsList.size > 0}">
+                    <apex:pageBlockButtons location="top">
+                        <apex:commandButton value="Refresh Ex Rate" action="{!refreshExRateGTO}" rendered="{!gtorentRoll.Currency_Code__c!= $Label.Default_Currency}"/>
+                        <apex:commandButton value="Re-Calculate GTO Amount" onclick="reCalcGtoAmount(); this.disabled='true'; this.value='Calculating...'; return false;"/>
+                    </apex:pageBlockButtons>
+                
+                
+                    <apex:outputPanel >
+                        <table width="100%" border="1" style="border-collapse:collapse;text-align:center;" >
+                            <tr>
+                            <th style="text-align:center;" width="50">Select<br/>
+                                <apex:inputCheckbox value="{!SelectAll}" onClick="selectAllCheckboxes(this,'gtoinputId')"/>
+                            </th>
+                            <th style="text-align:center;" width="180">Tenant</th>
+                            <th style="text-align:center;" width="120">Unit</th>
+                            <th style="text-align:center;" width="200">Charge</th>
+                            <th style="text-align:center;" width="80">Due Month</th>
+                            <th style="text-align:center;" width="80">Rent Month</th>
+                            <th style="text-align:center;" width="80">Ex Rate</th>                            
+                            <th style="text-align:center;" width="80">Total POS GTO</th>
+                            <th style="text-align:center;" width="80">
+                                GTO Amount<br/>
+                                (By POS)                                
+                            </th>
+                            <th style="text-align:center;" width="80">Total Est. GTO</th>
+                            <th style="text-align:center;" width="80">
+                                GTO Amount<br/>
+                                (By Est. POS)                                
+                            </th>
+                            <th style="text-align:center;" width="80">Rent By</th>
+                            <th style="text-align:center;" width="120">GTO Amount</th>
+                            <th style="text-align:center;" width="50">Details</th>
+                            </tr>
+                            <apex:repeat value="{!gtoRsList}" var="rs">
+                            <tr>
+                                <td>
+                                    <apex:inputCheckbox value="{!rs.Approved__c}" id="gtoinputId"/>
+                                </td>
+                                <td align="left">{!rs.Tenant__c}</td>
+                                <td align="left">{!rs.Unit__r.Name}</td>
+                                <td align="left">{!rs.Lease_Charge__r.Name}</td>
+                                <td>
+                                    <apex:outputtext value="{0, date, MMM-YY }">
+                                        <apex:param value="{!rs.Billing_Date__c}"/>
+                                    </apex:outputtext> 
+                                </td>
+                                <td>
+                                    <apex:outputtext value="{0, date, MMM-YY }">
+                                        <apex:param value="{!rs.Start_Date__c}"/>
+                                    </apex:outputtext> 
+                                </td>
+                                
+                                                                
+                                <td>
+                                    <apex:outputField value="{!rs.Exchange_Rate__c}"/>
+                                </td>
+                                <td align="right"><apex:outputField value="{!rs.GTO_Monthly_Total__c}"/></td>
+                                <td align="right">
+                                    <apex:outputField value="{!rs.Calculated_Amount_Higher_or_Sum__c}" rendered="{!rs.Lease_Unit__r.Lease_Agreement_No__r.GTO_Billed__c=='By Lease Unit'}"/>
+                                    <apex:outputField value="{!rs.GTO_Rent_By_Lease__c}" rendered="{!rs.Lease_Unit__r.Lease_Agreement_No__r.GTO_Billed__c!='By Lease Unit'}"/>
+                                </td>
+                                <td align="right"><apex:inputField value="{!rs.Total_Estimated_GTO__c}"/></td>
+                                <td align="right">
+                                    <apex:outputField value="{!rs.Estimated_GTO_Rent__c}"/>
+                                </td>
+                                <td>
+                                    <apex:selectList size="1" value="{!rs.GTO_Rent_By__c}">
+                                        <apex:selectOption itemLabel="POS GTO" itemValue="POS GTO"/>
+                                        <apex:selectOption itemLabel="Estimated GTO" itemValue="Estimated GTO"/>
+                                    </apex:selectList>
+                                </td>
+                                <td align="right"><apex:outputField value="{!rs.Amount__c}"/></td>
+                                <td><a href="/{!rs.Lease_Charge__c}" target="_blank">Details</a></td>
+                            </tr>
+                            </apex:repeat>
+                        </table>
+                    </apex:outputPanel>
+                </apex:pageblock>
+            </apex:tab>
+        </apex:tabPanel>        
+    </apex:form>
+    <script>
+        if({!batch!='Monthly'}){
+            window.onload = document.getElementById("pg:frm:filterblk:filtersection:chgType").disabled = true;
+        }
+    </script>
+</apex:page>

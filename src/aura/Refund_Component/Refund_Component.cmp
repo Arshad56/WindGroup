@@ -1,0 +1,62 @@
+<aura:component controller="RefundCompController" implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global" >
+    <aura:attribute name="recordId" type="Id"/>
+    <aura:attribute name="objInfo" type="Deposit__c" default="{sobjectType : 'Deposit__c'}" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <div class="slds-page-header slds-align_absolute-center">
+        <h1 class="slds-page-header__title slds-truncate slds-align-middle" title="Deposit">Deposit Refund</h1>
+    </div><br/>
+    
+    <aura:attribute name="displayErrorMsg" type="String" default=""/>
+    <aura:if isTrue="{!v.displayErrorMsg != ''}">
+        <ui:message title="Error" severity="error"  closable="false">
+            {!v.displayErrorMsg}
+        </ui:message>
+    </aura:if><br/>
+    
+    <aura:attribute name="displayMessage" type="Boolean" default="false"/>
+    <aura:if isTrue="{!v.displayMessage}">
+        <ui:message title="Info" severity="info"  closable="false">
+            Note : Lease is not Expired or Renewed yet.
+        </ui:message>
+    </aura:if><br/>
+    <div class="slds-grid slds-gutters">
+        <div class="slds-col">
+            <div class="slds-form-element">
+                <label class="slds-form-element__label" for="select-01">Last Refund Currency Code</label>
+                <div class="slds-select_container">
+                    <ui:inputSelect required="true" aura:id="PVCurrencyCode" value="{!v.objInfo.PV_Currency_Code__c}" class="slds-select"/>
+                </div>
+            </div>
+        </div>
+        <div class="slds-col">   
+            <lightning:input type="number" aura:id="requAmount" required="true" value="{!v.objInfo.Requested_Amount__c}"  name="number" label="Requested Amount"/>
+        </div>
+    </div>
+    <div class="slds-grid slds-gutters">
+        <div class="slds-col">
+            <div class="slds-form-element">
+                <label class="slds-form-element__label" for="select-01">Last Refund Mode</label>
+                <div class="slds-select_container">
+                    <ui:inputSelect required="true"  aura:id="RefundMode" value="{!v.objInfo.Refund_Mode__c}" class="slds-select"/>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br/><br/>
+    <div style="text-align:center;">
+        <button onclick="{!c.close}"  class="slds-button slds-button--neutral">
+            Cancel
+        </button>&nbsp;
+        <button  onclick="{!c.refundDeposit}"  class="slds-button slds-button--brand"> 
+            Refund
+        </button>
+    </div>
+    <!--<aura:attribute name="recordId" type="Id"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:attribute name="IsSpinner" type="Boolean" default="true"/>
+    <aura:if isTrue="{!v.IsSpinner}">
+        <lightning:spinner variant="brand"  size="large" />
+    </aura:if>-->
+</aura:component>

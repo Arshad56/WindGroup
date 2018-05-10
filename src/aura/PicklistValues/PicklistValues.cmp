@@ -1,0 +1,15 @@
+<aura:component controller="Lightning_Utility" access="global" description="PickListValues">
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="sObjectName" type="String" />
+    <aura:attribute name="fieldName" type="String" />
+    <aura:attribute name="label" type="String" />
+    <aura:attribute name="selectedValue" type="String" />
+    <aura:attribute name="picklistValues" type="String[]" />
+    
+    <lightning:select required="true"  aura:id="myselection" value="{!v.selectedValue}" label="{!v.label}">
+    	<option value="">-- None --</option>
+		<aura:iteration items="{!v.picklistValues}" var="option">
+			<option value="{!option}">{!option}</option>
+		</aura:iteration>
+	</lightning:select>
+</aura:component>

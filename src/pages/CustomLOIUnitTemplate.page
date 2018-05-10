@@ -1,0 +1,110 @@
+<apex:page lightningStylesheets="true" controller="CustomLOIUnitTemplateLookupController" tabStyle="LOI_Unit_Template__c" showHeader="False" sidebar="False">
+ <apex:sectionHeader title="Lookup" subtitle="LOI Unit Template"/>
+    <apex:form >
+        <apex:outputPanel layout="block" style="margin:5px;padding:10px;padding-top:5px;">
+            <apex:tabPanel switchType="Client">
+                 
+                <apex:tab label="Search"  style="font-weight:bold;">
+                    <apex:actionRegion >
+                        <!---------------------------Search Region-------------------------------->
+                        <apex:outputPanel id="top" layout="block" style="margin:5px;padding:10px;padding-top:2px;">
+                            <apex:inputText value="{!loiUnitSearch}"/>
+                            <span style="padding-left:5px">
+                             <apex:actionstatus id="status">
+                                        <apex:facet name="start">
+                                            <div class="waitingHolder" style="display:inline-block;" >
+                                                    <img class="waitingImage" src="/img/loading.gif" title="Please Wait..." />
+                                                    <span class="waitingDescription">Loading...</span>
+                                            </div>
+                                        </apex:facet>
+                                        <apex:facet name="stop">
+                                        <apex:commandButton value="Go!" status="status" action="{!search}"  rerender="pb,result" />
+                                    
+                                        </apex:facet>
+                              </apex:actionstatus>
+                            </span>
+
+                        </apex:outputPanel>
+                        
+                        <!---------------------------List of Unit related to property------------------------------->
+                        <apex:outputPanel id="result"  style="margin:10px;height:350px;overflow-Y:auto;"  layout="block">
+                            <apex:pageMessages />
+                            <apex:pageBlock id="pb" >
+                                <apex:pageblockTable value="{!loiUnitResult}" var="unt">
+                                    <apex:column >
+                                        <apex:facet name="header" >
+                                            <apex:outputPanel >Name</apex:outputPanel>
+                                         </apex:facet>
+                                         <apex:outputLink value="javascript:top.window.opener.lookupPick2('{!FormTag}','{!TextBox}_lkid','{!TextBox}','{!unt.Id}','{!JSENCODE(unt.Name)}', false)" rendered="{!NOT(ISNULL(unt.Id))}">{!unt.Name}</apex:outputLink>
+                                     </apex:column>
+                                     <apex:column >
+                                        <apex:facet name="header" >
+                                            <apex:outputPanel >LOI Template Name</apex:outputPanel>
+                                         </apex:facet>
+                                         <apex:outputText value="{!unt.LOI_Unit_Template_Name__c}"/>
+                                     </apex:column> 
+                                     <apex:column >
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >Property</apex:outputPanel>
+                                        </apex:facet>
+                                         <apex:outputText value="{!unt.Property_Lookup__r.name}"/>
+                                     </apex:column>
+                                     
+                                     <apex:column >
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >Unit</apex:outputPanel>
+                                        </apex:facet>
+                                         <apex:outputText value="{!unt.Unit__r.name}"/>
+                                     </apex:column>
+                                     
+                                     <apex:column rendered="{!IF(contains(unitChargeMethod,'Monthly Rate - L'),true,false)}">
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >Trade Category</apex:outputPanel>
+                                        </apex:facet>
+                                        <apex:outputText value="{!unt.Trade_Category__c}"/>
+                                     </apex:column>
+                                     <apex:column rendered="{!IF(contains(unitChargeMethod,'Monthly Rate - L'),true,false)}">
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >Sub Trade category</apex:outputPanel>
+                                        </apex:facet>
+                                         <apex:outputText value="{!unt.Sub_Trade_Category__c}"/>
+                                     </apex:column>
+                                     
+                                     <apex:column rendered="{!IF(OR(contains(unitChargeMethod,'Monthly Rate - CL'),contains(unitChargeMethod,'Daily Rate')),true,false)}">
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >Charge Method</apex:outputPanel>
+                                        </apex:facet>
+                                        <apex:outputText value="{!unt.Charge_Method__c}"/>
+                                     </apex:column>
+                                     <apex:column rendered="{!IF(OR(contains(unitChargeMethod,'Monthly Rate - CL'),contains(unitChargeMethod,'Daily Rate')),true,false)}">
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >Space Type</apex:outputPanel>
+                                        </apex:facet>
+                                         <apex:outputText value="{!unt.Space_Type__c}"/>
+                                     </apex:column>
+                                     
+                                     <apex:column >
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >Start Date</apex:outputPanel>
+                                        </apex:facet>
+                                         <apex:outputText value="{0,date,dd/MM/yyyy}">
+                                            <apex:param value="{!unt.Start_Date__c}"/>
+                                         </apex:outputText>
+                                    </apex:column>
+                                     <apex:column >
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >End Date</apex:outputPanel>
+                                        </apex:facet>
+                                         <apex:outputText value="{0,date,dd/MM/yyyy}">
+                                            <apex:param value="{!unt.End_Date__c}"/>
+                                         </apex:outputText>
+                                    </apex:column>
+                                </apex:pageblockTable>
+                            </apex:pageBlock>
+                        </apex:outputPanel>
+                    </apex:actionRegion>
+                </apex:tab>
+            </apex:tabPanel>
+        </apex:outputPanel>
+    </apex:form>
+</apex:page>

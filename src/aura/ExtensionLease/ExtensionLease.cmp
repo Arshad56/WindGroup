@@ -1,0 +1,37 @@
+<aura:component controller="ExtensionLeaseCmpController" implements="force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global" >
+    <aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="extDate" type="Date" default=""/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <div class="slds-page-header slds-align_absolute-center">
+        <h1 class="slds-page-header__title slds-truncate slds-align-middle"> Extend Lease</h1>
+        <p class="slds-text-body_small slds-line-height_reset"></p>
+    </div>
+    
+    <aura:attribute name="IsSpinner" type="Boolean" default="false"/>
+    <aura:if isTrue="{!v.IsSpinner}">
+        <lightning:spinner variant="brand"  size="large" />
+    </aura:if>
+    
+    <aura:attribute name="displayErrorMsg" type="String" default=""/>
+    <aura:if isTrue="{!v.displayErrorMsg != ''}">
+        <ui:message title="Error" severity="error"  closable="false">
+            {!v.displayErrorMsg}
+        </ui:message>
+    </aura:if><br/>
+    
+    <div style="text-align:center;font-size:18px;" class="slds align__absolute-center" >
+        Are you sure you want to Extend this Lease unit.
+    </div><br/>
+    
+    <ui:inputDate aura:id="expdate" label="Extension Date" value="{!v.extDate}" class="field" displayDatePicker="true" />     
+    <br/><br/>
+    <div style="text-align:center;">
+        <button  onclick="{!c.proceedLU}"  class="slds-button slds-button--success">
+            Proceed
+        </button>&nbsp;
+        <button onclick="{!c.close}"  class="slds-button slds-button--destructive">
+            Cancel
+        </button>
+    </div>
+</aura:component>

@@ -1,0 +1,112 @@
+<apex:page Controller="ExchagneRateonHomePage_Controller">
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css"/>
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+<style>
+.ui-content {
+    border-width: 0;
+    overflow: visible;
+    overflow-x: hidden;
+    padding: 0;
+}
+.ui-collapsible-inset .ui-collapsible-heading .ui-btn {
+    border-right-width: 1px;
+    border-left-width: 1px;
+    height: 3px;
+}
+.ui-mobile .ui-page { 
+    min-height: 100px; 
+    background: #cfeef8;
+}
+.ui-collapsible-inset.ui-collapsible-themed-content .ui-collapsible-content {
+    padding: 3px;
+    background: #cfeef8;
+    border: 0;
+}
+.ui-collapsible-inset .ui-collapsible-heading .ui-btn {
+    
+    background-color: #1797c0 !important;
+    /*background: transparent url('/img/alohaSkin/sidebar_sprite.png') -409px top no-repeat !important; */
+}
+.ui-btn-icon-left:after, .ui-btn-icon-right:after, .ui-btn-icon-top:after, .ui-btn-icon-bottom:after, .ui-btn-icon-notext:after {
+    background-color: transparent;
+    width: 12px;
+    margin-top: -6px;
+    height: 12px;
+}
+.ui-btn{
+font-size: 13px;
+}
+.ui-icon{
+    background-size: 25%;
+}
+</style>
+<table style="font-size: 13px;padding: 7px;">
+    <tbody>
+        <tr>
+            <td><b>{!foreignCCRate.currencyCode}</b></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Operations Rate</td>
+            <td>:</td>
+            <td>
+                <apex:outputText style="font-size: 11.5px;" value="{0, number, ###,##0.00}">
+                    <apex:param value="{!foreignCCRate.OperationRate}" />
+                </apex:outputText>
+            </td>
+        </tr>
+        <tr>
+            <td>Finance Rate</td>
+            <td>:</td>
+            <td>
+                <apex:outputText style="font-size: 11.5px;" value="{0, number, ###,##0.00}">
+                    <apex:param value="{!foreignCCRate.FinanceRate}" />
+                </apex:outputText>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<apex:outputPanel layout="none" rendered="{!exRtWrapList.size > 0}">
+    <div data-role="main" class="ui-content"  style="font-size: 13px;">
+        <div data-role="collapsible"  data-collapsed-icon="carat-d" data-iconpos="right" data-expanded-icon="carat-u" style="font-size: 13px;padding: 3px;">
+              <h1  style="font-size: 13px;">&nbsp;</h1>
+        
+        <table  style="font-size: 13px;">
+            <tbody>
+               <apex:repeat value="{!exRtWrapList}" var="exwr">
+                    <tr class="td1">
+                        <td><b>{!exwr.currencyCode}</b></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr class="td1">
+                        <td>Operations Rate</td>
+                        <td>:</td>
+                        <td>
+                            <apex:outputText style="font-size: 11.5px;" value="{0, number, ###,##0.00}">
+                                <apex:param value="{!exwr.OperationRate}" />
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                    <tr class="td1">
+                        <td>Finance Rate</td>
+                        <td>:</td>
+                        <td>
+                            <apex:outputText style="font-size: 11.5px;" value="{0, number, ###,##0.00}">
+                                <apex:param value="{!exwr.FinanceRate}" />
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                    <tr class="td1">
+                        <td colspan="3"><div style="height: 6px;">&nbsp;</div></td>
+                    </tr>
+                </apex:repeat>
+            </tbody>
+        </table>
+    </div>
+    </div>
+</apex:outputPanel>
+</apex:page>

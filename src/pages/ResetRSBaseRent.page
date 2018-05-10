@@ -1,0 +1,46 @@
+<apex:page controller="ResetRSBaseRentController" sidebar="false" showHeader="false" docType="html-5.0">
+    <apex:form id="frm">
+        <apex:actionFunction name="checkLC" action="{!checkLC}" reRender="frm"/>
+        
+        <apex:pageMessages />
+        <apex:pageBlock >               
+            <apex:outputText value="Error : {!errorMsg}" rendered="{!isError}" style="color:red;"/>
+            <apex:pageBlockSection columns="1">
+                <apex:inputfield value="{!lcUI.Start_Date__c}" required="true" label="Start Date"/>
+                <apex:inputfield value="{!lcUI.End_Date__c}" required="true" label="End Date"/>
+              
+              <apex:inputfield value="{!lcUI.Parent_Lease_Charge__c}" label="Lease Charge" onChange="checkLC();return false;"/>
+            </apex:pageBlockSection>
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton value="Generate" action="{!generate}" />
+                <apex:commandButton value="Cancel" rendered="{!$CurrentPage.parameters.isLightning != 'true'}"  onClick="window.close();"/>
+                <apex:commandButton value="Cancel" rendered="{!$CurrentPage.parameters.isLightning == 'true'}" action="/{!lcId}"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+         <apex:pageBlock rendered="{!listResetRS.size > 0}"> 
+             <apex:pageBlockButtons location="top">
+                <apex:commandButton value="Save" action="{!save}" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockTable value="{!listResetRS}" var="rs">
+
+                <apex:column value="{!rs.name}"/>
+                <apex:column value="{!rs.Start_Date__c}"/>
+                <apex:column value="{!rs.End_Date__c}"/>
+                <apex:column value="{!rs.Base_Rent_RS_1__c}"/>
+                <apex:column value="{!rs.Base_Rent_RS_2__c}"/>
+                <apex:column value="{!rs.Converted_Base_Rent__c}"/>
+    
+            </apex:pageBlockTable>
+         </apex:pageBlock>
+    </apex:form>
+    <script>
+        if({!success}){ 
+            if("{!$CurrentPage.parameters.isLightning}" != 'true'){
+                window.opener.location.href='/{!lcId}'; 
+                window.close();
+            }else{
+                window.location.href = "/{!lcId}";
+            }
+        }
+    </script>
+</apex:page>

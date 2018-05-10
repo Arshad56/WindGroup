@@ -1,0 +1,7 @@
+<aura:component controller="ViewDepositPdfCompController" implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global">
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="isSpinner" type="boolean" Default="true"/>
+    <aura:if isTrue="{!v.isSpinner}">
+        <lightning:spinner variant="brand" size="large"/>
+    </aura:if>
+</aura:component>

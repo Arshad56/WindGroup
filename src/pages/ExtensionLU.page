@@ -1,0 +1,67 @@
+<apex:page showHeader="false" sidebar="false" id="pg" controller="ExtensionLUController" docType="html-5.0">
+    <apex:form id="frm">
+        <apex:pageBlock id="filterblk">
+        <br/>
+            <br/>
+        <div class="message warningM3" role="alert">
+                <table border="0" cellpadding="0" cellspacing="0" class="messageTable" style="padding:0px;margin:0px;">
+                    <tbody>
+                        <tr valign="top"> 
+                            <td>
+                                <img alt="WARNING" class="msgIcon" src="/s.gif" title="WARNING" />
+                            </td>
+                            <td class="messageCell">
+                                <div class="messageText">
+                                    <span style="color:#cc0000">
+                <h4>
+                WARNING:
+                </h4>
+                </span> Are you sure you want to Extend this Lease unit.
+                                    <br/>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <br/>
+            <table>
+                <tr>
+                    <td>
+                        Extension Date &nbsp;
+                    </td>
+                    <td>
+                        <div class="requiredInput">
+                            <div class="requiredBlock">
+                            </div>
+                            <apex:inputfield value="{!leaseForUI.Lease_Start_Date__c}" style=" border-width: thin;width: 85px;border-color: {!If(error,'red', 'darkgray') };" />
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="text-align:center;">
+                        <br/>
+                        <apex:commandButton value="Proceed" style="border-width:1px;width:60px;text-align: center;" action="{!checkDate}" onclick="this.disabled='true'; this.value='Wait...';" onComplete="CloseAndRefresh();" reRender="filterblk" /> &nbsp;&nbsp;
+                        <apex:commandButton value="Cancel" style="border-width:1px;width:60px;text-align: center;" onClick="window.close();" />
+                    </td>
+                </tr>
+            </table>
+            <br/>
+            <apex:pageMessages escape="false" ></apex:pageMessages>
+            <script>
+                function CloseAndRefresh(){
+                    if({!success}){
+                        window.opener.location = '/{!leaseUnit.Id}';
+                        window.close();
+                    }
+                }
+            </script>
+        </apex:pageBlock>        
+    </apex:form>
+</apex:page>

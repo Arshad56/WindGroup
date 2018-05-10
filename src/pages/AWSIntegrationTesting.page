@@ -1,0 +1,30 @@
+<apex:page controller="AWSIntegrationVFController" sidebar="true" showheader="true" action="{!queryDateandEndPoint}" >
+  <apex:form >
+      <apex:pageBlock title="AWS Integration Push/Pull Page">
+          <apex:pageblockButtons location="top">
+            <!--  <apex:commandButton value="Invoke Push" action="{!invokePushCall}" reRender="pageSection"/> -->
+              <apex:commandButton value="Invoke" action="{!invokeAction}" reRender="pageSection2"/>
+          </apex:pageblockButtons>
+          <apex:pageblockSection id="pageSection1">
+          <apex:outputPanel ><b>Action:&nbsp;&nbsp;&nbsp; </b>
+                          <apex:selectList value="{!actionType}" size="1" id="values">
+                             <apex:actionSupport event="onchange" action="{!assignDateTime}" reRender="refreshDatesandEndPoint" />
+                             <apex:selectOptions value="{!ActionTypes}"/>     
+                          </apex:selectList>
+            </apex:outputPanel>              
+                          <br/><br/>
+                          
+              <apex:outputpanel id="refreshDatesandEndPoint">
+               <b>Start Date:&nbsp;&nbsp;&nbsp;</b>   <apex:inputfield Label="Start Date" value="{!TempawsCredRec.PUSH_Setup_StartDateTime__c}"/><br/><br/>
+               <b>End Date:&nbsp;&nbsp;&nbsp;</b>   <apex:inputfield Label="End Date" value="{!TempawsCredRec.PUSH_Setup_EndDateTime__c}"/><br/><br/>
+                 <b>End Point URL:&nbsp;&nbsp;&nbsp;</b>  <apex:outputtext value="{!endPointURL}"/>
+               </apex:outputpanel>   
+          </apex:pageblockSection>
+          <apex:pageblockSection id="pageSection2">
+              <apex:pageblocksectionItem >
+                  <apex:outputText value="{!message}"/>
+              </apex:pageblocksectionItem>
+          </apex:pageblockSection>
+      </apex:pageBlock>
+  </apex:form>
+</apex:page>

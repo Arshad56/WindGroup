@@ -1,0 +1,4 @@
+<apex:component id="footerComponent">
+<script language='javascript' async='true' type='text/javascript' src='//whatfix.com/embed/embed.nocache.js'></script>
+  <c:SitePoweredBy />
+</apex:component>

@@ -1,0 +1,5 @@
+<apex:page lightningStylesheets="true" standardController="Lease__c">
+    <script>
+        window.location.href="/a17/e?Name=-- System Generated --&nooverride=1&retURL=/a17/o&save_new_url=/a17/e?retURL=%2Fa00%2Fo"
+    </script>
+</apex:page>

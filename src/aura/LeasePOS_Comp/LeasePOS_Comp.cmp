@@ -1,0 +1,4 @@
+<aura:component implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome" access="global" >
+	 <!--aura init handler , call js "loadLeaseUnitList" function on component load, and display LeaseUnit data on table-->   
+    <aura:handler name="init" value="{!this}" action="{!c.createLeaseRecord}"/>
+</aura:component>

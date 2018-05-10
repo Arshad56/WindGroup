@@ -1,0 +1,49 @@
+<apex:page lightningStylesheets="true" docType="html-5.0" sidebar="false" id="evaluationCreateCandidate" controller="HRISEvaluationExtension" tabStyle="Requisition_Process__tab">
+    <apex:sectionHeader title="" subtitle="Create Candidate"/>
+    <c:HRISBreadcrumb />
+    <apex:form html-novalidate="novalidate" id="myform">
+    <apex:pageMessages escape="false"/>
+    <table width="80%" align="center">
+    <tr>
+    <td>
+    <apex:pageBlock >
+        <apex:pageBlockSection title="Candidate Information">
+            <apex:inputField value="{!contact.FirstName}" />
+            <apex:inputField value="{!contact.Chinese_Name_PinYin__c}" label="Last Name"/>
+            <apex:inputField value="{!contact.Gender__c}"/>
+            <apex:inputField value="{!contact.MobilePhone}"/>
+            <apex:inputField value="{!contact.Personal_Email__c}"/>
+        </apex:pageBlockSection>
+        <apex:pageBlockSection title="Application Information">      
+            <apex:inputField value="{!contact.Position__c}"/>
+            <apex:inputField value="{!contact.Division__c}"/>
+            <apex:inputField value="{!contact.Job_Level__c}"/>
+            <apex:inputField value="{!contact.Department}"/>           
+        </apex:pageBlockSection>
+        <apex:pageBlockButtons location="top">
+            <apex:commandButton action="{!add}" value="Add Candidate" />
+            <apex:commandButton action="{!complete}" value="Complete"/>
+            <apex:commandButton action="{!createEvaluation}" value="Create Interview Assesment Form"/>
+        </apex:pageBlockButtons>
+         <br/>
+         <br/>
+         <br/>
+        <apex:pageBlockTable value="{!candidateList}" var="can" id="candidatetable" rendered="{!candidateList != null}">
+            <apex:column headerValue="{!headerValue}">
+                <apex:commandButton value="Delete" action="{!deleteRow}" reRender="candidatetable" immediate="true">
+                    <apex:param name="rowIndex" value="{!rowNumber}"/>
+                </apex:commandButton>
+            </apex:column>
+            <apex:column value="{!can.FirstName}"/>
+            <apex:column value="{!can.LastName}" />
+            <apex:column value="{!can.Gender__c}"/>
+            <apex:column value="{!can.MobilePhone}"/>
+            <apex:column value="{!can.Division__c}"/>
+            <apex:column value="{!can.Position__c}"/>   
+        </apex:pageBlockTable>
+    </apex:pageBlock> 
+    </td>
+    </tr>
+    </table>         
+    </apex:form>
+</apex:page>

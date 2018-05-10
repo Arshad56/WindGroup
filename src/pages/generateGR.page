@@ -1,0 +1,98 @@
+<apex:page controller="GenerateGRController" sidebar="false" tabstyle="Goods_Receipt__c" id="pg">
+    <apex:sectionHeader title="New" subtitle="Goods Receipt"/>
+    
+    <apex:form id="frm">
+        <!----------------------------------- Action Status ---------------------------------->
+        <apex:actionstatus id="status">
+            <apex:facet name="start">
+                <div class="waitingSearchDiv" id="el_loading" style="background-color: #fbfbfb;
+                       height: 100%;opacity:0.65;width:100%;"> 
+                </div>
+                <div class="waitingHolder" style="position:absolute;top: 200px;left:48%; opacity:1;z-index:100; width: 91px;">
+                        <img class="waitingImage" src="/img/loading.gif" title="Please Wait..." />
+                        <span class="waitingDescription">Loading...</span>
+                </div>
+            </apex:facet>
+        </apex:actionstatus>
+        
+        <!----------------------------------- Action Function -------------------------------->
+        <apex:actionFunction name="calc" action="{!validate}" status="status" reRender="pb">
+            <apex:param name="index" value="" assignTo="{!index}"/>
+        </apex:actionFunction>
+        
+        <!----------------------------------- Goods Receipt Block -------------------------------->
+        <apex:pageBlock id="pb_First">
+            <apex:pageMessages ></apex:pageMessages>
+            <apex:pageBlockSection columns="2" id="pb_First_sec">
+                <apex:OutputField value="{!GR.Purchase_Order__c}"/>
+                <apex:OutputField value="{!GR.Vendor_Name__c}" id="vendorName"/>
+                <apex:inputField value="{!GR.DO_No__c}" />
+                <apex:outputField value="{!GR.Contact_Name__c}" id="vendorContact"/>
+                 <apex:InputField value="{!GR.GR_Date__c }"/>
+                <apex:OutputField value="{!GR.Currency_Code__c}"/>
+                <apex:InputField value="{!GR.Remarks__c}"/>
+            </apex:pageBlockSection>
+       </apex:pageBlock>
+       <!---------------------- Script to Open account and contact in new tab ---------------------------------->
+       <script type="text/javascript">
+           var vendorName= document.getElementById("pg:frm:pb_First:pb_First_sec:vendorName").getElementsByTagName("a");
+           for(i=0;i<vendorName.length;i++)
+               vendorName[i].setAttribute("target","_blank");
+             
+           var vendorContact = document.getElementById("pg:frm:pb_First:pb_First_sec:vendorContact").getElementsByTagName("a");
+           for(i=0;i<vendorContact.length;i++)
+               vendorContact[i].setAttribute("target","_blank");
+       </script>
+       
+       
+       <!----------------------------------- GR Line Item Block -------------------------------->
+       <apex:pageBlock title="Good Receipt Line Item" id="pb">
+          <apex:variable value="{!0}" var="i"/>
+          <apex:pageBlockSection columns="1" id="pbSec">
+              <apex:pageBlockTable value="{!GRlineItem}" var="grl">
+              
+                  <apex:column headerValue="Item Name">
+                      <apex:outputField value="{!grl.Item_Name__c}"/>
+                  </apex:column>
+                  
+                  <apex:column headerValue="Currency Code">
+                      <apex:outputField value="{!grl.Currency_Code__c}"/>
+                  </apex:column>
+                  
+                  <apex:column headerValue="Amount">
+                      <apex:outputField value="{!grl.Amount__c}"/>
+                  </apex:column>
+                  
+                  <apex:column headerValue="Quantity">
+                      <apex:inputField value="{!grl.Quantity__c}"  onchange="calc({!i});" >
+                          
+                      </apex:inputField>
+                  </apex:column>
+                  <apex:column headerValue="Total Amount">
+                      <apex:outputField value="{!grl.Total_Amount__c}"/>
+                  </apex:column>
+                  
+                  <apex:column headerValue="Remarks">
+                      <apex:inputField value="{!grl.Description__c}" style="width:100%;"/>
+                  </apex:column>
+                  
+                  <apex:column headerValue="Remove">
+                      <apex:commandButton status="status" action="{!delRow}" style="margin-left:10px;" image="/img/func_icons/remove12_on.gif" rerender="pb,pbSec">
+                            <apex:param name="index" value="{!i}" assignTo="{!indexValRemove}"/>
+                        </apex:commandButton>
+                        <apex:variable value="{!i+1}" var="i"/>
+                  </apex:column>
+              </apex:pageBlockTable>
+          </apex:pageBlockSection>
+          
+      </apex:pageBlock>
+      
+      <!----------------------------------- Save And Cancel Button -------------------------------->
+      <apex:outputPanel >
+              <center>
+                  <apex:commandButton value="Cancel" action="/{!GR.Purchase_Order__c}" status="status"  />
+                  <apex:commandButton value="Save" action="{!saveGRWithLineItems}" status="status" rendered="{!(!itemError)}"/>
+              </center>
+      </apex:outputPanel>
+  </apex:form>
+  </apex:page>

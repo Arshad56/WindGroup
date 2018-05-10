@@ -1,0 +1,281 @@
+<!--
+*    Name           :    Custom Account Lookup
+*    Author         :    Mohd Anas
+*    Date           :    31/3/2017
+*    Description    :    Customised lookup visualforce page to select account as well as to insert new account with one contact.
+-->
+<apex:page lightningStylesheets="true" id="pg" controller="CustomAccountLookupController" tabStyle="Account" showHeader="False" sidebar="False">
+ <apex:sectionHeader title="Lookup" subtitle="Account"/>
+    <apex:form >
+        <apex:outputPanel layout="block" style="margin:5px;padding:10px;padding-top:5px;">
+            <apex:tabPanel switchType="Client">
+                <!---------------------------Search Tab-------------------------------->
+                <apex:tab label="Accounts"  style="font-weight:bold;">
+                    <apex:actionRegion >
+                        <apex:outputPanel id="top" layout="block" style="margin:5px;padding:10px;padding-top:2px;">
+                            <apex:inputText id="txtSearch" value="{!accSearchString}" />
+                            <span style="padding-left:5px">
+                                
+                                 <apex:actionstatus id="status">
+                                    <apex:facet name="start">
+                                        <div class="waitingHolder" style="display:inline-block;" >
+                                                <img class="waitingImage" src="/img/loading.gif" title="Please Wait..." />
+                                                <span class="waitingDescription">Loading...</span>
+                                        </div>
+                                    </apex:facet>
+                                    <apex:facet name="stop">
+                                        <apex:commandButton id="btnGo" value="Go!" action="{!search}" status="status" rerender="searchResults" />
+                                    </apex:facet>
+                                </apex:actionstatus>
+                            </span>
+                        </apex:outputPanel>
+                        
+                        <apex:outputPanel id="pnlSearchResults" style="margin:10px;height:350px;overflow-Y:auto;" layout="block">
+                            <apex:pageBlock id="searchResults">
+                                <apex:pageBlockTable value="{!accSearchResult}" var="a" id="tblResults">
+                                    <apex:column width="12.5%">
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >Name</apex:outputPanel>
+                                        </apex:facet>
+                                        <apex:outputLink value="javascript:top.window.opener.lookupPick2('{!FormTag}','{!TextBox}_lkid','{!TextBox}','{!a.Id}','{!JSENCODE(a.Name)}', false)" rendered="{!NOT(ISNULL(a.Id))}">{!a.Name}</apex:outputLink>
+                                    </apex:column>
+                                    
+                                    <apex:column width="12.5%">
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >Short Name</apex:outputPanel>
+                                        </apex:facet>
+                                        {!a.Account_Short_Name__c}
+                                    </apex:column>
+                                    
+                                    
+                                    <apex:column width="12.5%" >
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >Shop Name</apex:outputPanel>
+                                        </apex:facet>
+                                        {!a.Shop_Name_Printed__c}
+                                    </apex:column>
+                                    
+                                    
+                                    <apex:column width="12.5%" >
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >Trade Category</apex:outputPanel>
+                                        </apex:facet>
+                                        {!a.Trade_Category__c}
+                                    </apex:column>
+                                    
+                                    
+                                    <apex:column width="12.5%" >
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >Sub Trade Category</apex:outputPanel>
+                                        </apex:facet>
+                                        {!a.Sub_Trade_Category__c}
+                                    </apex:column>
+                                    
+                                    <apex:column width="12.5%" >
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >Phone</apex:outputPanel>
+                                        </apex:facet>
+                                        {!a.Phone}
+                                    </apex:column>
+                                    
+                                    <apex:column width="12.5%" >
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >Street</apex:outputPanel>
+                                        </apex:facet>
+                                        {!a.BillingStreet}
+                                    </apex:column>
+                                    
+                                    <apex:column width="12.5%" >
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >City</apex:outputPanel>
+                                        </apex:facet>
+                                        {!a.BillingCity}
+                                    </apex:column>
+                                    
+                                    <apex:column width="12.5%" >
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >State</apex:outputPanel>
+                                        </apex:facet>
+                                        {!a.BillingState}
+                                    </apex:column>
+                                    
+                                    <apex:column width="12.5%" >
+                                        <apex:facet name="header">
+                                            <apex:outputPanel >Postal Code</apex:outputPanel>
+                                        </apex:facet>
+                                        {!a.BillingPostalCode}
+                                    </apex:column>
+                                    
+                                </apex:pageBlockTable>
+                                 <apex:pageMessages />
+                            </apex:pageBlock>
+                        </apex:outputPanel>
+                    </apex:actionRegion>
+                </apex:tab>
+
+                <!---------------------------Account And Contact Tab-------------------------------->
+                <apex:tab label="New Account"  style="font-weight:bold;">
+                    
+                    <!-----------Account form-------------------------->
+                    <apex:pageBlock id="newAccount" title="New Account">
+                        <apex:pageBlockButtons location="top">
+                             <apex:actionStatus id="disablebtn">
+                               <apex:facet name="stop">
+                                   <apex:commandButton value="Save" style="width:40px;" action="{!saveRecord}" reRender="newAccount" status="disablebtn" disabled="false"/>
+                               </apex:facet>    
+                               <apex:facet name="start">
+                                    <apex:commandButton style="width:60px;" status="disablebtn" value="Saving..." disabled="true"/>
+                               </apex:facet>
+                            </apex:actionStatus>
+                        </apex:pageBlockButtons>
+                      
+                        <script>
+                        
+                         if ({!closeWindow}) {
+                             window.opener.appendAccountLookupWindow('{!acc.id}','{!acc.name}');
+                             var fname='{!con.firstName}';
+                             var lname='{!con.lastName}';
+                             if(lname.length)
+                                 if(fname.length)
+                                     window.parent.opener.appendContactLookupWindow('{!con.id}','{!con.firstName}'+' '+'{!con.lastName}');
+                                 else
+                                     window.parent.opener.appendContactLookupWindow('{!con.id}','{!con.lastName}');
+                                     
+                             top.parent.window.close();
+                         }
+
+                        </script>
+                        <apex:pageMessages />
+                        <apex:pageBlockSection columns="2">
+                            
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Account Name" />
+                                <apex:outputpanel >
+                                    <div class="requiredInput">
+                                        <div class="requiredBlock"/>
+                                        <apex:inputText value="{!acc.Name}" style="width:40%" />
+                                    </div>
+                                </apex:outputpanel>
+                            </apex:pageBlockSectionItem>
+                            
+                            <apex:pageBlockSectionItem >
+                                  <apex:outputLabel value="Billing Country" />
+                                  <apex:outputpanel >
+                                    <apex:inputText value="{!acc.BillingCountry}"  style="width:40%"/>
+                                  </apex:outputpanel>
+                            </apex:pageBlockSectionItem>
+                            
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Account Short Name" />
+                                <apex:outputpanel >
+                                        <apex:inputText value="{!acc.Account_Short_Name__c}" style="width:40%" />
+                                </apex:outputpanel>
+                            </apex:pageBlockSectionItem>
+                            
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Billing Street" />
+                                <apex:outputpanel >                          
+                                    <apex:inputField value="{!acc.BillingStreet}" />
+                                </apex:outputpanel>
+                            </apex:pageBlockSectionItem>
+                            
+                            
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Shop Name" />
+                                <apex:outputpanel >
+                                        <apex:inputText value="{!acc.Shop_Name_Printed__c}" style="width:40%" />
+                                </apex:outputpanel>
+                            </apex:pageBlockSectionItem>
+                   
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Billing State" />
+                                <apex:outputpanel >
+                                    <apex:inputText value="{!acc.BillingState}"  style="width:40%"/>
+                                </apex:outputpanel>
+                            </apex:pageBlockSectionItem>
+                            
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Phone" />
+                                <apex:outputpanel >
+                                    <apex:inputText value="{!acc.Phone}" style="width:40%" />
+                                </apex:outputpanel>
+                            </apex:pageBlockSectionItem>
+                            
+                            <apex:pageBlockSectionItem >
+                              <apex:outputLabel value="Billing City" />
+                                <apex:outputpanel >
+                                    <apex:inputField value="{!acc.BillingCity}"  style="width:40%"/>
+                                </apex:outputpanel>
+                            </apex:pageBlockSectionItem>
+                          
+                            
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Trade Category" />
+                                <apex:outputpanel >
+                                    <apex:inputField value="{!acc.Trade_Category__c}"  style="width:40%">
+                                        <!--<apex:actionSupport event="onChange" reRender="subTradeCat"/>-->
+                                    </apex:inputField>
+                                </apex:outputpanel>
+                            </apex:pageBlockSectionItem>
+                            
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Billing Postal Code" />
+                                <apex:outputpanel >
+                                    <apex:inputText value="{!acc.BillingPostalCode}"  style="width:40%" />
+                                </apex:outputpanel>
+                            </apex:pageBlockSectionItem>
+                            
+                            <apex:pageBlockSectionItem id="subTradeCat">
+                                <apex:outputLabel value="Sub Trade Category" />
+                                <apex:outputpanel >
+                                    <apex:inputField value="{!acc.Sub_Trade_Category__c}"  style="width:40%" />
+                                </apex:outputpanel>
+                            </apex:pageBlockSectionItem>
+                            
+                       </apex:pageBlockSection>
+                    </apex:pageBlock>
+                    
+                    <!-----------Contact form-------------------------->
+                     <apex:pageBlock mode="edit" id="newContact">
+                        <apex:pageBlockSection columns="2" title="Contact">
+                        
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="First Name" />
+                                <apex:outputpanel >
+                                    <apex:inputText value="{!con.FirstName}" style="width:40%" />
+                                </apex:outputpanel>
+                            </apex:pageBlockSectionItem>
+                            
+                            
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Phone" />
+                                <apex:outputpanel >
+                                        <apex:inputText value="{!con.Phone}" style="width:40%" />
+                                </apex:outputpanel>
+                            </apex:pageBlockSectionItem>
+                            
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Last Name" />
+                                <apex:outputpanel >
+                                    <div class="requiredInput">
+                                        <div class="requiredBlock"/>
+                                        <apex:inputText value="{!con.lastName}" style="width:40%" />
+                                    </div>
+                                </apex:outputpanel>
+                            </apex:pageBlockSectionItem>
+                            
+
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Email" />
+                                <apex:outputpanel >
+                                        <apex:inputText value="{!con.email}" style="width:40%" />
+                                </apex:outputpanel>
+                            </apex:pageBlockSectionItem>
+                        
+                        </apex:pageBlockSection>
+                    </apex:pageBlock>
+                </apex:tab>
+            </apex:tabPanel>
+        </apex:outputPanel>
+    </apex:form>
+</apex:page>

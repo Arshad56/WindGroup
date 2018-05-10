@@ -1,0 +1,278 @@
+<apex:page controller="InvoicingController" id="pg">
+<head>
+<style>
+    #spinner{
+        display: none;
+        width:200px;
+        height: 100px;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        text-align:center;
+        padding:10px;
+        font:normal 16px Tahoma, Geneva, sans-serif;
+        margin-left: -100px;
+        margin-top: -100px;
+        z-index:2;
+        overflow: auto;
+        border:1px solid #CCC;
+        background-color:transparent;
+        z-index:100;
+        padding:5px;
+        line-height:20px;
+     }
+     #opaque {
+         position: fixed;
+         top: 0px;
+         left: 0px;
+         width: 100%;
+         height: 100%;
+         z-index: 1;
+         display: none;
+         background-color: gray;
+         filter: alpha(opacity=30);
+         opacity: 0.3;
+         -moz-opacity:0.3;
+         -khtml-opacity:0.3
+     }
+     * html #opaque {
+         position: absolute;
+     }
+</style>
+<style>
+    .dateFormat{
+        display:none;
+    }
+    
+    .requiredInput{
+        display:inline;
+    }
+    #left{
+        float:left;
+        width:75%;
+        overflow:hidden;
+    }
+    #right{
+        float:left;
+        width:25%;
+        overflow:hidden;
+    } 
+</style>
+<script>
+    function selectAll(){
+        var emailbox = document.getElementById("pg:frm:pbl:emailbox");
+        if(emailbox!=null){
+            var elements = document.getElementById("pg:frm").elements;
+            for (i=0; i<elements.length; i++){ 
+                if(elements[i].type=='checkbox' && !elements[i].disabled){
+                    elements[i].checked = emailbox.checked;
+                }
+            }
+        }
+    }
+</script>
+</head>
+
+    <apex:form id="frm">
+        <apex:actionFunction name="search" action="{!search}"/>
+        <apex:actionFunction name="emailInvoice" action="{!emailInvoice}"/>
+        
+        <center><div style="font-size:18px;padding-top: 10px; padding-right: 30px; padding-bottom: 10px; padding-left: 80px;">Invoicing</div></center>
+        <!--  <apex:actionPoller action="{!fetchRentRollPDF}" status="actStatusId"  reRender="pbList1,pbList2,pbl" interval="5" rendered="{!attachId==null}"/>-->
+        <apex:actionPoller action="{!fetchInvoiceAttachmentPDF}" status="actStatusId"  reRender="pbList1,pbList2,pbl,pbList3" interval="5"/>
+        
+        <!-- 
+        <center>
+        
+        <apex:pageblock rendered="{!rentRollList.size > 0}" id="pbList3">  
+        <table>
+            <tr>
+                <td>
+                <div style="font-size:18px;padding-top: 10px; padding-right: 30px; padding-bottom: 10px; padding-left: 80px;">
+                Invoicing</div>
+                </td>
+                <td>
+                <div style="width:30px;font-size:18px;padding-top: 10px; padding-bottom: 10px;">
+                    <apex:actionStatus id="actStatusId" rendered="{! showInvoice && invoiceList.size > 0 && attachId ==null && generateInvoiceClicked}">
+                        <apex:facet name="start" >
+                          <img src="/img/loading.gif" style="margin-bottom:0px; "/>                    
+                        </apex:facet>
+                    </apex:actionStatus>
+                </div>
+                
+           </td>
+            </tr>
+        </table>
+        </apex:pageblock>
+        
+            
+           
+           </center>-->
+        
+        <apex:outputpanel rendered="{!!showInvoice}"> 
+        <apex:pageBlock >
+         
+            <apex:pageBlockSection columns="2">
+                <apex:inputField value="{!rentRoll.Property__c}"/>
+                <apex:selectList size="1" value="{!billingType}" label="Billing Type">
+                    <apex:selectOptions value="{!billingTypes}"/>
+                </apex:selectList>
+                <apex:selectList size="1" value="{!year}" label="Year">
+                    <apex:selectOptions value="{!years}"/>
+                </apex:selectList>
+                <apex:selectList size="1" value="{!month}" label="Month">
+                    <apex:selectOptions value="{!months}"/>
+                </apex:selectList>
+                
+                
+            </apex:pageBlockSection>
+            
+            
+            
+            <apex:pageBlockButtons location="bottom"> 
+                <apex:commandButton value="Search" onclick="search(); this.disabled='true'; this.value='Searching...'; return false;"/>
+            </apex:pageBlockButtons>
+         </apex:pageBlock>
+        
+        <apex:pageblock rendered="{!AND(rentRollList.size < 1,error) }" id="errorBlock">
+            <apex:pageMessages ></apex:pageMessages>
+        </apex:pageblock> 
+       <!-- <apex:pageblock rendered="{!error}" id="errorBlock">
+            <apex:pageMessages ></apex:pageMessages>
+        </apex:pageblock> -->
+        
+       <apex:pageblock rendered="{!rentRollList.size > 0}" id="pbList1">       
+            <table border="1" style="border-collapse:collapse;text-align:center;" >
+                <tr>
+                
+                <th style="text-align:center;" width="180" height="25">Rent Roll</th>
+                <th style="text-align:center;" width="120">Billing Type</th>
+                <th style="text-align:center;" width="120">Invoice Date</th>
+                <th style="text-align:center;" width="120">Status</th>
+                </tr>
+                <apex:repeat value="{!rentRollList}" var="rr" rendered="{!rentRollList.size > 0}">
+                <tr>
+
+                    <td align="left" height="25" valign="middle">
+                    <apex:commandLink action="{!selectRentRoll}" reRender="frm" value="{!rr.Name}">
+                        <apex:param value="{!rr.Id}" name="arg1" assignTo="{!selRentRollId}"/>
+                    </apex:commandLink>
+                    </td>
+                    <td align="center" valign="middle"><apex:outputField value="{!rr.Billing_Type__c}"/></td>
+                    <td align="center" valign="middle"><apex:outputField value="{!rr.Expected_Invoice_Date__c}"/></td>
+                    <td align="center" valign="middle">
+                         <apex:outputText value="{!IF(rr.Approved__c,'Approved','Pending Approval')}" />
+                    </td>
+                </tr>
+                </apex:repeat>
+            </table>
+       </apex:pageblock>
+      
+        </apex:outputpanel>
+        
+        <apex:pageBlock rendered="{!showInvoice}"  id="pbList2">            
+            <apex:pageBlockSection columns="2">
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel value="Rent Roll ID"/>
+                <a href="/{!rentRoll.Id}" target="_blank">{!rentRoll.Name}</a>
+            </apex:pageBlockSectionItem>
+            <apex:outputField value="{!rentRoll.Property__c}"/>
+            
+            <apex:outputText label="Status" value="{!IF(rentRoll.Approved__c,'Approved','Pending Approval')}" />
+            <apex:outputField value="{!rentRoll.Actual_Invoice_Date__c}"/>
+            
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel value="PDF"/>
+                <apex:outputPanel layout="none">
+                <apex:outputText value="Pending" rendered="{!attachId==null}"/>
+                <apex:outputText rendered="{!attachId!=null}">
+                    <a href="/servlet/servlet.FileDownload?file={!attachId}" target="_blank">PDF Preview</a>
+                    <script>
+                        hideSpinner();
+                    </script>
+                </apex:outputText>
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+            
+            <apex:pageblock rendered="{!AND(invoiceList.size > 0,error) }" id="errorBlock2">
+            <apex:pageMessages ></apex:pageMessages>
+            </apex:pageblock>
+    
+            <apex:pageblock rendered="{!invoiceList.size > 0}" id="pbl">
+           
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton value="Back" action="{!back}" immediate="true"/>
+                <apex:commandButton disabled="{!If(attachId!=null,true,false)}" value="Generate PDF Invoice" action="{!generateInvoice}" oncomplete="showSpinner();return false;"/>
+                <apex:commandButton value="Email Invoices" onclick="emailInvoice(); this.disabled='true'; this.value='Emailing Invoices...'; return false;"/>
+                <!--<apex:commandButton value="Print Invoices"/>-->
+            </apex:pageBlockButtons>
+                <table width="100%" border="1" style="border-collapse:collapse;text-align:center;" >
+                    <tr>
+                    <th style="text-align:center;" width="50">
+                        <apex:image value="{!$Resource.EmailIcon}" height="25px"/>
+                        <br/>
+                        <apex:inputCheckbox id="emailbox" onchange="selectAll();return false;"/>
+                    </th>
+                    <th style="text-align:center;" height="25" width="200">Tenant</th>
+                   <!-- <th style="text-align:center;">Unit</th> -->
+                    <th style="text-align:center;" width="180">Invoice Number</th>
+                    <th style="text-align:center;" width="120">Comm Tax</th>
+                    <th style="text-align:center;" width="120">Amount</th>
+                    <th style="text-align:center;">Billing Email</th>
+                    <th style="text-align:center;" width="120">PDF</th>
+                    <th style="text-align:center;" width="120">Invoice Emailed</th>
+                    <!--<th style="text-align:center;" width="120">Invoice Printed</th>-->
+                    <th style="text-align:center;" width="120">Details</th>
+                    </tr>
+                    <apex:repeat value="{!invoiceList}" var="inv">
+                    <tr>
+                        <td><apex:inputCheckbox value="{!EmailCheckMap[inv.Id]}"/></td>
+                        <td style="text-align:Left;" height="25">{!inv.Account__c}</td>
+                   <!--     <td style="text-align:Left;"></td> -->
+                        <td style="text-align:Left;">{!inv.Name}</td>
+                        <td style="text-align:right;">
+                            <apex:outputField value="{!inv.Comm_Tax_Amount__c}"/>
+                        </td>
+                        <td style="text-align:right;">
+                            <apex:outputField value="{!inv.Amount__c}"/>
+                        </td>
+                         <td style="text-align:left;">{!inv.Billing_Email__c}</td>
+                        <td style="text-align:center;">
+                            <!--<apex:inputCheckbox value="{!inv.Invoice_Generated__c}" disabled="true"/>-->
+                            <apex:outputPanel rendered="{!LEN(invoicePDFAttMap[inv.Id])<15}">
+                                Pending
+                            </apex:outputPanel>
+                            <apex:outputPanel rendered="{!LEN(invoicePDFAttMap[inv.Id])>=15}">
+                                <a href="/servlet/servlet.FileDownload?file={!invoicePDFAttMap[inv.Id]}" target="_blank">Preview</a>
+                            </apex:outputPanel>
+                        </td>
+                        <td style="text-align:center;"><apex:inputCheckbox value="{!inv.Invoice_Emailed__c}" disabled="true"/></td>
+                        <!--<td style="text-align:center;"><apex:inputCheckbox value="{!inv.Invoice_Printed__c}" disabled="true"/></td>-->
+                        <td><a href="/{!inv.Id}" target="_blank">Details</a></td>
+                    </tr>
+                    </apex:repeat>
+                </table>
+            </apex:pageblock>
+    </apex:form>
+    
+   <div id="opaque"/>
+   <div id="spinner">
+        <p align="center" style='{font-family:"Arial", Helvetica, sans-serif; font-size:20px;}'><apex:image value="/img/loading.gif"/>&nbsp;Please wait</p>
+   </div>
+   
+   <script>
+        function showSpinner(){
+           document.getElementById('opaque').style.display='block';
+           var popUp = document.getElementById('spinner');
+           popUp.style.display = 'block';
+        } 
+        function hideSpinner(){
+           document.getElementById('opaque').style.display='none';
+           var popUp = document.getElementById('spinner');
+           popUp.style.display = 'none';
+        }
+   </script>
+   <c:wfx_profile ></c:wfx_profile>
+</apex:page>

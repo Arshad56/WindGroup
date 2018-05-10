@@ -1,0 +1,5 @@
+<apex:component Controller="CCHeaderController">
+    <apex:outputPanel id="ccHeader" layout="block" style="margin:40px;">
+        <apex:outputText value="Hello {!userName}!" />
+    </apex:outputPanel>
+</apex:component>

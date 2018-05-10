@@ -1,0 +1,32 @@
+<apex:page controller="LoiLaConversion_Controller"  showHeader="false" sidebar="false"  docType="html-5.0">
+    <apex:form id="frm"> 
+
+        <apex:pageMessages ></apex:pageMessages>
+        <apex:pageBlock id="filterblk"> 
+            <apex:actionFunction name="convertToLA" action="{!convertToLA}" />
+            <script> 
+                 if ({!closePage}) { 
+                     alert('{!messageOnScreen}');
+                     
+                     if("{!$CurrentPage.parameters.isLightning}" != 'true'){
+                         window.opener.location.href = "/{!loiId}";
+                         window.close();
+                     }else{
+                        // window.open("/{!loiId}","_self");
+                         window.location.href = "/{!loiId}";
+                     }
+                 }
+             </script>
+                 
+             
+             <apex:pageBlockButtons >
+                  <apex:commandButton value="Convert to LA" style="width:85px;border-width:1px;text-align: center;" action="null" onclick="if(confirm('Are you sure?')){convertToLA();}return false;" status="Wait.."  reRender="filterblk,listSplit" /> &nbsp;&nbsp;
+                  <apex:commandButton value="Cancel" rendered="{!$CurrentPage.parameters.isLightning != 'true'}" style="border-width:1px;width:60px;text-align: center;" onClick="window.close();" />
+                  <apex:commandButton value="Cancel" rendered="{!$CurrentPage.parameters.isLightning == 'true'}" style="border-width:1px;width:60px;text-align: center;"  action="/{!loiId}"/>
+             </apex:pageBlockButtons>
+             <apex:pageBlockSection title="LA Conversion" columns="1">
+                   <apex:inputfield value="{!leaseOnUI.Precedent_Lease__c}" id="unName" style="width: 150px;" /> 
+             </apex:pageBlockSection>
+         </apex:pageBlock>
+     </apex:form>
+</apex:page>

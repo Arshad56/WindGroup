@@ -1,0 +1,32 @@
+<apex:page showHeader="false" sidebar="false" controller="ConsumableTransferController" docType="html-5.0">
+    <apex:form >
+        <apex:pageBlock >
+            <apex:pageMessages />
+            <apex:pageBlockSection >
+                <apex:input type="number" value="{!quantity}" label="Quantity" required="true"/>
+                <apex:input type="date" value="{!dt}" label="Date" required="true"/>
+            </apex:pageBlockSection>
+            <apex:pageBlockTable value="{!inventoryList}" var="iv" rendered="{!inventoryList.size > 0}">
+                <apex:column headerValue="Select">
+                    <input type="radio" name="selInv" value="{!iv.Id}"/>
+                </apex:column>
+                <apex:column headerValue="Inventory ID">{!iv.Name}</apex:column>
+                <apex:column headerValue="Stock">{!iv.Stock_Warehouse__r.Name}</apex:column>
+                <apex:column headerValue="Available Quantity">{!iv.Available_Qty__c}</apex:column>
+            </apex:pageBlockTable>
+            <apex:outputPanel rendered="{!inventoryList.size == 0}" style="color : red;">
+                <center>*Inventory with same product is not found.</center>
+            </apex:outputPanel>
+            <apex:pageBlockButtons >
+                <apex:commandButton value="Transfer" action="{!transfer}" rendered="{!inventoryList.size > 0}"/>
+                <apex:commandButton value="Cancel" onclick="window.close();"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+    </apex:form>
+    <script>
+        if({!success}){
+            window.opener.location = '/{!inv.Id}';
+            window.close();
+        }
+    </script>
+</apex:page>

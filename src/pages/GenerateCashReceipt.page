@@ -1,0 +1,362 @@
+<apex:page sidebar="false" controller="GenerateCashReceiptController" doctype="html-5.0" id="pg">
+<style>
+    input[type="number"]:disabled,input[type="text"]:disabled{
+        background-color:rgba(0, 0, 0, 0.29);
+    }
+    
+    .pbBottomButtons{
+        margin-top:0px !important;
+    }
+</style>
+<script>
+    function searchWithInvNumber(a){
+        if(a!=null && a.value!=null && (a.value.length==19 || a.value.length==20)){
+            Search();
+        }
+    }
+    
+    
+    
+    function changePaymentCurrency(){
+        if({!showResult}){
+            document.getElementById("pg:frm:srchBlk:srchSection:tlPayItem:tlPay").value = '';
+            modPaymentCurrency();
+        }
+    }
+    
+    function populateTotalPayment(a){
+        document.getElementById("pg:frm:srchBlk:srchSection:tlPayItem:tlPay").value = a;
+        calculation();
+        return false;
+    }
+    
+</script>
+    <apex:form id="frm">
+        <apex:actionFunction name="Search" action="{!search}"/>
+        <apex:actionFunction name="modPaymentCurrency" action="{!modPaymentCurrency}"/>
+        <apex:actionFunction name="generateCashReceipt" action="{!generateCashReceipt}" reRender="frm" onComplete="genpdf();return false;"/>
+        
+        <apex:actionFunction name="calculation" action="{!calculation}" reRender="frm"/>
+        <apex:actionFunction action="{!generatePDF}" name="generatePDF"/>
+        
+        <center><div style="font-size:18px;padding-top: 10px; padding-right: 130px; padding-bottom: 10px; ">Generate Cash Receipt</div></center>
+        <apex:pageBlock id="srchBlk">
+            <apex:pageMessages />
+            <apex:pageblockSection id="srchSection">
+                <apex:inputField value="{!cr.Payment_Currency__c}" required="true" onchange="changePaymentCurrency();return false;"/>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Property"/>
+                    <apex:inputField value="{!rroll.Property__c}"/>              
+                </apex:pageBlockSectionItem>
+                
+                <apex:pageBlockSectionItem id="tlPayItem">
+                    <apex:outputLabel value="Total Payment"/>
+                    <!--<apex:outputPanel styleclass="requiredInput" layout="block">
+                        <apex:outputPanel styleclass="requiredBlock" layout="block"/>
+                        <apex:inputText value="{!totalpayment}"/>
+                    </apex:outputPanel>-->
+                    <apex:outputPanel >
+                    <apex:inputText value="{!totalpayment}" id="tlPay"/>
+                    <apex:outputPanel title="Total Payment - Total Applied Amount - Total Penalty Amount">
+                        [Un-Applied Amount : <apex:outPutText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!unAppliedAmount}"/>
+                            </apex:outputText>]
+                            <img src="/s.gif" alt="" class="infoIcon" title="" />
+                    </apex:outputPanel> 
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Tenant"/>
+                    <apex:inputField value="{!con.AccountId}"/>
+                </apex:pageBlockSectionItem>
+                
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Payment Mode"/>
+                    <apex:outputPanel styleclass="requiredInput" layout="block">
+                        <apex:outputPanel styleclass="requiredBlock" layout="block"/>
+                        <apex:inputField value="{!cr.Payment_Mode__c}"/>
+                    </apex:outputPanel> 
+                </apex:pageBlockSectionItem>
+                
+                <apex:inputText label="Invoice Number" id="invnum" value="{!InvNumber}" onChange="searchWithInvNumber(this);return false;" onkeyup="searchWithInvNumber(this);return false;"/>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Payment Date"/>
+                    <apex:outputPanel styleclass="requiredInput" layout="block">
+                        <apex:outputPanel styleclass="requiredBlock" layout="block"/>
+                        <apex:inputField value="{!cr.Payment_Date__c}"/>
+                    </apex:outputPanel> 
+                </apex:pageBlockSectionItem>
+                <apex:inputField value="{!cr.Remarks__c}"/>
+                
+            </apex:pageblockSection>
+            <apex:pageBlockButtons location="bottom">
+           <!--    <div style="padding-left: 120px;"> -->
+                    <apex:commandButton value="Search" onclick="Search(); this.disabled='true'; this.value='Searching...'; return false;" style="width:80px;"/>
+                    <apex:commandButton value="Cancel" onclick="goHome(); this.disabled='true'; this.value='Wait...'; return false;" style="width:80px;"/>
+                    <apex:commandlink action="{!generateAccountStmtPdf}" target="_blank" value="Generate Statement of Accounts" onclick="return confirm('Are you sure you want to generate Statement of Accounts');">
+                    </apex:commandLink>
+             <!--   </div> -->
+            </apex:pageBlockButtons>
+        </apex:pageBlock>  
+        <apex:pageblock rendered="{!showResult}" id="pblk">
+        <apex:pageBlockButtons location="top">
+                <apex:commandButton style="width:128px;" value="Generate Cash Receipt"  onclick="generateCashReceipt(); this.disabled='true'; this.value='Generating.....'; return false;"/>
+              <!--  <apex:commandlink action="{!generateAccountStmtPdf}" target="_blank" value="Generate Statement of Accounts" onclick="return confirm('Are you sure you want to generate Statement of Accounts');">
+                    </apex:commandLink> -->
+                      
+                
+         </apex:pageBlockButtons>
+             <table width="69%" style="font-weight:bold;float:right;">
+                <tr>                    
+                    <td width="18%">Total Outstanding<br/>Amount</td>
+                    <td width="25%">Total Applied Amount</td>
+                    
+                    <td width="100">Total Penalty<br/>Amount</td>
+                </tr>
+                <tr>                    
+                    <td>
+                        <table>
+                             <tr>
+                                 <td>{!$Label.Default_Currency}</td>
+                                 <td>:</td>
+                                 <td>
+                                     <apex:outPutText value="{0,number,###,###,##0.00}">
+                                         <apex:param value="{!totalOutstandingAmountLocal}"/>
+                                     </apex:outputText>
+                                 </td>
+                             </tr>
+                             <apex:outputPanel rendered="{!currencyCode!=$Label.Default_Currency}" layout="none">
+                             <tr>
+                                 <td>{!currencyCode}</td>
+                                 <td>:</td>
+                                 <td>
+                                     <apex:outPutText value="{0,number,###,###,##0.00}">
+                                         <apex:param value="{!totalOutstandingAmountForeign}"/>
+                                     </apex:outputText>
+                                 </td>
+                             </tr>
+                             </apex:outputPanel>
+                        </table>
+                    </td>
+                    <td>
+                        <table>
+                             <tr>
+                                 <td>{!$Label.Default_Currency}</td>
+                                 <td>:</td>
+                                 <td>
+                                     <apex:outPutText value="{0,number,###,###,##0.00}">
+                                         <apex:param value="{!totalPaidAmountLocal}"/>
+                                     </apex:outputText>
+                                 </td>
+                             </tr>
+                             <apex:outputPanel rendered="{!currencyCode!=$Label.Default_Currency}" layout="none">
+                             <tr>
+                                 <td>{!currencyCode}</td>
+                                 <td>:</td>
+                                 <td>
+                                     <apex:outPutText value="{0,number,###,###,##0.00}">
+                                         <apex:param value="{!totalPaidAmountForeign}"/>
+                                     </apex:outputText>
+                                 </td>
+                             </tr>
+                             </apex:outputPanel>
+                        </table>
+                        <br/>[<a onclick="populateTotalPayment({!(totalPaidAmount + totalPenaltyAmount)});" href="#">Populate Total Payment</a>]
+                    </td>
+                    <td>
+                        <table>
+                             <tr>
+                                 <td>{!$Label.Default_Currency}</td>
+                                 <td>:</td>
+                                 <td>
+                                     <apex:outPutText value="{0,number,###,###,##0.00}">
+                                         <apex:param value="{!totalPenaltyAmountLocal}"/>
+                                     </apex:outputText>
+                                 </td>
+                             </tr>
+                             <apex:outputPanel rendered="{!currencyCode!=$Label.Default_Currency}" layout="none">
+                             <tr>
+                                 <td>{!currencyCode}</td>
+                                 <td>:</td>
+                                 <td>
+                                     <apex:outPutText value="{0,number,###,###,##0.00}">
+                                         <apex:param value="{!totalPenaltyAmountForeign}"/>
+                                     </apex:outputText>
+                                 </td>
+                             </tr>
+                             </apex:outputPanel>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            <br/>
+            <apex:variable value="{!0}" var="i"/>
+            <table border="1" width="100%" style="border-collapse:collapse;text-align:center;" >
+                <tr>
+                    <th style="text-align:center;" width="50">✔<br/>
+                        <apex:inputCheckbox onclick="selectAllCheckboxes(this,'inputId');return false;"/>
+                    </th>
+                    <th style="text-align:center;" width="200">Invoice No/Deposit No</th>
+                    <th style="text-align:center;" width="200">Type</th>
+                    <th style="text-align:center;" width="200">Total Invoice Amount</th>                    
+                    <th style="text-align:center;" width="180">Outstanding Amount</th>
+                    <th style="text-align:center;" width="180">Applied Amount</th>
+                    <th style="text-align:center;" width="50">Over<br/>Due Days</th>
+                    <th style="text-align:center;" width="55">Penalty<br/>Amount</th>
+                    <th style="text-align:center;" width="50">Pay<br/>Penalty</th>
+                    <th style="text-align:center;" width="300">Remarks</th>
+                </tr>
+                <apex:repeat value="{!displayWrapList}" var="dw" id="lst">
+                    <tr>
+                        <td>
+                            <apex:inputCheckBox value="{!dw.selectRecord}" id="inputId" onChange="selRecord(this.id,{!i});return false;"/>
+                        </td>
+                        <td style="text-align:left;">
+                            <a href="/{!dw.invoiceId}{!dw.depositId}{!dw.paymentVoucherId}" target="_blank"><apex:outputText value="{!dw.invDepNo}"/></a>
+                        </td>
+                        <td>
+                            {!dw.billingType}
+                        </td>
+                         <td style="text-align:right;">
+                            <table width="100%">
+                                 <tr>
+                                     <td width="23%" style="text-align:left;">{!$Label.Default_Currency}</td>
+                                     <td width="2%">:</td>
+                                     <td width="75%">
+                                         <apex:outPutText value="{0,number,###,###,##0.00}">
+                                             <apex:param value="{!dw.totalAmountLocal}"/>
+                                         </apex:outputText>
+                                     </td>
+                                 </tr>
+                                 <apex:outputPanel rendered="{!dw.currencyCode!=$Label.Default_Currency}" layout="none">
+                                 <tr>
+                                     <td width="23%" style="text-align:left;">{!dw.currencyCode}</td>
+                                     <td width="2%">:</td>
+                                     <td width="75%">
+                                         <apex:outPutText value="{0,number,###,###,##0.00}">
+                                             <apex:param value="{!dw.totalAmountForeign}"/>
+                                         </apex:outputText>
+                                     </td>
+                                 </tr>
+                                 </apex:outputPanel>
+                             </table>
+                        </td>
+                        <td style="text-align:right;">
+                            <table width="100%">
+                                 <tr>
+                                     <td width="23%" style="text-align:left;">{!$Label.Default_Currency}</td>
+                                     <td width="2%">:</td>
+                                     <td width="75%">
+                                         <apex:outPutText value="{0,number,###,###,##0.00}">
+                                             <apex:param value="{!dw.outstandingAmountLocal}"/>
+                                         </apex:outputText>
+                                     </td>
+                                 </tr>
+                                 <apex:outputPanel rendered="{!dw.currencyCode!=$Label.Default_Currency}" layout="none">
+                                 <tr>
+                                     <td width="23%" style="text-align:left;">{!dw.currencyCode}</td>
+                                     <td width="2%">:</td>
+                                     <td width="75%">
+                                         <apex:outPutText value="{0,number,###,###,##0.00}">
+                                             <apex:param value="{!dw.outstandingAmountForeign}"/>
+                                         </apex:outputText>
+                                     </td>
+                                 </tr>
+                                 </apex:outputPanel>
+                             </table>
+                        </td>
+                        <td>
+                            <apex:input type="number" value="{!dw.amountPaid}" id="amt" style="width: 150px;" onchange="calculation();return false;"/>
+                        </td>
+                        <td>{!dw.dueDays}</td>
+                        <td style="text-align:right;">
+                            <apex:outputPanel layout="none" rendered="{!dw.penaltyAmount!=null}">
+                            <table width="100%">
+                                 <tr>
+                                     <td width="23%" style="text-align:left;">{!$Label.Default_Currency}</td>
+                                     <td width="2%">:</td>
+                                     <td width="75%">
+                                         <apex:outPutText value="{0,number,###,###,##0.00}">
+                                             <apex:param value="{!dw.penaltyAmountLocal}"/>
+                                         </apex:outputText>
+                                     </td>
+                                 </tr>
+                                 <apex:outputPanel rendered="{!dw.currencyCode!=$Label.Default_Currency}" layout="none">
+                                 <tr>
+                                     <td width="23%" style="text-align:left;">{!dw.currencyCode}</td>
+                                     <td width="2%">:</td>
+                                     <td width="75%">
+                                         <apex:outPutText value="{0,number,###,###,##0.00}">
+                                             <apex:param value="{!dw.penaltyAmountForeign}"/>
+                                         </apex:outputText>
+                                     </td>
+                                 </tr>
+                                 </apex:outputPanel>
+                             </table>
+                             </apex:outputPanel>
+                        </td>
+                        <td>
+                            <apex:inputCheckbox value="{!dw.applyPenalty}" id="pnlty" rendered="{!!isBlank(dw.penaltyAmount)}" onchange="calculation();return false;"/>
+                        </td>
+                        <td>
+                            <apex:inputTextarea value="{!dw.Remarks}" style="width: 350px;"/>
+                            <apex:variable value="{!i+1}" var="i"/>
+                        </td>
+                    </tr>
+                </apex:repeat>
+            </table>
+            <script>
+            function disablefields(){
+                for (var i = 0; i < {!displayWrapList.size}; i += 1) {
+                    document.getElementById("pg:frm:pblk:lst:"+i+":amt").disabled = !document.getElementById("pg:frm:pblk:lst:"+i+":inputId").checked;
+                    //document.getElementById("pg:frm:pblk:lst:"+i+":rmk").disabled = !document.getElementById("pg:frm:pblk:lst:"+i+":inputId").checked;
+                    if(document.getElementById("pg:frm:pblk:lst:"+i+":pnlty")!=null){
+                        document.getElementById("pg:frm:pblk:lst:"+i+":pnlty").disabled = !document.getElementById("pg:frm:pblk:lst:"+i+":inputId").checked;
+                    }
+                }
+            }
+            window.onload = disablefields();
+        </script>
+        </apex:pageblock>
+        <script>
+            window.onload = document.getElementById("pg:frm:srchBlk:srchSection:invnum").focus();
+            
+            function genpdf(){
+                if({!success}){
+                     generatePDF();
+                }
+            }
+            if({!attachId!=null}){
+                window.open("/servlet/servlet.FileDownload?file={!attachId}");
+                window.location.href = "/apex/GenerateCashReceipt";
+                
+            }
+        </script>
+    </apex:form>
+    <script>
+        function goHome(){
+            window.location.href='/home/home.jsp';
+        }
+        
+        function selectAllCheckboxes(obj,receivedInputID){
+            var inputCheckBox = document.getElementsByTagName("input");                  
+            for(var i=0; i<inputCheckBox.length; i++){          
+                if(inputCheckBox[i].id.indexOf(receivedInputID)!=-1){                                     
+                    inputCheckBox[i].checked = obj.checked;
+                }
+            }
+            disablefields();
+            calculation();
+        }
+        
+        function selRecord(myid,number){
+            document.getElementById("pg:frm:pblk:lst:"+number+":amt").disabled = !document.getElementById(myid).checked;
+            //document.getElementById("pg:frm:pblk:lst:"+number+":rmk").disabled = !document.getElementById(myid).checked;
+            if(document.getElementById("pg:frm:pblk:lst:"+number+":pnlty")!=null){
+                document.getElementById("pg:frm:pblk:lst:"+number+":pnlty").disabled = !document.getElementById(myid).checked;
+            }
+            calculation();
+        }
+    </script>
+</apex:page>

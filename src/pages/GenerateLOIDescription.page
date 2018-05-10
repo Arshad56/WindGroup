@@ -1,0 +1,331 @@
+<!--<apex:page docType="html-5.0" sidebar="false" id="GenerateLOIPage" controller="GenerateLOIController" tabstyle="LOI__c" >    -->
+<apex:page lightningStylesheets="true" docType="html-5.0" sidebar="false" id="GenerateLOIPage" controller="GenerateLOIDescriptionController" tabstyle="LOI__c"> 
+<apex:includeScript value="{!$Resource.jquery2}"/>
+ 
+<style>
+   .vfLabelColTextWrap{
+       display:inline-block;
+   }
+   .datacol{
+       display:inline-block;
+   }
+</style>
+<script>
+    
+    
+    function selectRadio(){
+       
+          var radioId = $("input[name='btn']:checked"). val();
+          var act=document.getElementById('GenerateLOIPage:mainForm:pb:pbSec:actionSelect').value;
+          if(radioId != null){
+               document.getElementById('GenerateLOIPage:mainForm:status.start').style.display = 'block';
+               if(act == 'Add LOI Unit'){
+                   var url = window.location.href;
+                   var unitSegment = (url.split("unitId="))[1];
+                   
+                   if(unitSegment){
+                       var uni=(unitSegment.split("&"))[0];
+                       window.location.href='/apex/generateLOI?loiId='+radioId+'&unitId='+uni;
+                   }else{
+                        window.location.href='/apex/generateLOI?loiId='+radioId;
+                   }
+               }
+               else if(act == 'Cancel')
+                   window.open('/apex/LoiCancellation?loiId='+radioId, "_blank");
+               else if(act == 'Clone')
+                   window.location.href='/apex/LOICloning?loiId='+radioId;
+               else if(act == 'Amend')
+                   window.location.href='/apex/LoiCancellation?loiId='+radioId+'&action='+act;
+          }
+          else{
+              alert('Select a LOI first');
+          }
+          
+    }
+</script>
+    <apex:sectionHeader title="LOI" subtitle="Add LOI Unit"/>
+    <apex:form id="mainForm">
+        <apex:actionFunction action="{!reload}" name="reload" status="status" reRender="frm1,newLOI,pb" />
+        <apex:actionFunction name="dataRowChange" action="{!dataRowChange}" reRender="frm1" status="status"/>
+        
+        <apex:actionstatus id="status">
+            <apex:facet name="start">
+                
+
+                <div class="waitingSearchDiv" id="el_loading" style="background-color: #fbfbfb;
+                       height: 100%;opacity:0.65;width:100%;"> 
+                </div>
+                <div class="waitingHolder" style="position:absolute;top: 180px;left:48%; opacity:1;z-index:100; width: 91px;">
+                        <img class="waitingImage" src="/img/loading.gif" title="Please Wait..." />
+                        <span class="waitingDescription">Loading...</span>
+                </div>
+            </apex:facet>
+        </apex:actionstatus>
+        <apex:pageMessages id="pgMsg"></apex:pageMessages>
+        
+        <apex:pageBlock mode="edit" id="pb">
+            <apex:pageBlockSection title="Select Lease Plan" columns="1" id="pbSec">
+                <apex:outputPanel >
+                     <div style="min-width:160px;clear:both;">
+                         <apex:outputlabel value="Action" style="float:left;margin-right:10px;font-weight:bold;color:rgb(74,74,86) !important;"/>
+                            <div class="requiredInput" style="float:left;">
+                                <div class="requiredBlock" />   
+                                <apex:selectList value="{!selectedLeasePlan}" size="1" required="True" onchange="reload();return false;" id="actionSelect">
+                                    <apex:selectOption itemLabel="New" itemValue="New"/>
+                                    <apex:selectOption itemLabel="Clone" itemValue="Clone"/>
+                                    <apex:selectOption itemLabel="Add LOI Unit" itemValue="Add LOI Unit"/>
+                                </apex:selectList>
+                            </div>
+                      </div>
+                      
+                      
+                <span style="margin-left:15px;">
+                    <apex:outputlabel value="Property" rendered="{!act}" style="margin-right:10px;font-weight:bold;color:rgb(74,74,86) !important;"/>
+                    <apex:inputField rendered="{!act}" id="PropertyId" required="false" value="{!loi.Property__c}" label="Property" style="Width:110px;" />
+                </span>
+                <span style="margin-left:15px;">
+                    <apex:outputlabel value="Tenant" rendered="{!act}" style="margin-right:10px;font-weight:bold;color:rgb(74,74,86) !important;"/>
+                    <apex:inputField rendered="{!act}" required="false" value="{!loi.Tenant__c}" label="Tenant" style="Width:110px;"/>
+                </span>
+                <span style="margin-left:15px;">
+                    <apex:outputlabel value="Status" rendered="{!act}" style="margin-right:10px;font-weight:bold;color:rgb(74,74,86) !important;"/>
+                    <apex:inputField rendered="{!act}" value="{!loi.LOI_Status__c}" label="Status" />
+<!--                     <apex:selectList value="{!loi.LOI_Status__c}" size="1" rendered="{!act}"> -->
+<!--                          <apex:selectOption itemLabel="Draft" itemValue="Draft"/> -->
+<!--                      </apex:selectList> -->
+                </span>
+               <span style="margin-left:15px;">
+                    <apex:outputlabel value="Start Date" rendered="{!act}" style="margin-right:10px;font-weight:bold;color:rgb(74,74,86) !important;"/>
+                    <apex:inputField rendered="{!act}" value="{!loi.LOI_Start_Date__c}" label="Start Date"/>
+                </span>
+                <span style="margin-left:15px;">
+                    <apex:outputlabel value="End Date" rendered="{!act}" style="margin-right:10px;font-weight:bold;color:rgb(74,74,86) !important;"/>
+                    <apex:inputField rendered="{!act}" value="{!loi.Original_End_Date__c}" label="End Date" />
+                </span>
+                </apex:outputPanel>
+            </apex:pageBlockSection>
+            <apex:outputpanel id="newLOI" style="float:left;border:0px;width:100%;margin-top:2% !important;">
+                        <center>
+                            <apex:commandButton action="{!ContinueGenerateLOI}" value="Continue" rendered="{!(!act)}" id="btn1"/>
+                            <apex:commandButton action="/home/home.jsp"  value="Cancel" rendered="{!(!act)}" id="btn2"/>
+                        </center>
+                    </apex:outputpanel>
+             <apex:outputPanel >
+                <center><apex:commandButton rendered="{!act}" value="Search" action="{!btnSearch}" status="status" reRender="frm1"/></center>
+             </apex:outputPanel>
+         </apex:pageBlock>
+         <apex:outputPanel id="frm1">
+             <apex:pageBlock rendered="{!act}">
+                
+                <!-------------------------------- Pagination Starts here  -------------------------------->
+	             
+	             <apex:outputPanel layout="block" styleClass="listViewport" style="width: 600px;margin: 0 auto;">
+				        <div class="bottomNav">
+				            <div class="paginator">
+				                <apex:panelGrid id="gridPaging"  columns="3" width="100%" columnclasses="left, center, right">
+				
+				                    <apex:panelGroup >
+				                        <span class="selectorTarget">
+				                            <strong>
+				                                <apex:outputText value="Showing {0}-{1} of {2}">
+				                                    <apex:param value="{!startIdx}" />
+				                                    <apex:param value="{!endIdx}" />
+				                                    <apex:param value="{!totalRecords}" />
+				                                </apex:outputText>
+				                            </strong>
+				                        </span>
+				                        <span>&nbsp;&nbsp;</span>
+				                        <apex:actionStatus id="status">
+				                            <apex:facet name="start">
+				                                <img src="/img/loading.gif" height="14px" width="14px"/>
+				                            </apex:facet>
+				
+				                            <apex:facet name="stop">
+				                                <img src="/img/s.gif" height="14px" width="14px"/>
+				                            </apex:facet>
+				                        </apex:actionStatus>
+				                    </apex:panelGroup>
+				
+				                    <apex:panelGroup >
+				                    	<span>
+					                    	<strong>Data Row</strong>&nbsp;
+					                    	<apex:selectList value="{!dataRow}" label="Data Row " size="1" onChange="dataRowChange();return false;">
+					                            <apex:selectOptions value="{!DataRowList}"/>
+					                        </apex:selectList>&nbsp;
+				                    	</span>
+				                        <span class="prevNextLinks">
+				                            <span class="prevNext">
+				                                <apex:commandLink id="linkMoveFirst"
+				                                    immediate="true"
+				                                    status="status"
+				                                    action="{!moveFirst}"
+				                                     rerender="frm1"
+				                                     rendered="{!hasPrevious}">
+				
+				                                    <img src="/s.gif" title="First Page" alt="First Page" class="first" />
+				                                </apex:commandLink>
+				
+				                                <apex:outputPanel layout="none"
+				                                    rendered="{!NOT(hasPrevious)}">
+				
+				                                    <apex:image url="/s.gif" title="First Page" alt="First Page" styleclass="firstoff" />
+				                                </apex:outputPanel>
+				                            </span>
+				
+				                            <span class="prevNext">
+				                                <apex:commandLink id="linkMovePrev"
+				                                    immediate="true"
+				                                    title="Previous"
+				                                    status="status"
+				                                    action="{!doPrevious}"
+				                                    rerender="frm1"
+				                                     rendered="{!hasPrevious}">
+				                                    <img src="/s.gif" title="Previous" alt="Previous" class="prev" />
+				                                    <span>Previous</span>
+				                                </apex:commandLink>
+				
+				                                <apex:outputPanel layout="none"
+				                                    rendered="{!NOT(hasPrevious)}">
+				                                    <apex:image url="/s.gif" title="Previous" alt="Previous" styleclass="prevoff" />
+				                                    <span>Previous</span>
+				                                </apex:outputPanel>
+				                            </span>
+				
+				                            <span class="prevNext">
+				                                <apex:commandLink id="linkMoveNext"
+				                                    immediate="true"
+				                                    title="Next"
+				                                    status="status"
+				                                    action="{!doNext}"
+				                                    rerender="frm1"
+				                                     rendered="{!hasNext}">
+				
+				                                    <span>Next</span>
+				                                    <img src="/s.gif" title="Next" alt="Next" class="next" />
+				                                </apex:commandLink>
+				
+				                                <apex:outputPanel layout="none"
+				                                    rendered="{!NOT(hasNext)}">
+				                                    <span>Next</span>
+				                                    <apex:image url="/s.gif" title="Next" alt="Next" styleclass="nextoff" />
+				                                </apex:outputPanel>
+				                            </span>
+				
+				                            <span class="prevNext">
+				                                <apex:commandLink id="linkMoveLast"
+				                                    immediate="true"
+				                                    status="status"
+				                                    action="{!moveLast}"
+				                                    rerender="frm1"
+				                                     rendered="{!hasNext}">
+				
+				                                    <img src="/s.gif" title="Last Page" alt="Last Page" class="last" />
+				                                </apex:commandLink>
+				
+				                                <apex:outputPanel layout="none"
+				                                     rendered="{!NOT(hasNext)}">
+				
+				                                    <apex:image url="/s.gif" title="Last Page" alt="Last Page" styleclass="lastoff" />
+				                                </apex:outputPanel>
+				                            </span>
+				                        </span>
+				                    </apex:panelGroup>
+				
+				                    <apex:panelGroup >
+				                        <span class="selectorTarget">
+				                            <strong>
+				                                <apex:outputText value="Page {0} of {1}">
+				                                    <apex:param value="{!page}" />
+				                                    <apex:param value="{!totalPages}" />
+				                                </apex:outputText>
+				                            </strong>
+				                        </span>
+				                    </apex:panelGroup>
+				                </apex:panelGrid> 
+				            </div>
+				        </div>
+				    </apex:outputPanel>
+	             
+	             <!-------------------------------- Pagination Ends here  -------------------------------->
+	             <br/>
+	             
+                <apex:pageBlockSection id="loiList"   columns="1" >
+                        <apex:outputPanel >
+                          <center>
+                                <apex:commandButton onclick="selectRadio();return false;" value="Continue" />
+                            </center>
+                            <apex:pageBlockTable value="{!loiwrap}" var="w" >
+                                <apex:column headerValue="Select" >
+                                  <apex:outputPanel rendered="{! selectedLeasePlan == 'Add LOI Unit' && (w.selectloi.LOI_Status__c != 'Draft')}">
+                                   		<input type='radio' name='btn' value="" disabled='disabled' />
+                                  </apex:outputPanel>
+                                  <apex:outputPanel rendered="{! Not(selectedLeasePlan == 'Add LOI Unit' && w.selectloi.LOI_Status__c != 'Draft')}">
+                                   		<input type="radio" name="btn" value="{!w.selectloi.id}" />
+                                  </apex:outputPanel>
+                                   
+                                </apex:column>
+                                <apex:column >
+                                	<apex:facet name="header">
+								        <apex:commandLink action="{! sortByLOI }" status="status" reRender="frm1">
+								        	LOI {!if(sortOrderLOI == 'Asc','▲','▼')}
+								        </apex:commandLink>
+								    </apex:facet>
+								    
+                                	<a href="../{!w.selectloi.id}" target="_Blank">{!w.selectloi.name}</a>
+                                </apex:column>
+                                <apex:column style="width:200px;" headerValue="Unit">
+<!--                                 	<apex:facet name="Unit"> -->
+<!-- 								        <apex:commandLink action="{! sortByUnit }" status="status" reRender="frm1"> -->
+<!-- 								        	Unit {!if(sortOrderUnit == 'Asc','▲','▼')} -->
+<!-- 								        </apex:commandLink> -->
+<!-- 								    </apex:facet> -->
+                                    <apex:variable var="chk" value="{!0}" />
+                                    <apex:repeat value="{!w.selectloi.LOI_Units__r}" var="lu"> 
+                                        <apex:outputPanel rendered="{!not(chk==0)}">, </apex:outputPanel>
+                                        {!lu.Unit__r.name}
+                                        <apex:variable var="chk" value="{!chk+1}"/>
+                                    </apex:repeat>
+                                </apex:column>
+                                <apex:column value="{!w.selectloi.Tenant__c}"> 
+	                                <apex:facet name="header">
+								        <apex:commandLink action="{! sortByTenant }" status="status" reRender="frm1">
+								        	Tenant {!if(sortOrderTenant == 'Asc','▲','▼')}
+								        </apex:commandLink>
+								    </apex:facet>
+                                </apex:column>
+                                <apex:column value="{!w.selectloi.Property__c}">
+                                	<apex:facet name="header">
+								        <apex:commandLink action="{! sortByProperties }" status="status" reRender="frm1">
+								        	Property {!if(sortOrderProperties == 'Asc','▲','▼')}
+								        </apex:commandLink>
+								    </apex:facet>
+                                </apex:column>
+                                <apex:column value="{!w.selectloi.LOI_Status__c}" headerValue="LOI Status"/>
+                                <apex:column value="{!w.selectloi.LOI_Start_Date__c}" >
+                                	<apex:facet name="header">
+								        <apex:commandLink action="{! sortByloiStartDate }" status="status" reRender="frm1">
+								        	LOI Start Date {!if(sortOrderloiStartDate == 'Asc','▲','▼')}
+								        </apex:commandLink>
+								    </apex:facet>
+                                </apex:column>
+                                <apex:column value="{!w.selectloi.LOI_End_Date__c}">
+                                	<apex:facet name="header">
+								        <apex:commandLink action="{! sortByOgEndDate }" status="status" reRender="frm1">
+								        	Original End Date {!if(sortOrderOgEndDate == 'Asc','▲','▼')}
+								        </apex:commandLink>
+								    </apex:facet>
+                                </apex:column>
+                            </apex:pageBlockTable>
+                            <br/>
+                            <center>
+                                <apex:commandButton onclick="selectRadio();return false;" value="Continue" />
+                            </center>
+                        </apex:outputPanel>
+                    </apex:pageBlockSection>
+        </apex:pageBlock>
+        </apex:outputPanel>
+        
+        
+      
+    </apex:form>
+</apex:page>

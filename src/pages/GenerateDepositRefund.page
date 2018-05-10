@@ -1,0 +1,94 @@
+<apex:page sidebar="false" controller="GenerateDepositRefundController" doctype="html-5.0" id="pg">
+    <apex:form id="frm">
+        <apex:actionFunction name="Search" action="{!search}"/>
+        <apex:actionFunction name="depositRefund" action="{!depositRefund}"/>
+        <center><div style="font-size:18px;padding-top: 10px; padding-right: 130px; padding-bottom: 10px; "> Payment Voucher Refund</div></center>
+        <apex:pageBlock id="srchBlk">
+            <apex:pageMessages />
+            <apex:pageblockSection id="srchSection">
+                <apex:inputField value="{!cr.Payment_Currency__c}" required="true"/>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Property"/>
+                    <apex:inputField value="{!rroll.Property__c}"/>              
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Payment Mode"/>
+                    <apex:outputText value="Payment Voucher"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Tenant"/>
+                    <apex:inputField value="{!con.AccountId}"/>
+                </apex:pageBlockSectionItem>
+            </apex:pageblockSection>
+            <apex:pageBlockButtons location="bottom">
+                    <apex:commandButton value="Search" onclick="Search(); this.disabled='true'; this.value='Searching...'; return false;" style="width:80px;"/>
+                    <apex:commandButton value="Cancel" onclick="goHome(); this.disabled='true'; this.value='Wait...'; return false;" style="width:80px;"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>  
+        <apex:pageblock rendered="{!showResult}" id="pblk">
+        <apex:pageBlockButtons location="top">
+                <apex:commandButton style="width:128px;" value="Deposit Refund"  onclick="depositRefund(); this.disabled='true'; this.value='Wait.....'; return false;"/>
+         </apex:pageBlockButtons>             
+            <br/>
+            <apex:variable value="{!0}" var="i"/>
+            <table border="1" width="100%" style="border-collapse:collapse;text-align:center;" >
+                <tr>
+                    <th style="text-align:center;" width="50">✔<br/>
+                        <apex:inputCheckbox onclick="selectAllCheckboxes(this,'inputId');return false;"/>
+                    </th>
+                    <th style="text-align:center;" width="200">Payment Voucher No</th>
+                    <th style="text-align:center;" width="200">Refund Mode</th>
+                    <th style="text-align:center;" width="200">Amount</th>                    
+                    <th style="text-align:center;" width="200">Cheque No</th>
+                </tr>
+                <apex:repeat value="{!displayWrapList}" var="dw" id="lst">
+                    <tr>
+                        <td>
+                            <apex:inputCheckBox value="{!dw.selectRecord}" id="inputId" onChange="selRecord(this.id,{!i});return false;"/>
+                        </td>
+                        <td>
+                            <apex:outputField value="{!dw.cd.Payment_Voucher__c}"/>
+                        </td>
+                        <td>
+                            {!dw.cd.Refund_Mode__c}
+                        </td>
+                        <td>
+                            <apex:outputField value="{!dw.cd.Amount_Paid__c}"/>
+                        </td>
+                        <td>
+                            <apex:inputText value="{!dw.cd.Cheque_No__c}"/>
+                        </td>
+                    </tr>
+                </apex:repeat>
+            </table>
+            <script>
+            function disablefields(){
+                for (var i = 0; i < {!displayWrapList.size}; i += 1) {
+                    document.getElementById("pg:frm:pblk:lst:"+i+":amt").disabled = !document.getElementById("pg:frm:pblk:lst:"+i+":inputId").checked;
+                }
+            }
+            window.onload = disablefields();
+        </script>
+        </apex:pageblock>
+    </apex:form>
+    <script>
+        function goHome(){
+            window.location.href='/home/home.jsp';
+        }
+        
+        function selectAllCheckboxes(obj,receivedInputID){
+            var inputCheckBox = document.getElementsByTagName("input");                  
+            for(var i=0; i<inputCheckBox.length; i++){          
+                if(inputCheckBox[i].id.indexOf(receivedInputID)!=-1){                                     
+                    inputCheckBox[i].checked = obj.checked;
+                }
+            }
+            disablefields();
+            calculation();
+        }
+        
+        function selRecord(myid,number){
+            document.getElementById("pg:frm:pblk:lst:"+number+":amt").disabled = !document.getElementById(myid).checked;
+        }
+    </script>
+</apex:page>

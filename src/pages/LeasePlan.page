@@ -1,0 +1,751 @@
+<apex:page lightningStylesheets="true" controller="LOIReportInterfaceController" tabStyle="Lease_Plan__c" id="pg"  sidebar="false" docType="html-5.0">
+   <head>
+      <title>Table</title>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+      <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+      <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+      <script> 
+         //$(function() {
+           //  $(document).tooltip();
+         //    });
+      </script> 
+      <style>
+         label {
+             display: inline-block;
+             width: 5em;
+         }
+         .container { 
+            height: 89px; 
+         }
+         .main-body {
+            width: 100%
+         }
+         div[class*="col-"] {
+             width: 50%;
+             float: left;
+             border-bottom: 1px solid #9ea7af;
+         }
+         table[class*="table-"] {
+             text-align: center;
+             border-collapse: collapse;
+         }
+         table[class*="table-"] th {
+             color: #f8f8f8;
+             background: #1b1e24;
+             border-bottom: 4px solid #9ea7af;
+             border-right: 1px solid #343a45;
+             font-size: 12px;
+             font-weight: 100;
+/*              padding: 2pt 3.4pt 2pt 2.4pt; */
+            padding: 2px 0px;
+             text-align: center;
+/*              text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); */
+             vertical-align: middle;
+         }
+         /*             tr:nth-child(even) {background-color: #f2f2f2 } */
+         table[class*="table-"] td {
+            -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+            -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+            box-sizing: border-box;         /* Opera/IE 8+ */
+            border: 1px solid #ccc;
+            height: 19px;
+            padding: 0px 0px;
+         }
+         .col-2 {
+            overflow-x: hidden;
+         }
+         .table-2 th {
+            min-width: 200px;
+         }
+         .pbSubsection {    
+             width: 40%;
+         }
+         tr.highlight > td {
+             background-color: #999;
+             color: white;
+             padding: 0px 0px;
+         }
+         
+         .highlight {
+             background-color: #999;
+             color: white;
+         }
+         th:first-td {
+            border-top-left-radius: 5px;
+         }
+         .last-td {
+             border-top-right-radius: 5px;
+             border-right: none;
+         }
+         .buttonCell{
+             padding: 0;
+             margin: 0;
+             width: 100%;
+             color: antiquewhite;
+             background: #999;
+         }
+         .bPageBlock .pbTitle {
+            width: 100%;    
+            text-align: center;
+        }
+        .message {
+            width: 34%;
+            }
+        .stripe-1 {
+          color: white;
+          background: repeating-linear-gradient(
+            90deg,
+            #8fc737,      
+            #879e2c 4px,       
+            #0e0e10 4px,       
+            black 6px 
+          );
+        }
+        .yearHead{
+            display: inline-block;
+            width: 94px;
+            color: white;
+            text-align: center;
+            background-color: #1b1e24;
+            margin-left: -2px;
+        }
+        .tooltip {
+            display:none;
+            position:absolute;
+            border:1px solid #333;
+            background-color:rgb(239, 239, 239);
+            color:black;
+            border-radius:5px;
+            padding:10px;
+            font-size:12px Arial;
+            white-space: pre-line;
+        }
+        div{
+            -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+            -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+            box-sizing: border-box;         /* Opera/IE 8+ */
+        }
+      </style>
+    
+   </head>
+   <body>
+      <apex:form id="frm">
+      
+      <apex:actionStatus id="status">
+                <apex:facet name="start">
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.75; z-index: 1000; background-color: black;">
+                    &nbsp;
+                </div>
+                <div style="position: fixed; left: 0; top: 0; bottom: 0; right: 0; z-index: 1001; margin: 30% 50%">
+                    <img src="http://upload.wikimedia.org/wikipedia/commons/e/ed/Cursor_Windows_Vista.gif" />
+                </div>
+                </apex:facet>
+            </apex:actionStatus>
+         <apex:actionFunction name="Generate" status="status" action="{!Generate}" reRender="outerPanel"/>
+          <apex:actionFunction name="showUnitPanel" status="status" action="{!showUnitPanel}" reRender="singleRec,singleRec1"/>
+           <apex:outputPanel id="outerPanel">
+         <apex:pageBlock id="firstBlock" Title="Monthly Lease Plan">
+         
+           <script>
+           
+           
+
+         $(document).ready(function(){
+         $("#div1").scroll(function () { 
+         $("#div2").scrollLeft($("#div1").scrollLeft());
+         });
+         $("#div2").scroll(function () { 
+         $("#div1").scrollLeft($("#div2").scrollLeft());
+         });
+         $("#div2").scroll(function () { 
+         $("#div4").scrollLeft($("#div2").scrollLeft());
+         });
+         $("#div4").scroll(function () { 
+         $("#div2").scrollLeft($("#div4").scrollLeft());
+         });
+         });
+         $(document).ready(function(){
+         $("#div4").scroll(function () { 
+         $("#div3").scrollTop($("#div4").scrollTop());
+         });
+         $("#div3").scroll(function () { 
+         $("#div4").scrollTop($("#div3").scrollTop());
+         });
+         
+         });
+          
+          $(document).ready(function(){
+         var $trs = $('table.grid tr');
+         $trs.hover(
+         function() {
+         var i = $(this).index() + 1;
+         $trs.filter(':nth-child(' + i + ')').addClass('highlight');
+         },
+         function() {
+         var i = $(this).index() + 1;
+         $trs.filter(':nth-child(' + i + ')').removeClass('highlight');
+         }
+         );
+         });
+         
+         $(document).ready(function(){
+         var $trs = $('table.sameRow tr');
+         $trs.hover(
+         function() { 
+         var i = $(this).index() + 1;
+         $trs.filter(':nth-child(' + i + ')').addClass('highlight');
+         },
+         function() {
+         var i = $(this).index() + 1;
+         $trs.filter(':nth-child(' + i + ')').removeClass('highlight');
+         } 
+         );
+         });
+         
+         
+         
+         function changeValue(radioButton) {
+        var chk = document.getElementsByClassName('myChk');
+
+        for (var i=0; i<chk.length; i++) {
+            if(radioButton.value == chk[i].value) {
+                chk[i].checked = true;
+            } else {
+                chk[i].checked = false;
+            }
+        }
+    }
+    $(document).ready(function() {
+        // Tooltip only Text
+        String.prototype.replaceAll = function (find, replace) {
+		    var str = this;
+		    return str.replace(new RegExp(find.replace('hello', '<br>'), 'g'), replace);
+		};
+        $('.masterTooltip').hover(function(){
+                // Hover over code
+                var title = $(this).attr('title');
+            
+           		title = title.replaceAll('PPPPP', '<br>');
+                /* title = title.replace("PPPPP", "<br>");
+                 title = title.replace("PPPPP", "<br>");
+                 title = title.replace("PPPPP", "<br>");
+                 title = title.replace("PPPPP", "<br>");
+                 title = title.replace("PPPPP", "<br>");
+                 title = title.replace("PPPPP", "<br>");
+                 title = title.replace("PPPPP", "<br>");
+                 title = title.replace("PPPPP", "<br>");
+                 title = title.replace("PPPPP", "<br>");*/
+                    //alert(title);
+            if(title != ''){
+                $(this).data('tipText', title).removeAttr('title');
+                $('<p class="tooltip"></p>')
+                .html(title)
+                .appendTo('body')
+                .fadeIn('1200');
+            }
+        }, function() {
+                // Hover out code
+                $(this).attr('title', $(this).data('tipText'));
+                $('.tooltip').remove();
+        }).mousemove(function(e) {
+                var mousex = e.pageX + 15; //Get X coordinates
+                var mousey = e.pageY + -30; //Get Y coordinates
+                $('.tooltip')
+                .css({ top: mousey, left: mousex })
+        });
+        
+        });
+                        
+      </script>
+      
+                  <table >
+                     <tbody>
+                        <tr>
+                            <td style="text-align: right;">
+                             <apex:outputLabel value="Property"  style="margin-top: 5px;width: inherit;"/>&nbsp;
+                            </td>
+                           <td>
+                            <div class="requiredInput">
+                                <div class="requiredBlock">
+                                </div>
+                              <apex:inputField value="{!unitUI.Property__c}" required="false" style="width:160px;margin-top: 3px;" />
+                              </div>
+                           </td>
+                           <td style="text-align: right;">
+                             <apex:outputLabel value="Level" style="margin-top: 5px;width: inherit;"/>
+                            </td>
+                           <td>
+                              <apex:inputField value="{!unitUI.Level__c}" required="false" style="width:160px;margin-top: 3px;" />
+                           </td>
+                           <td style="text-align: right;">
+                             <apex:outputLabel value="Lease Plan"  style="margin-top: 5px;width: inherit;"/>
+                            </td>
+                           <td>
+                                 <apex:selectList value="{!selectedYear}" size="1" id="year" style="width:160px;margin-top: 3px;">
+<!--                                     <apex:selectOption itemValue="" itemLabel="--Select Year--" /> -->
+                                    <apex:selectOptions value="{!yearOptions}" />
+                                 </apex:selectList>
+                           </td>
+                           <td style="text-align: right; ">
+                             <apex:outputLabel value="Status"  style="margin-top: 5px;width: inherit;"/>
+                            </td>
+                           <td>  
+                              <apex:selectList value="{!leasePlanUI.Status__c}" size="1" style="width:160px;margin-top: 3px;">
+                                    <apex:selectOptions value="{!statusOptions}" /> 
+                                 </apex:selectList>
+                           </td>
+                           <td style="text-align: right; ">
+                             <apex:outputLabel value="Trade Category"  style="margin-top: 5px;width: inherit;"/>
+                            </td>
+                           <td>  
+                              <apex:selectList value="{!selectedTradeCat}" size="1" style="width:160px;margin-top: 3px;">
+                                    <apex:selectOptions value="{!tradeCatOptions}" /> 
+                                 </apex:selectList>
+                           </td>
+                           <td style="text-align:center;">
+                              <apex:commandButton value="Generate" style="width:80px;text-align: center;" onclick="Generate(); this.disabled='true'; this.value='Generating...';return false;" id="saveClick" />
+                                 <apex:outputPanel id="thePanel" rendered="{!showInterface}">
+                                   &nbsp;&nbsp;&nbsp;<apex:commandButton value="Export To Excel" style="text-align: center;" onclick="window.open('/apex/LeasePlan_Excel?Property={!unitUI.Property__c}&Level={!unitUI.Level__c}&Status={!leasePlanUI.Status__c}&SelectedYear={!selectedYear}&selectedTradeCat={!selectedTradeCat}');return false;" id="export" />
+                                 </apex:outputPanel>
+<!--                                  <apex:outputPanel id="thePane2" rendered="{!showInterface}"> -->
+<!--                                    &nbsp;&nbsp;&nbsp;<apex:commandButton value="Test Export To Excel" style="text-align: center;" onclick="window.open('/apex/DummyLeasePlan_Excel?Property={!unitUI.Property__c}&Level={!unitUI.Level__c}&Status={!leasePlanUI.Status__c}&SelectedYear={!selectedYear}&selectedTradeCat={!selectedTradeCat}');return false;" id="export1" /> -->
+<!--                                  </apex:outputPanel> -->
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+         </apex:pageBlock>
+          <apex:pageMessages ></apex:pageMessages>
+          <apex:actionStatus id="save-lead-status" onstart="showLoadingDiv();" onstop="hideLoadingDiv();"/>
+          
+         <apex:outputPanel id="thePanel" rendered="{!showInterface}">
+            <div class="main-body" style="width: 1300px;">
+               <div class="col-1" style="width:40%;">
+                  <!-- Table A -->
+                  <div style="overflow-y: scroll;">
+	                  <table class="table-1 grid" id="table1" style="width:100%;">
+	                     <thead>
+	                        <tr>
+	                            <th style="height:21px;border-top-left-radius: 5px;"><div style="width: 16px;">&nbsp;</div></th>
+	                            <th><div style="width: 68px;">Trade <br/>Category</div></th>
+	                            <th><div style="width: 82px;">Sub Trade <br/>Category</div></th> 
+	                            <th><div style="width: 57px;">Property</div></th>
+	                            <th><div style="width: 57px;">Unit</div></th>
+	                            <th><div style="width: 60px;">Avg Bgt<br/>Rent PSF</div></th>
+	                            <th><div style="width: 60px;">NLA</div></th>
+	                            <th><div style="width: 60px;">Bgt Rent</div></th>
+	                        </tr>
+	                     </thead>
+	                  </table> 
+	              </div>
+                  <div id="div3" style="border-bottom: 1px solid #9ea7af;max-height:250px;overflow-y: scroll;overflow-x: scroll;">
+                     <table class="table-1 grid" id="table1" style="width:100%;">
+                        <tbody>
+                           <apex:repeat value="{!mainWrapper}" var="mw">
+                               <apex:outputPanel rendered="{!If(mw.endTab == 0 && mw.firstRow,true,false)}"  layout="none">
+                                 <tr >
+                                       <td colspan="8" style="height:0px;">
+                                          <div style="height:0px;width:62px;">&nbsp;
+                                           </div>  
+                                       </td>
+                                  </tr>
+                             </apex:outputPanel>
+                              <apex:outputPanel rendered="{!If(mw.endTab == 0 && Not(mw.firstRow),true,false)}" layout="none">
+                                 <tr>
+                                    <td style="width: 21px">
+<!--                                     <div style="float:left;display:-webkit-inline-box;margin-left:-7px;margin-top:1px;position: fixed;"> -->
+<!--                                        a -->
+<!--                                     </div> -->
+                                        <input type="radio" id="pmId2" name="selectedUnit" value="{!mw.unit.Id}"  status="status"  onChange="showUnitPanel();" />
+                                    </td>
+                                    <td style="width: 73px;">
+                                         <div class="masterTooltip"  Title="{!mw.unit.Trade_Category__c}">
+                                            <apex:outputText style="width: 74px;font-size: 11.5px;white-space: nowrap;" value="{! left(mw.unit.Trade_Category__c,9) + if(LEN(mw.unit.Trade_Category__c) > 9,'...','')}"/>
+                                         </div>
+                                    </td>
+                                    <td style="width: 89px;">
+                                       <div class="masterTooltip"  Title="{!mw.unit.Sub_Trade_Category__c}">
+                                            <apex:outputText style="width: 74px;font-size: 11.5px;white-space: nowrap;" value="{! left(mw.unit.Sub_Trade_Category__c,10) + if(LEN(mw.unit.Sub_Trade_Category__c) > 10,'...','')}"/>
+                                         </div>
+                                    </td>
+                                    <td style="width: 68px;">
+                                       {!mw.unit.Property__r.Short_Code__c}
+                                    </td>
+                                    <td style="width: 65px;" colspan="1">
+<!--                                        {!mw.unit.Name} -->
+                                       
+                                        <apex:outputLink id="complink" 
+                                           onblur="LookupHoverDetail.getHover(this.id).hide();" 
+                                           onmouseout="LookupHoverDetail.getHover(this.id).hide();" 
+                                           onfocus="LookupHoverDetail.getHover(this.id, '/{!mw.unit.Id}/m?retURL=%2Fapex%2FCampaignCallList%3FscontrolCaching%3D1%26id%3D{!mw.unit.Id}&isAjaxRequest=1&nocache=1418312066674').show();" 
+                                           onmouseover="LookupHoverDetail.getHover(this.id, '/{!mw.unit.Id}/m?retURL=%2Fapex%2FCampaignCallList%3FscontrolCaching%3D1%26id%3D{!mw.unit.Id}&isAjaxRequest=1&nocache=1418312066674').show();"
+                                           onClick="window.open('/{!mw.unit.Id}','_blank');return false;"
+                                           value="/{!mw.unit.Id}"> 
+                                        <apex:outputText style="white-space: nowrap;" value="{!if(len(mw.unit.Name) > 7,LEFT(mw.unit.Name, 8),mw.unit.Name)}"></apex:outputText>
+                                    </apex:outputLink>
+
+                                    </td>
+                                    <td style="width: 68px;text-align:right;">
+<!--                                        <apex:outputText style="width: 74px;font-size: 11.5px;" value="{0, number, ###,##0.00}"> -->
+<!--                                           <apex:param value="{!mw.avgMonthBudgt}" /> -->
+<!--                                        </apex:outputText> -->
+                                       <div class="masterTooltip"  Title="{!if(mw.avgMonthBudgt > 999 || mw.avgMonthBudgt < -999,mw.avgMonthBudgtSTRformatted,'')}">
+                                        {!mw.avgMonthBudgtSTR}
+                                       </div>
+                                    </td>
+                                    <td style="width: 68px;text-align:right;">
+<!--                                        <apex:outputText style="width: 74px;font-size: 11.5px;" value="{0, number, ###,##0.00}"> -->
+<!--                                           <apex:param value="{!mw.avgNLA}" /> -->
+<!--                                        </apex:outputText> -->
+                                       <div class="masterTooltip"  Title="{!if(mw.avgNLA > 999 || mw.avgNLA < -999,mw.avgNLASTRformatted,'')}">
+                                        {!mw.avgNLASTR}
+                                       </div>
+                                    </td>
+                                    <td style="width: 68px;text-align:right;">
+<!--                                        <apex:outputText style="width: 74px;font-size: 11.5px;" value="{0, number, ###,##0.00}"> -->
+<!--                                           <apex:param value="{!mw.avgMonthBudgt * mw.avgNLA}" /> -->
+<!--                                        </apex:outputText> -->
+                                       <div class="masterTooltip" style="height:19px;"  Title="{!if(mw.budgetRent >999 || mw.budgetRent < -999,mw.budgetRentSTRformatted,'')}">
+                                        {!mw.budgetRentSTR}
+                                       </div>
+                                    </td>
+                                 </tr>
+                              </apex:outputPanel>
+                           </apex:repeat>
+                        </tbody>
+                     </table>
+                  </div>
+                  <div style="height:15px" >&nbsp;
+                      <div style="float:right;">
+                        <div class="yearHead">{!currentYear}</div>
+                        <div class="yearHead">{!currentYear+1}</div>
+                      </div>
+                  </div>
+                  <!-- Table B -->
+                  <table id="table2" class="table-1 sameRow" style="width:100%">
+                     <tbody>
+                        <apex:repeat value="{!mainWrapper}" var="mw">
+                           <apex:outputPanel rendered="{!If(mw.endTab != 0,true,false)}"  layout="none">
+                              <tr  class="{!IF(mw.hideRow && mw.endTab == 1,'firstRow',IF(mw.hideRow && mw.endTab == 2 ,'secondRow' , ''))}">
+                                 <td style="width:22%;border-right-width: inherit; background-color:{!mw.bgColor};text-align:right;" colspan="2">
+                                    <apex:outputPanel rendered="{!IF(Not(mw.hideRow) && mw.endTab == 1, true ,false)}">
+                                       <button id="firstBlock" name="btnAdd"  class="buttonCell" > > </button>
+                                    </apex:outputPanel>
+                                    <apex:outputPanel rendered="{!IF(Not(mw.hideRow) && mw.endTab == 2 && mw.rowHeader != '', true ,false)}">
+                                       <button id="secondBlock" name="btnAdd"  class="buttonCell"> > </button>
+                                    </apex:outputPanel>
+                                    
+                                    {!mw.smallHeader}
+                                 </td>
+                                 <td style="width:32%;text-align: left;background-color:{!mw.bgColor};" colspan="3" class="masterTooltip"  title="{!if(mw.rowHeader == 'Total Budget','a+c+d-(e+f)','')}">
+                                    {!mw.rowHeader}
+                                 </td> 
+                                 <td style="width:15%;text-align:right;background-color:{!mw.bgColor};">
+<!--                                     <apex:outputText style="width: 74px;" value="{0, number, ###,##0.00}" rendered="{!If(mw.rowHeader != '',true,false)}"> -->
+<!--                                        <apex:param value="{!mw.totalAmountCrYr}" /> -->
+<!--                                     </apex:outputText> -->
+                                    <div class="masterTooltip"  Title="{!if(mw.totalAmountCrYr >999 || mw.totalAmountCrYr < -999,mw.totalAmountCrYrSTRformatted,'')}">
+                                        {!mw.totalAmountCrYrSTR}
+                                       </div>
+                                 </td>
+                                 <td style="width:15%;text-align:right;background-color:{!mw.bgColor};">
+<!--                                     <apex:outputText style="width: 74px;" value="{0, number, ###,##0.00}" rendered="{!If(mw.rowHeader != '',true,false)}"> -->
+<!--                                        <apex:param value="{!mw.totalAmountNtYr}" /> -->
+<!--                                     </apex:outputText> -->
+                                    <div class="masterTooltip"  Title="{!if(mw.totalAmountNtYr >999 || mw.totalAmountNtYr < -999,mw.totalAmountNtYrSTRformatted,'')}">
+                                        {!mw.totalAmountNtYrSTR}
+                                       </div>
+                                 </td>
+                              </tr>
+                           </apex:outputPanel>
+                        </apex:repeat>
+<!--                         <tr> -->
+<!--                            <td colspan="5" style="text-align:right;background-color: rgba(153, 153, 153, 0.67);"> -->
+<!--                               <b>Total Forecast Amount</b> -->
+<!--                            </td> -->
+<!--                            <td style="text-align:right;background-color: rgba(153, 153, 153, 0.67);" > -->
+<!--                               <apex:outputText style="width: 74px;" value="{0, number, ###,##0.00}"> -->
+<!--                                  <apex:param value="{!totalForecast1stAmount}" /> -->
+<!--                               </apex:outputText> -->
+<!--                            </td> -->
+<!--                            <td style="text-align:right;background-color: rgba(153, 153, 153, 0.67);" > -->
+<!--                               <apex:outputText style="width: 74px;" value="{0, number, ###,##0.00}"> -->
+<!--                                  <apex:param value="{!totalForecast2ndAmount}" /> -->
+<!--                               </apex:outputText> -->
+<!--                            </td> -->
+<!--                         </tr> -->
+                     </tbody>
+                  </table>
+                  <!-- Table C -->
+                  <apex:outputPanel id="singleRec">
+                  <apex:outputPanel rendered="{!showUnitDiv}">
+                  <b>
+                 Unit Budget Section - {!singleRecWrapper[0].unit.name}</b>
+                  <table id="table2" class="table-1 lastRow" style="width:100%">
+                     <tbody>
+                        <apex:repeat value="{!singleRecWrapper}" var="mw">
+                           <apex:outputPanel rendered="{!If(mw.endTab == 2,true,false)}" layout="none">
+                              <tr  class="{!IF(mw.hideRow,'bottomRow','')}">
+                                 <td style="width:22%;border-right-width: inherit; background-color:{!mw.bgColor};text-align:right;" colspan="2">
+                                    <apex:outputPanel rendered="{!Not(mw.hideRow) }">
+                                         <button id="thirdBlock" name="btnAdd"  class="buttonCell" > > </button>
+                                    </apex:outputPanel>
+                                     {!mw.smallHeader}
+                                 </td>
+                                 <td style="width:32%;text-align: left;background-color:{!mw.bgColor};"  class="masterTooltip"  colspan="3"  title="{!if(mw.rowHeader == 'Unit Budget','a+c+d-(e+f)','')}">
+                                    {!mw.rowHeader}
+                                 </td> 
+                                 <td style="width:15%;text-align:right;background-color:{!mw.bgColor};">
+<!--                                     <apex:outputText style="width: 74px;" value="{0, number, ###,##0.00}" rendered="{!If(mw.rowHeader != '',true,false)}"> -->
+<!--                                        <apex:param value="{!mw.totalAmountCrYr}" /> -->
+<!--                                     </apex:outputText> -->
+                                    <div class="masterTooltip"  Title="{!if(mw.totalAmountCrYr > 999 || mw.totalAmountCrYr < -999,mw.totalAmountCrYrSTRformatted,'')}">
+                                       {!mw.totalAmountCrYrSTR}
+                                     </div>
+                                 </td>
+                                 <td style="width:15%;text-align:right;background-color:{!mw.bgColor};">
+<!--                                     <apex:outputText style="width: 74px;" value="{0, number, ###,##0.00}" rendered="{!If(mw.rowHeader != '',true,false)}"> -->
+<!--                                        <apex:param value="{!mw.totalAmountNtYr}" /> -->
+<!--                                     </apex:outputText> -->
+                                    <div class="masterTooltip"  Title="{!if(mw.totalAmountNtYr > 999 || mw.totalAmountNtYr < -999,mw.totalAmountNtYrSTRformatted,'')}">
+                                       {!mw.totalAmountNtYrSTR}
+                                     </div>
+                                 </td>
+                              </tr>
+                           </apex:outputPanel>
+                        </apex:repeat>
+<!--                         <tr> -->
+<!--                            <td colspan="5" style="text-align:right;background-color: rgba(153, 153, 153, 0.67);"> -->
+<!--                               <b>Total Forecast Amount</b> -->
+<!--                            </td> -->
+<!--                            <td style="text-align:right;background-color: rgba(153, 153, 153, 0.67);" > -->
+<!--                               <apex:outputText style="width: 74px;" value="{0, number, ###,##0.00}"> -->
+<!--                                  <apex:param value="{!totalForecast3rdAmount}" /> -->
+<!--                               </apex:outputText> -->
+<!--                            </td> -->
+<!--                            <td style="text-align:right;background-color: rgba(153, 153, 153, 0.67);" > -->
+<!--                               <apex:outputText style="width: 74px;" value="{0, number, ###,##0.00}"> -->
+<!--                                  <apex:param value="{!totalForecast4thAmount}" /> -->
+<!--                               </apex:outputText> -->
+<!--                            </td> -->
+<!--                         </tr> -->
+                     </tbody>
+                  </table>
+                  </apex:outputPanel>
+                  </apex:outputPanel>
+               </div>
+               <div class="col-2 last-td" style="width:58%">
+                  <div id="div1" style="overflow-y: auto; overflow-x:hidden;">
+                     <!-- Table D -->
+                     <table class="table-1 grid" id="table3" style="width:100%">
+                        <thead>
+                           <tr>
+                              <apex:repeat value="{!lpWrapper}" var="ll">
+                                 <th style="height:27px;" class="headerLight" scope="col">
+                                    <div style="width:80px;"> 
+                                       <apex:outputText escape="false" value="{!ll.headerMonth}" />
+                                    </div>
+                                 </th>
+                              </apex:repeat>
+                              <th>
+                                <div style="width:3px">
+                                &nbsp;
+                                </div>
+                              </th>
+                           </tr>
+                        </thead>
+                     </table>
+                  </div>
+                  <div  id="div4" style="border-bottom: 1px solid #9ea7af;width:102%;max-height:250px;overflow-y: scroll; overflow-x:scroll;">
+                     <table class="table-1 grid" id="table3" style="width:100%">
+                        <apex:repeat value="{!mainWrapper}" var="mw">
+                        <apex:outputPanel rendered="{!If(mw.endTab == 0 && mw.firstRow,true,false)}"  layout="none">
+                             <tr class="{!if( mw.firstRow, 'hideThisRow','')}">
+                                 <apex:repeat value="{!mw.lpstr}" var="lp">
+                                    <apex:outputPanel rendered="{!If(lp.colSpan == 0,false,true)}"  layout="none">
+                                       <td style="height:0px;">
+                                          <div style="height:0px;width:80px;">&nbsp;
+                                           </div>  
+                                       </td>
+                                    </apex:outputPanel>
+                                 </apex:repeat>
+                              </tr>
+                         </apex:outputPanel>
+                           <apex:outputPanel rendered="{!If(mw.endTab == 0 && Not(mw.firstRow),true,false)}"  layout="none">
+                              <tr class="{!if( mw.firstRow, 'hideThisRow','')}">
+                                 <apex:repeat value="{!mw.lpstr}" var="lp">
+                                    <apex:outputPanel rendered="{!If(lp.colSpan == 0,false,true)}"  layout="none">
+                                       <td style="background-color:{!lp.bgColor};border-style: solid;"  colspan="{!lp.colSpan}" >
+<!--                                           <div style="width:60px"></div> -->
+                                          <div style="display: table;">
+                                          <apex:outputPanel rendered="{!If(lp.vacantFrom != '',true,false)}" layout="none">
+                                               
+                                              <div  style="  width: 80px;height: 19px;display: table-cell;
+                                                            background-color: aliceblue;margin-top: -1px;
+                                                            margin-left: -1px;" class="masterTooltip stripe-1"  
+                                                            Title="{!lp.vacantFrom}">
+                                                &nbsp;
+                                                
+                                            </div>
+                                           
+                                          </apex:outputPanel>  
+                                         
+                                          <div class="masterTooltip" style="display: table-cell;height:19px;width:{!If(lp.vacantFrom != '' && lp.committedFrom != '',(lp.colSpan *83)-166,If(lp.vacantFrom != '' || lp.committedFrom != '',(lp.colSpan *83)-83,lp.colSpan *80))}px;" title="{!lp.cellText}">&nbsp;
+<!--                                             <div class="masterTooltip" style="height:19px;width:100%;float:left;" title="{!lp.cellText}">&nbsp; -->
+                                           </div>  
+                                           
+                                          <apex:outputPanel rendered="{!If(lp.committedFrom != '',true,false)}" layout="none">
+                                               <div id="content" style="   width: 80px;height: 19px;display: table-cell;
+                                                            background-color: aliceblue;margin-top: -1px;
+                                                            margin-left: -1px;"  class="masterTooltip stripe-1"
+                                                            Title="{!lp.committedFrom}">
+                                               &nbsp;
+                                                
+                                              </div>
+                                          </apex:outputPanel> 
+                                           </div> 
+                                          <!--                                                 {!lp.cellText} -->
+                                       </td>
+                                    </apex:outputPanel>
+                                 </apex:repeat>
+                                 <td>
+                                    <div style="width:15px">
+                                    &nbsp;
+                                    </div>
+                              </td>
+                              </tr>
+                           </apex:outputPanel>
+                        </apex:repeat>
+                         
+                     </table>
+                  </div>
+                  <div style="height:15px;">&nbsp;</div>
+                  <div id="div2" style="min-height:20px;overflow-y: hidden;width: 100%;border-right: 1px solid #9ea7af;">
+                     <!-- Table E -->
+                     <table class="table-2 sameRow" id="table4" style="width:100%;">
+                        <apex:repeat value="{!mainWrapper}" var="mw">
+                           <apex:outputPanel rendered="{!If(mw.endTab != 0,true,false)}"  layout="none">
+                              <tr  class="{!IF(mw.hideRow && mw.endTab == 1,'firstRow',IF(mw.hideRow && mw.endTab == 2 ,'secondRow' , ''))}">
+                                 <apex:repeat value="{!mw.lpstr}" var="lp">
+                                    <apex:outputPanel rendered="{!If(mw.endTab == 1,true,false)}"  layout="none">
+                                       <td style="background-color:{!lp.bgColor}; text-align:right;border-style: solid;" colspan="{!lp.colSpan}">
+                                          <div style="width:80px">
+<!--                                              <apex:outputText value="{0, number, ###,##0}" rendered="{!mw.rowHeader != ''}"> -->
+<!--                                                 <apex:param value="{!lp.totalNLA}" /> -->
+<!--                                              </apex:outputText> -->
+                                             <div class="masterTooltip"  Title="{!if(lp.totalNLA > 999 || lp.totalNLA < -999,lp.totalNLASTRformatted,'')}">
+                                               <apex:outputPanel rendered="{!mw.smallHeader != ''}">&nbsp;</apex:outputPanel>{!lp.totalNLASTR}
+                                             </div>
+                                          </div>
+                                       </td>
+                                    </apex:outputPanel>
+                                    <apex:outputPanel rendered="{!If(mw.endTab == 2,true,false)}"  layout="none">
+                                       <td style="background-color:{!if(mw.rowHeader == 'Total Budget',lp.bgColor,mw.bgColor)}; text-align:right;border-style: solid;" colspan="{!lp.colSpan}">
+                                          <div style="width:80px">
+<!--                                             <apex:outputText value="{0, number, ###,###,###,###,##0}" rendered="{!mw.rowHeader != ''}"> -->
+<!--                                                <apex:param value="{!lp.totalBudget}" /> -->
+<!--                                             </apex:outputText> -->
+                                             <div class="masterTooltip"  Title="{!if(lp.totalBudget > 999 || lp.totalBudget < -999,lp.totalBudgetSTRformatted,'')}">
+                                              <apex:outputPanel rendered="{!mw.smallHeader != ''}">&nbsp;</apex:outputPanel> {!lp.totalBudgetSTR}
+                                             </div>
+                                          </div>
+                                       </td>
+                                    </apex:outputPanel>
+                                 </apex:repeat>
+                              </tr>
+                           </apex:outputPanel>
+                        </apex:repeat>
+                     </table>
+                     
+                     <!-- Table f -->
+                      <apex:outputPanel id="singleRec1">
+                       <apex:outputPanel rendered="{!showUnitDiv}">
+                     <div style="height:14px"></div>
+                     <table class="table-2 lastRow" id="table4" style="width:100%;">
+                        <apex:repeat value="{!singleRecWrapper}" var="mw" id="repeat2">
+                           <apex:outputPanel rendered="{!If(mw.endTab == 2,true,false)}" layout="none">
+                              <tr class="{!IF(mw.hideRow,'bottomRow','')}">
+                                 <apex:repeat value="{!mw.lpstr}" var="lp">
+                                    <apex:outputPanel rendered="{!If(mw.endTab == 2,true,false)}" layout="none">
+                                       <td style="background-color:{!if(mw.rowHeader == 'Unit Budget',lp.bgColor,mw.bgColor)}; text-align:right;border-style: solid;" colspan="{!lp.colSpan}">
+                                          <div style="width:80px">
+<!--                                              <apex:outputText value="{0, number, ###,###,###,###,##0}" rendered="{!mw.rowHeader != ''}"> -->
+<!--                                                 <apex:param value="{!lp.totalBudget}" /> -->
+<!--                                              </apex:outputText> -->
+                                             <div class="masterTooltip"  Title="{!if(lp.totalBudget > 999 || lp.totalBudget < -999,lp.totalBudgetSTRformatted,'')}">
+                                               <apex:outputPanel rendered="{!mw.smallHeader != ''}">&nbsp;</apex:outputPanel>{!lp.totalBudgetSTR}
+                                             </div>
+                                          </div>
+                                       </td>
+                                    </apex:outputPanel>
+                                 </apex:repeat>
+                              </tr>
+                           </apex:outputPanel>
+                        </apex:repeat>
+                     </table>
+                     
+                     <script>
+                     $('.thirdBlock').toggle('show');
+                     $(document).ready(function(){
+                         var $trs = $('table.lastRow tr');
+                         $trs.hover(
+                         function() { 
+                         var i = $(this).index() + 1;
+                         $trs.filter(':nth-child(' + i + ')').addClass('highlight');
+                         },
+                         function() {
+                         var i = $(this).index() + 1;
+                         $trs.filter(':nth-child(' + i + ')').removeClass('highlight');
+                         } 
+                         );
+                         });
+                         
+                     $('#thirdBlock').click(function() {
+                        if ($(".bottomRow").is(":hidden")) {
+                           $(this).val('V');
+                         } else {
+                         $(this).val('p');
+                         }
+                        $('.bottomRow').toggle('show');
+                        return false;
+                       });
+                     </script>
+                     </apex:outputPanel>
+                     </apex:outputPanel>
+                  </div>
+               </div>
+            </div>
+         </apex:outputPanel>
+         <script>
+       $('.firstRow').toggle('show');
+       $('.secondRow').toggle('show');
+       
+       $('#firstBlock').click(function() {
+        if ($(".firstRow").is(":visible")) {
+          $(this).val('V');
+        } 
+        if ($(".firstRow").is(":hidden")) {
+          $(this).val('>');
+        }
+        $('.firstRow').toggle('show');
+        return false;
+       });
+       
+       $('#secondBlock').click(function() {
+        if ($(".secondRow").is(":hidden")) {
+           $(this).val('V');
+         } else {
+         $(this).val('p');
+         }
+        $('.secondRow').toggle('show');
+        return false;
+       });   
+       
+       
+   </script>
+          </apex:outputPanel>
+      </apex:form>
+   </body>
+   
+</apex:page>

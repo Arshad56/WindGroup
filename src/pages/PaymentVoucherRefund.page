@@ -1,0 +1,27 @@
+<apex:page showHeader="false" sidebar="false" controller="PaymentVoucherRefundController" docType="html-5.0">
+    <br/>
+    <br/>
+<apex:form >
+    <apex:pageBlock >
+        <apex:pageMessages />
+        <apex:pageBlockSection columns="1">
+            <apex:input value="{!pvCurrency}" label="Payment Voucher Currency" required="true" disabled="true"/>
+            <apex:input value="{!pvBalance}" label="Payment Voucher Balance" required="true" disabled="true"/>
+            <apex:input value="{!pvStatus}" label="Payment Voucher Status" required="true" disabled="true"/>
+            <apex:selectList value="{!paymentMode}" label="Payment Mode" multiselect="false" size="1" required="true">
+                <apex:selectOptions value="{!paymentModeOptions}"/>
+            </apex:selectList>
+        </apex:pageBlockSection>            
+        <apex:pageBlockButtons >
+            <apex:commandButton value="Refund" action="{!checkData}"/>
+            <apex:commandButton value="Cancel" onclick="window.close();"/>
+        </apex:pageBlockButtons>
+    </apex:pageBlock>
+</apex:form>
+<script>
+    if({!success}){
+        window.opener.location = '/{!pvId}';
+        window.close();
+    }
+</script>  
+</apex:page>

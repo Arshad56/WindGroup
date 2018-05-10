@@ -1,0 +1,25 @@
+<apex:page controller="InvoiceRefundController"  docType="html-5.0">
+<apex:sectionHeader title="Invoice Refund" subtitle="Invoice Refund"/>
+<apex:form id="frm">
+    <apex:pageBlock > 
+        <apex:pageMessages />  
+        <apex:pageBlockSection columns="1">
+        	<apex:inputField value="{!updateInv.Refund_Currency_Code__c}" required="true"/>
+            
+            <apex:pageBlockSectionItem helptext="Outstanding Amt - Total Refunded Amt">
+				<apex:outputLabel value="Requested Amount" />
+				<apex:inputField value="{!updateInv.Requested_Amount__c}" required="true"/>
+			</apex:pageBlockSectionItem>
+    
+            <apex:selectList value="{!paymentMode}" label="Payment Mode" multiselect="false" size="1" required="true">
+                <apex:selectOptions value="{!paymentModeOptions}"/>
+            </apex:selectList>
+        </apex:pageBlockSection>            
+        <apex:pageBlockButtons >
+            <apex:commandButton value="Refund" action="{!generateRefund}" rerender="frm"/>
+            <apex:commandButton value="Cancel" action="{!cancel}" />
+        </apex:pageBlockButtons>
+    </apex:pageBlock>
+</apex:form>
+
+</apex:page>

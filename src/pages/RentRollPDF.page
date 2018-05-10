@@ -1,0 +1,1452 @@
+<apex:page showHeader="false" renderAs="pdf"  sidebar="false" standardStylesheets="false" applyBodyTag="false"  applyHtmlTag="false" controller="RentRollPdfController"  >
+<!--     renderAs="pdf" -->
+    <html>
+    <head>
+        <style>
+            @page { 
+                size: letter;
+                margin-right:10px;
+                margin-left : 25px;
+                margin-top: 0.5cm;
+                margin-bottom:30mm;
+                @top-center {
+                    content: '';
+                }                    
+                @bottom-center{
+                    content: element(footer);
+                }
+            }
+            div.header{
+                padding: 15px;
+                margin-top: -0.5cm;
+            }
+            div.footer{
+                padding: 10px;
+                position: running(footer);
+            }
+            .pagenumber:before {
+                content: counter(page);
+            }
+            .pagecount:before {
+                content: counter(pages);
+            }
+            
+            .changingFonts{
+                font-weight:bolder;
+            }
+            .blank_row{
+                height: 5px; 
+                
+            }
+        </style>
+    </head>
+    <body style="font-size:14px;font-family: Arial Unicode MS;">
+        
+        <div class="footer" id="footer">
+            <table width="100%" style="font-family:Arial, Helvetica, sans-serif,Lucida Console; margin-bottom: 20px;">
+                <tr>
+                    <td>This invoice is computer generated. No signature is required.</td>
+                </tr>                
+            </table>
+            
+            <center>Page <span class="pagenumber"/> of <span class="pagecount"/></center>
+        </div>
+        <apex:variable value="{!1}" var="i"/>
+        <apex:repeat value="{!invWrapList}" var="iw">
+        <div class="header">
+            <table width="100%">
+                <tr>
+                    <td width="52%" valign="top" align="center">
+                        <apex:image url="{!rentRoll.Property__r.Logo__c}" style="margin-left:-120px" width="275" height="75"/>
+                    </td>
+                    <td  width="48%">
+                        <div style="font-size:15px;font-weight:bold;font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                        {!rentRoll.Property__r.Name}
+                        <br/>
+                        <apex:outputField value="{!rentRoll.Property__r.Address__c}"/>
+                        </div>
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+            <hr size="5px" style="margin-top: -1px;width: 103%;margin-left: -14px;" />
+        </div>
+        <center>            
+            <p style="font-size:17px;font-weight:bold;font-family:Arial, Helvetica, sans-serif,Lucida Console;margin-top: -10px">
+                <apex:outputText rendered="{!(iw.billType!='Debit Note' && iw.billType!='Credit Note' && iw.billType !='Late Charge'  && iw.ctApplicable)}">TAX INVOICE</apex:outputText>
+                <apex:outputText rendered="{!iw.billType!='Debit Note' && iw.billType!='Credit Note' && iw.billType !='Late Charge'  && !iw.ctApplicable}">Payable for Government Utilities Charges</apex:outputText>
+                <apex:outputText rendered="{!iw.billType=='Debit Note' }">DEBIT NOTE</apex:outputText>
+                <apex:outputText rendered="{!iw.billType=='Credit Note'}">CREDIT NOTE</apex:outputText>
+                <apex:outputText rendered="{! iw.billType =='Late Charge' }">Letter of Request for Late Charge</apex:outputText>
+                
+            </p>
+        </center>
+        <table border="0" width="100%" style="margin-top:-20px;margin-bottom: -20px;">
+            <tr>
+                <td valign="top" width="58%" style="word-wrap:break-word;font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                        <b>
+                    <apex:outputText rendered="{!(iw.billType!='Debit Note' && iw.billType!='Credit Note' && iw.billType !='Late Charge' && iw.ctApplicable)}">Invoice To:</apex:outputText>
+                    <apex:outputText rendered="{!Not(iw.billType!='Debit Note' && iw.billType!='Credit Note' && iw.billType !='Late Charge' && iw.ctApplicable)}">Send To:</apex:outputText>
+                    </b><br/>
+                        <apex:outputPanel rendered="{!iw.invoice.Parent_Company__c !=null}">
+                            {!iw.invoice.Parent_Company__c}<br/>
+                        </apex:outputPanel>
+                        
+                        <apex:outputPanel rendered="{!AND(iw.invoice.Lease__r.Tenant__r.BillingStreet!=null, iw.invoice.Lease__r.Tenant__r.BillingStreet!='')}">
+                            {!iw.invoice.Lease__r.Tenant__r.BillingStreet},<br/>
+                        </apex:outputPanel>
+                        <apex:outputPanel rendered="{!AND(iw.concatIncAddFields !=null,iw.concatIncAddFields !='')}">
+                             {!iw.concatIncAddFields}<br/>
+                        </apex:outputPanel>
+                    Tel: {!iw.invoice.Lease__r.Tenant__r.Phone}<br/>
+                    <table style="font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                        <tr>
+                            <td><b>Shop Name</b></td>
+                            <td>:</td>
+                            <td><b>{!iw.invoice.Account__c}</b></td>
+                        </tr>
+                        <tr>
+                            <td><b>Customer Code</b></td>
+                            <td>:</td>
+                            <td><b>{!iw.invoice.Tenant_Name__r.Customer_Code__c}</b></td>
+                        </tr>
+                        <tr>
+                            <td><b>Shop No</b></td>
+                            <td>:</td>
+                            <td><b>{!iw.units}</b></td>
+                        </tr>
+                    </table>
+<!--                     <b>Shop Name : {!iw.invoice.Account__c}</b><br/> -->
+<!--                     <b>Customer Code : {!iw.invoice.Tenant_Name__r.Customer_Code__c}</b><br/> -->
+<!--                     <b>Shop No &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {!iw.units} </b>  -->
+                </td>
+                <td valign="top" width="45%" style="vertical-align:top;font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                    <table>
+                        <tr>
+                            <td width="48%">
+                                <apex:outputText rendered="{!(iw.billType!='Debit Note' && iw.billType!='Credit Note')}">Invoice No.</apex:outputText>
+                                <apex:outputText rendered="{!iw.billType=='Debit Note'}">Debit No.</apex:outputText>
+                                <apex:outputText rendered="{!iw.billType=='Credit Note'}">Credit No.</apex:outputText>
+                            </td>
+                            <td width="2%">:</td>
+                            <td width="50%">{!iw.invoice.Name}</td>
+                        </tr>
+                        <tr>
+                            <td>Bill Date</td>
+                            <td>:</td>
+                            <td>
+                                <apex:outputText value="{0,date,dd/MM/yyyy}">
+                                    <apex:param value="{!iw.invoice.Invoice_Date__c}"/>
+                                </apex:outputText>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Due Date</td>
+                            <td>:</td>
+                            <td>
+                                <apex:outputText value="{0,date,dd/MM/yyyy}">
+                                    <apex:param value="{!iw.invoice.Payment_Due_Date__c}"/>
+                                </apex:outputText>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Amount Due ({!$Label.Default_Currency})</td>
+                            <td>:</td>
+                            <td>
+                                <apex:outputText value="{0,number,###,###,##0.00}">
+                                    <apex:param value="{!iw.grandTotalAmount * iw.invoice.Exchange_Rate__c}"/>
+                                </apex:outputText>                            
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td>Lease Agreement No</td>
+                            <td>:</td>
+                            <td>{!iw.invoice.Lease__r.Name}</td>
+                        </tr> 
+                        <apex:outputPanel layout="none" rendered="{!iw.billType==$Label.RentScheduleGTORecordType && iw.chargeType == 'GTO (Sum)' && !iw.isCapValue}"> 
+                        <tr>
+                            <td>GTO Plus Formula </td>
+                            <td>:</td>
+                            <td>Please refer to our Agreement</td>
+                        </tr>
+                        </apex:outputPanel>
+                        <apex:outputPanel layout="none" rendered="{!iw.billType==$Label.RentScheduleGTORecordType && iw.chargeType == 'GTO (Higher)' && !iw.isCapValue}"> 
+                        <tr>
+                            <td>GTO whichever higher formula </td>
+                            <td>:</td>
+                            <td>Please refer to our Agreement</td>
+                        </tr>
+                        </apex:outputPanel>
+                        <apex:outputPanel layout="none" rendered="{!iw.billType==$Label.RentScheduleGTORecordType && (iw.chargeType == 'GTO (Higher)' || iw.chargeType == 'GTO (Sum)') && iw.isCapValue}"> 
+                        <tr> 
+                            <td>GTO whichever higher formula with CAP </td>
+                            <td valign="top">:</td>
+                            <td>Please refer to our Agreement</td>
+                        </tr>
+                        </apex:outputPanel>
+                        <tr>
+                            <td colspan="3">
+                                <div style="height: 8px;">&nbsp;</div>
+                                <apex:image url="https://www.barcodesinc.com/generator_files/image.php?code={!iw.invoice.Name}&style=197&type=C128B&width=310&height=50&xres=1&font=3"/>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        
+        <apex:outputPanel rendered="{! iw.billType == 'Daily With Holding' }">
+            
+            <table width="100%" cellspacing="0" cellpadding="0" style="-fs-table-paginate: paginate;">
+                <thead  style="font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <tr>
+                    <td colspan="6" style="height: 15px"></td>
+                </tr>
+                <tr>
+                    <th width="20%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;"> Charges</th>
+                    <th width="20%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;">Unit No.</th>
+                    <th width="10%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;">Date</th>
+                    <th width="10%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;">Day</th>
+                    <th width="13%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;">Total Amount<br/>({!iw.invoice.Currency_Code__c})</th>
+                    <th width="{!If(iw.invoice.Currency_Code__c != $Label.Default_Currency,'13%','1%')}" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;">
+                        <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none"> 
+                            Total Amount<br/>({!$Label.Default_Currency})
+                        </apex:outputPanel>
+                    </th>
+                </tr>
+                </thead>
+                
+                <tbody style="display:table-row-group; font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <apex:repeat value="{!iw.invoice.Invoice_Line_Items__r}" var="ili">
+                <apex:outputPanel rendered="{!Not(ili.Withholding_Tax__c)}" layout="none">
+                    <tr style="height:25px;">
+                            <td>{!ili.Charge_Name__c}</td>
+                            <td style="padding-right:5px;">{!ili.Lease_Charge__r.Lease_Unit__r.Unit__r.Name}   {!if(ili.Lease_Charge__r.Lease_Unit__r.Unit__r.Space_Type__c != null && ili.Lease_Charge__r.Lease_Unit__r.Unit__r.Space_Type__c!='','('+ili.Lease_Charge__r.Lease_Unit__r.Unit__r.Space_Type__c+')','')}</td>
+                            <td>
+                                
+                                <apex:outputText value="{0,date,dd MMM yy}">
+                                    <apex:param value="{!ili.End_Date__c}"/>
+                                </apex:outputText>
+                                
+                            </td>
+                            <td>
+                               <apex:outputText value="{!If(MOD(ili.End_Date__c - DATE(1985,7,1),7) == 5 || MOD(ili.End_Date__c - DATE(1985,7,1),7) == 6,'Weekend' , 'Weekday') }"/>
+                            </td>
+                            <td style="text-align:right;font-weight:bold;">
+                            <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!ili.Amount__c}"/>
+                            </apex:outputText>
+                            </td>
+                            
+                                <td width="{!If(iw.invoice.Currency_Code__c != $Label.Default_Currency,'20%','1%')}" style="text-align:right;font-weight:bold;">
+                                    <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none"> 
+                                        <apex:outputText value="{0,number,###,###,##0.00}">
+                                            <apex:param value="{!ili.Amount__c * iw.invoice.Exchange_Rate__c}"/>
+                                        </apex:outputText>
+                                    </apex:outputPanel>
+                                </td>
+                            
+                        </tr>
+                   </apex:outputPanel>
+            </apex:repeat> 
+                <apex:outputPanel layout="none" rendered="{!iw.ctApplicable }">
+                <tr>
+                    <td style="border-top:1px solid black;font-weight:bold;" colspan="4">Sub Total</td>
+                    <td style="border-top:1px solid black;text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.totalAmount}"/>
+                        </apex:outputText>                        
+                    </td>
+                    
+                        <td style="border-top:1px solid black;text-align:right;font-weight:bold;">
+                             <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none">
+                                <apex:outputText value="{0,number,###,###,##0.00}">
+                                    <apex:param value="{!iw.totalAmount * iw.invoice.Exchange_Rate__c}"/>
+                                </apex:outputText>  
+                            </apex:outputPanel>                      
+                        </td>
+                     
+                </tr>
+                <tr>
+                    <td colspan="4" style="font-weight:bold;">Commercial Tax ({!iw.invoice.Lease__r.Property__r.Comm_Tax__c}%)</td>
+                    <td style="text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.invoice.Comm_Tax_Amount__c}"/>
+                        </apex:outputText>
+                    </td>
+                    
+                        <td style="text-align:right;font-weight:bold;">
+                            <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none">
+                                <apex:outputText value="{0,number,###,###,##0.00}">
+                                    <apex:param value="{!iw.invoice.Comm_Tax_Amount__c * iw.invoice.Exchange_Rate__c}"/>
+                                </apex:outputText>
+                            </apex:outputPanel>
+                        </td>
+                    
+                </tr>
+                </apex:outputPanel>
+                
+                <tr>
+                    <td style="border-top:{!if(Not(iw.ctApplicable),'2px solid black;','')};border-bottom:{!if(iw.invoice.Withholding_Tax_Amount__c != null && iw.invoice.Withholding_Tax_Amount__c > 0,'','2px solid black;' )};font-weight:bold;" colspan="4"><div style="margin: 5px;margin-left: 0px">Grand Total</div></td>
+                    <td style="border-top:{!if(Not(iw.ctApplicable),'2px solid black;','')};border-bottom:{!if(iw.invoice.Withholding_Tax_Amount__c != null && iw.invoice.Withholding_Tax_Amount__c > 0,'','2px solid black;' )};text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.grandTotalAmount}"/>
+                        </apex:outputText>
+                    </td> 
+                        <td style="border-top:{!if(Not(iw.ctApplicable),'2px solid black;','')};border-bottom:{!if(iw.invoice.Withholding_Tax_Amount__c != null && iw.invoice.Withholding_Tax_Amount__c > 0,'','2px solid black;' )};text-align:right;font-weight:bold;">
+                            <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none">
+                                <apex:outputText value="{0,number,###,###,##0.00}">
+                                    <apex:param value="{!iw.grandTotalAmount * iw.invoice.Exchange_Rate__c}"/>
+                                </apex:outputText>
+                            </apex:outputPanel>
+                        </td> 
+                </tr>
+                <apex:outputPanel rendered="{!iw.invoice.Withholding_Tax_Amount__c != null && iw.invoice.Withholding_Tax_Amount__c > 0}" layout="none">
+                <tr>
+                    <td style="font-weight:bold;" colspan="4"><div style="margin: 5px;margin-left: 0px">Witholding Tax ({!iw.withHoldingTax}%)</div></td>
+                    <td style="text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!(-1)*iw.invoice.Withholding_Tax_Amount__c}"/>
+                        </apex:outputText>
+                    </td> 
+                        <td style="text-align:right;font-weight:bold;">
+                            <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none">
+                                <apex:outputText value="{0,number,###,###,##0.00}">
+                                    <apex:param value="{!(-1)*iw.invoice.Withholding_Tax_Amount__c * iw.invoice.Exchange_Rate__c}"/>
+                                </apex:outputText>
+                            </apex:outputPanel>
+                        </td>
+                </tr>
+                <tr>
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;font-weight:bold;" colspan="4"><div style="margin: 5px;margin-left: 0px">Net Total</div></td>
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.invoice.Net_Total__c}"/>
+                        </apex:outputText>
+                    </td> 
+                        <td style="border-top:2px solid black;border-bottom:2px solid black;text-align:right;font-weight:bold;">
+                            <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none">
+                                <apex:outputText value="{0,number,###,###,##0.00}">
+                                    <apex:param value="{!iw.invoice.Net_Total__c * iw.invoice.Exchange_Rate__c}"/>
+                                </apex:outputText>
+                            </apex:outputPanel>
+                        </td> 
+                </tr>
+                </apex:outputPanel>
+                <tr>
+                    <td colspan="6">
+                        <apex:outputPanel rendered="{! iw.priceFactor!=null && iw.priceFactor != 0 && iw.priceFactor != 100}" layout="none">
+                            Discount: {!iw.invoice.Tenant_Type__c}&nbsp;{!iw.priceFactor}% discount
+                        </apex:outputPanel>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </apex:outputPanel>
+        <apex:outputPanel rendered="{!iw.billType=='Monthly With Holding' }">
+            
+            <table width="100%" cellspacing="0" cellpadding="0" style="-fs-table-paginate: paginate;">
+                <thead  style="font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <tr>
+                    <td colspan="5" style="height: 15px"></td>
+                </tr>
+                <tr>
+                    <th width="20%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;"> Charges</th>
+                    <th width="{!If(iw.invoice.Currency_Code__c != $Label.Default_Currency,'30%','40%')}" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;">Unit No.</th>
+                    <th width="22%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;">Period</th>
+                    <th width="15%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;">Total Amount<br/>({!iw.invoice.Currency_Code__c})</th>
+                    
+                        <th width="{!If(iw.invoice.Currency_Code__c != $Label.Default_Currency,'15%','1%')}" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;">
+                        <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none"> 
+                        Total Amount<br/>({!$Label.Default_Currency})
+                        </apex:outputPanel>
+                        </th>
+                </tr>
+                </thead>
+                
+                <tbody style="display:table-row-group; font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <apex:repeat value="{!iw.invoice.Invoice_Line_Items__r}" var="ili">
+                <apex:outputPanel rendered="{!Not(ili.Withholding_Tax__c)}" layout="none">
+                    <tr style="height:25px;">
+                            <td>{!ili.Charge_Name__c}</td>
+                            <td style="padding-right:5px;">{!ili.Lease_Charge__r.Lease_Unit__r.Unit__r.Name} {!if(ili.Lease_Charge__r.Lease_Unit__r.Unit__r.Description__c != null && ili.Lease_Charge__r.Lease_Unit__r.Unit__r.Description__c!='','('+ili.Lease_Charge__r.Lease_Unit__r.Unit__r.Description__c+')','')}</td>
+                            <td>
+                                 <apex:outputText value="{0,date,dd MMM yy}">
+                                    <apex:param value="{!ili.Start_Date__c}"/>
+                                </apex:outputText>&nbsp;
+                                To&nbsp;
+                                <apex:outputText value="{0,date,dd MMM yy}">
+                                    <apex:param value="{!ili.End_Date__c}"/>
+                                </apex:outputText>
+                                
+                            </td>
+                            <td style="text-align:right;font-weight:bold;">
+                            <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!ili.Amount__c}"/>
+                            </apex:outputText>
+                            </td>
+                            
+                                <td width="{!If(iw.invoice.Currency_Code__c != $Label.Default_Currency,'15%','1%')}" style="text-align:right;font-weight:bold;">
+                                    <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none"> 
+                                        <apex:outputText value="{0,number,###,###,##0.00}">
+                                            <apex:param value="{!ili.Amount__c * iw.invoice.Exchange_Rate__c}"/>
+                                        </apex:outputText>
+                                    </apex:outputPanel>
+                                </td>
+                            
+                        </tr>
+                    </apex:outputPanel>
+                </apex:repeat> 
+                <apex:outputPanel layout="none" rendered="{!iw.ctApplicable }">
+                <tr>
+                    <td style="border-top:1px solid black;font-weight:bold;" colspan="3">Sub Total</td>
+                    <td style="border-top:1px solid black;text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.totalAmount}"/>
+                        </apex:outputText>                        
+                    </td>
+                    
+                        <td style="border-top:1px solid black;text-align:right;font-weight:bold;">
+                             <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none">
+                                <apex:outputText value="{0,number,###,###,##0.00}">
+                                    <apex:param value="{!iw.totalAmount * iw.invoice.Exchange_Rate__c}"/>
+                                </apex:outputText>  
+                            </apex:outputPanel>                      
+                        </td>
+                     
+                </tr>
+                <tr>
+                    <td colspan="3" style="font-weight:bold;">Commercial Tax ({!iw.invoice.Lease__r.Property__r.Comm_Tax__c}%)</td>
+                    <td style="text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.invoice.Comm_Tax_Amount__c}"/>
+                        </apex:outputText>
+                    </td>
+                    
+                        <td style="text-align:right;font-weight:bold;">
+                            <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none">
+                                <apex:outputText value="{0,number,###,###,##0.00}">
+                                    <apex:param value="{!iw.invoice.Comm_Tax_Amount__c * iw.invoice.Exchange_Rate__c}"/>
+                                </apex:outputText>
+                            </apex:outputPanel>
+                        </td>
+                    
+                </tr>
+                </apex:outputPanel>
+                
+                <tr>
+                    <td style="border-top:{!if(Not(iw.ctApplicable),'2px solid black;','')};border-bottom:{!if(iw.invoice.Withholding_Tax_Amount__c != null && iw.invoice.Withholding_Tax_Amount__c > 0,'','2px solid black;' )};font-weight:bold;" colspan="3"><div style="margin: 5px;margin-left: 0px">Grand Total</div></td>
+                    <td style="border-top:{!if(Not(iw.ctApplicable),'2px solid black;','')};border-bottom:{!if(iw.invoice.Withholding_Tax_Amount__c != null && iw.invoice.Withholding_Tax_Amount__c > 0,'','2px solid black;' )};text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.grandTotalAmount}"/>
+                        </apex:outputText>
+                    </td> 
+                        <td style="border-top:{!if(Not(iw.ctApplicable),'2px solid black;','')};border-bottom:{!if(iw.invoice.Withholding_Tax_Amount__c != null && iw.invoice.Withholding_Tax_Amount__c > 0,'','2px solid black;' )};text-align:right;font-weight:bold;">
+                            <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none">
+                                <apex:outputText value="{0,number,###,###,##0.00}">
+                                    <apex:param value="{!iw.grandTotalAmount * iw.invoice.Exchange_Rate__c}"/>
+                                </apex:outputText>
+                            </apex:outputPanel>
+                        </td> 
+                </tr>
+                <apex:outputPanel rendered="{!iw.invoice.Withholding_Tax_Amount__c != null && iw.invoice.Withholding_Tax_Amount__c > 0}" layout="none">
+                <tr>
+                    <td style="font-weight:bold;" colspan="3"><div style="margin: 5px;margin-left: 0px">Witholding Tax ({!iw.withHoldingTax}%)</div></td>
+                    <td style="text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!(-1)*iw.invoice.Withholding_Tax_Amount__c}"/>
+                        </apex:outputText>
+                    </td> 
+                        <td style="text-align:right;font-weight:bold;">
+                            <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none">
+                                <apex:outputText value="{0,number,###,###,##0.00}">
+                                    <apex:param value="{!(-1)*iw.invoice.Withholding_Tax_Amount__c * iw.invoice.Exchange_Rate__c}"/>
+                                </apex:outputText>
+                            </apex:outputPanel>
+                        </td>
+                </tr>
+                <tr>
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;font-weight:bold;" colspan="3"><div style="margin: 5px;margin-left: 0px">Net Total</div></td>
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.invoice.Net_Total__c}"/>
+                        </apex:outputText>
+                    </td> 
+                        <td style="border-top:2px solid black;border-bottom:2px solid black;text-align:right;font-weight:bold;">
+                            <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none">
+                                <apex:outputText value="{0,number,###,###,##0.00}">
+                                    <apex:param value="{!iw.invoice.Net_Total__c * iw.invoice.Exchange_Rate__c}"/>
+                                </apex:outputText>
+                            </apex:outputPanel>
+                        </td> 
+                </tr>
+                </apex:outputPanel>
+                <tr>
+                    <td colspan="5">
+                        <apex:outputPanel rendered="{!iw.priceFactor!=null && iw.priceFactor != 0 && iw.priceFactor != 100}" layout="none">
+                            Discount: {!iw.invoice.Tenant_Type__c}&nbsp;{!iw.priceFactor}% discount
+                        </apex:outputPanel>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </apex:outputPanel>
+        
+        <apex:outputPanel rendered="{!iw.billType==$Label.RentScheduleRentRecordType}">
+        
+        <apex:variable value="{!1}" var="num" />
+            <table width="100%" cellspacing="0" cellpadding="0"  style="-fs-table-paginate: paginate;">
+                <thead   style="font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <tr>
+                    <td colspan="7" style="height: 25px"></td>
+                </tr>
+                <tr>
+                    <th width="25%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;"> Charges</th>
+                    <th width="10%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;">Unit No.</th>
+                    <th width="15%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;">Period</th>
+                    <th width="10%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:Right;">Area<br/>(Sqft)</th>
+                    <th width="10%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:Right;">Rate<br/>({!iw.invoice.Currency_Code__c})</th>
+                    <th width="15%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;">Total Amount<br/>({!iw.invoice.Currency_Code__c})</th>
+                    <th width="{!if(iw.invoice.Currency_Code__c != $Label.Default_Currency,'15%','1%')}" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;">
+                        <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none"> 
+                        Total Amount<br/>({!$Label.Default_Currency})
+                        </apex:outputPanel>
+                    </th>
+                </tr>
+                </thead>
+                <tbody style="display:table-row-group; font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <apex:repeat value="{!iw.invoice.Invoice_Line_Items__r}" var="ili">
+                    <tr style="height:25px;">
+                        <td>{!ili.Charge_Name__c}</td>
+                        <td style="padding-right:5px;">{!ili.Lease_Charge__r.Lease_Unit__r.Unit__r.Name}</td>
+                        <td>
+                            <apex:outputText value="{0,date,MMMM yyyy}">
+                                <apex:param value="{!ili.End_Date__c}"/>
+                            </apex:outputText>
+                            
+                        </td>
+                        <td style="text-align:right;">
+                            {!ili.Lease_Charge__r.Lease_Unit__r.Area_Sq_Ft__c}
+                        </td>
+                        <td style="text-align:right;">
+                            <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!ili.Lease_Charge__r.Charge_Rate__c}"/>
+                            </apex:outputText>
+                        </td>
+                        <td style="text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!ili.Amount__c}"/>
+                        </apex:outputText>
+                        </td>
+                        <td style="text-align:right;font-weight:bold;">
+                            <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none">
+                                <apex:outputText value="{0,number,###,###,##0.00}">
+                                    <apex:param value="{!ili.Amount__c  * iw.invoice.Exchange_Rate__c}"/>
+                                </apex:outputText>
+                            </apex:outputPanel>
+                        </td>
+                    </tr>
+                </apex:repeat>
+                <apex:outputPanel layout="none" rendered="{!iw.ctApplicable}">
+                <tr>
+                    <td style="border-top:1px solid black;font-weight:bold;" colspan="5">Total</td>
+                    <td style="border-top:1px solid black;text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.totalAmount}"/>
+                        </apex:outputText>                        
+                    </td>
+                    <td style="border-top:1px solid black;text-align:right;font-weight:bold;">
+                        <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none">
+                            <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!iw.totalAmount  * iw.invoice.Exchange_Rate__c}"/>
+                            </apex:outputText>   
+                          </apex:outputPanel>                     
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="5" style="font-weight:bold;">Commercial Tax ( 
+                         <apex:outputText value="{0,number,###,###,##0}">
+                            <apex:param value="{!iw.invoice.Lease__r.Property__r.Comm_Tax__c}"/>
+                         </apex:outputText>%)
+                        </td>
+                    <td style="text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.invoice.Comm_Tax_Amount__c}"/>
+                        </apex:outputText>
+                    </td>
+                   <td style="text-align:right;font-weight:bold;">
+                        <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none">
+                            <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!iw.invoice.Comm_Tax_Amount__c  * iw.invoice.Exchange_Rate__c}"/>
+                            </apex:outputText>
+                        </apex:outputPanel>
+                    </td>
+                </tr>
+                </apex:outputPanel>
+                <tr>
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;font-weight:bold;" colspan="5"><div style="margin: 5px;margin-left: 0px">Grand Total</div></td>
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.grandTotalAmount}"/>
+                        </apex:outputText>
+                    </td>
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;text-align:right;font-weight:bold;">
+                       <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.grandTotalAmount  * iw.invoice.Exchange_Rate__c}"/>
+                        </apex:outputText>
+                       </apex:outputPanel>
+                   </td>
+                </tr>
+                </tbody>
+            </table>
+        </apex:outputPanel>
+        <apex:outputPanel rendered="{!iw.billType==$Label.RentScheduleMonthlyRecordType}">
+        <apex:variable value="{!1}" var="num" />
+            <table width="100%" cellspacing="0" cellpadding="0"  style="-fs-table-paginate: paginate;">
+                <thead  style="font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <tr>
+                    <td colspan="7" style="height: 25px"></td>
+<!--                     <td colspan="{!IF(iw.ctApplicable,8,7)}" style="height: 25px"></td> -->
+                </tr>
+                <tr> 
+                    <th width="23%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;">Charges</th>
+                    <th width="7%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;">Unit No</th>
+                    <th width="14%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:Center;">Period</th>
+                    <th width="7%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:Right;">Area<br/>(Sqft)</th>
+                    <th width="7%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:Right;">Rate<br/>({!iw.invoice.Currency_Code__c})</th>
+                    <th width="6%" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:Right;">&nbsp;Usage<br/>(Units)</th>
+<!--                     <apex:outputPanel layout="none" rendered="{!iw.ctApplicable}"> -->
+<!--                     <th width="10%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:center;">Comm<br/>Tax</th> -->
+<!--                     </apex:outputPanel> -->
+                    <th width="13%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;">Total Amount<br/>({!iw.invoice.Currency_Code__c})</th>
+                    <th width="{!If(iw.invoice.Currency_Code__c != $Label.Default_Currency,'15%','1%')}" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;">
+                        <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none">
+                            Total Amount<br/>({!$Label.Default_Currency})
+                        </apex:outputPanel>
+                    </th>
+                    
+                </tr>
+                </thead>
+                <tbody style="display:table-row-group;font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <apex:repeat value="{!iw.invoice.Invoice_Line_Items__r}" var="ili">
+                    <tr  style="height:25px;">
+                        <td>{!ili.Charge_Name__c}</td>
+                        <td style="padding-right:5px;">{!ili.Lease_Charge__r.Lease_Unit__r.Unit__r.Name}</td>
+                        <td >
+                            <apex:outputPanel rendered="{!!ISBLANK(ili.Transaction_Start_Date__c)}">
+                               <apex:outputText value="{0,date,MMMM yyyy}">
+                                    <apex:param value="{!ili.Transaction_End_Date__c}"/>
+                                </apex:outputText>
+                            </apex:outputPanel>
+                            <apex:outputPanel rendered="{!ISBLANK(ili.Transaction_Start_Date__c)}">
+                                <apex:outputText value="{0,date,MMMM yyyy}">
+                                    <apex:param value="{!ili.End_Date__c}"/>
+                                </apex:outputText>
+                            </apex:outputPanel>
+                            
+                        </td>
+                        <td style="text-align:right;">
+                            {!ili.Lease_Charge__r.Lease_Unit__r.Area_Sq_Ft__c}
+                        </td>
+                        <td style="text-align:right;">
+                            <apex:outputPanel rendered="{!baseRentAnPRateMap[ili.Id]>0}">
+                                <apex:outputText value="{0,number,###,###,##0.00}">
+                                            <apex:param value="{!baseRentAnPRateMap[ili.Id]}"/>
+                                        </apex:outputText>
+                            </apex:outputPanel>
+                            <apex:outputPanel rendered="{!baseRentAnPRateMap[ili.Id]==0}">
+                                <apex:outputPanel rendered="{!Not((ili.Lease_Charge__r.Charge_Type__c == 'Service' || ili.Lease_Charge__r.Charge_Type__c =='A&P') && ili.Lease_Charge__r.Type__c == 'By Percent')}">
+                                    <apex:outputPanel rendered="{!ili.Lease_Charge__r.Charge_Type__c!='GTO Rent' && tieredCheckMap[ili.Id]==false}">
+                                        <apex:outputPanel rendered="{!baseRentLCPresentMap[ili.Id]==true}">
+                                            <apex:outputText rendered="{!isBLANK(baseRentLCChargeRateMap[ili.Id])}" value="0.00"/>                               
+                                            <apex:outputText value="{0,number,###,###,##0.00}" rendered="{!!isBLANK(baseRentLCChargeRateMap[ili.Id])}">
+                                                <apex:param value="{!baseRentLCChargeRateMap[ili.Id]}"/>
+                                            </apex:outputText>
+                                        </apex:outputPanel>
+                                        <apex:outputPanel rendered="{!baseRentLCPresentMap[ili.Id]==false}">
+                                            <apex:outputText rendered="{!isBLANK(ili.Lease_Charge__r.Charge_Rate__c)}" value="0.00"/>                               
+                                            <apex:outputText value="{0,number,###,###,##0.00}" rendered="{!!isBLANK(ili.Lease_Charge__r.Charge_Rate__c)}">
+                                                <apex:param value="{!ili.Lease_Charge__r.Charge_Rate__c}"/>
+                                            </apex:outputText>
+                                        </apex:outputPanel>
+                                    </apex:outputPanel>
+                                 </apex:outputPanel>
+                                <apex:outputPanel rendered="{!(ili.Lease_Charge__r.Charge_Type__c == 'Service' || ili.Lease_Charge__r.Charge_Type__c =='A&P') && ili.Lease_Charge__r.Type__c == 'By Percent'}">
+                                    <apex:outputPanel rendered="{!baseRentLCPresentMap[ili.Id]==true}">
+                                        <apex:outputText rendered="{!isBLANK(baseRentLCChargeRateMap[ili.Id])}" value="0.00"/>                               
+                                        <apex:outputText value="{0,number,###,###,##0.00}" rendered="{!!isBLANK(baseRentLCChargeRateMap[ili.Id])}">
+                                            <apex:param value="{!baseRentLCChargeRateMap[ili.Id]}"/>
+                                        </apex:outputText>
+                                    </apex:outputPanel>
+                                    <apex:outputPanel rendered="{!baseRentLCPresentMap[ili.Id]==false}">
+                                        <apex:outputText rendered="{!isBLANK(ili.Lease_Charge__r.Charge_Rate__c)}" value="0.00"/>                               
+                                        <apex:outputText value="{0,number,###,###,##0.00}" rendered="{!!isBLANK(ili.Lease_Charge__r.Charge_Rate__c)}">
+                                            <apex:param value="{!ili.Lease_Charge__r.Charge_Rate__c}"/>
+                                        </apex:outputText>
+                                    </apex:outputPanel>
+                                </apex:outputPanel>
+                            </apex:outputPanel>
+                        </td>
+                        <td style="text-align:right;">
+                            <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!usageUnitMap[ili.Id]}"/>
+                            </apex:outputText>
+                        </td>
+<!--                         <apex:outputPanel layout="none" rendered="{!iw.ctApplicable}"> -->
+<!--                         <td style="text-align:center;">{!ili.Comm_Tax_Amount__c}</td> -->
+<!--                         </apex:outputPanel> -->
+                        <td  style="text-align:right;">
+                            <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!ili.Amount__c}"/>
+                            </apex:outputText>
+                        </td>
+                        <td  style="text-align:right;">
+                            <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none">
+                                <apex:outputText value="{0,number,###,###,##0.00}">
+                                    <apex:param value="{!ili.Amount__c * iw.invoice.Exchange_Rate__c}"/>
+                                </apex:outputText>
+                            </apex:outputPanel>
+                        </td>
+                    </tr>
+                     <apex:variable value="{!num+1}" var="num" />
+              </apex:repeat>
+                <apex:outputPanel layout="none" rendered="{!iw.ctApplicable}">
+                <tr>
+<!--                     <td style="border-top:1px solid black;font-weight:bold;" colspan="{!IF(iw.ctApplicable,7,6)}"> -->
+                    <td style="border-top:1px solid black;font-weight:bold;" colspan="6">
+                    Total</td>
+                    <td style="border-top:1px solid black;text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!iw.totalAmount}"/>
+                        </apex:outputText>
+                    </td>
+                    <td style="border-top:1px solid black;text-align:right;font-weight:bold;">
+                        <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none">
+                            <apex:outputText value="{0,number,###,###,##0.00}">
+                                    <apex:param value="{!iw.totalAmount * iw.invoice.Exchange_Rate__c}"/>
+                            </apex:outputText>
+                        </apex:outputPanel>
+                    </td>
+                </tr>
+                <tr>
+<!--                     <td colspan="{!IF(iw.ctApplicable,7,6)}" style="font-weight:bold;"> -->
+                    <td colspan="6" style="font-weight:bold;">Commercial Tax(%)</td>
+                    <td style="text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.invoice.Comm_Tax_Amount__c}"/>
+                        </apex:outputText>
+                    </td>
+                    <td style="text-align:right;font-weight:bold;">
+                        <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none">
+                            <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!iw.invoice.Comm_Tax_Amount__c * iw.invoice.Exchange_Rate__c}"/>
+                            </apex:outputText>
+                        </apex:outputPanel>
+                    </td>
+                </tr>
+                </apex:outputPanel>
+               
+                <tr >
+<!--                     <td style="border-top:2px solid black;border-bottom:2px solid black;font-weight:bold;" colspan="{!IF(iw.ctApplicable,7,6)}" > -->
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;font-weight:bold;" colspan="6" ><div style="margin: 5px;margin-left: 0px">Grand Total</div></td>
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.grandTotalAmount}"/>
+                        </apex:outputText>
+                    </td>
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;text-align:right;font-weight:bold;">
+                        <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}" layout="none">
+                            <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!iw.grandTotalAmount * iw.invoice.Exchange_Rate__c}"/>
+                            </apex:outputText>
+                        </apex:outputPanel>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+             
+        </apex:outputPanel>
+        
+        <apex:outputPanel rendered="{! iw.billType ==$Label.RentScheduleGTORecordType}">
+            
+            <table width="100%" cellspacing="0" cellpadding="0" style="-fs-table-paginate: paginate;">
+                <thead  style="font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <tr>
+                    <td colspan="4" style="height: 15px"></td>
+<!--                     <td colspan="{!IF(iw.ctApplicable,8,7)}" style="height: 15px"></td> -->
+                </tr>
+                <tr>
+                    <th width="35%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;">Charges</th>
+                    <th width="18%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;">Unit No</th>
+                    <th width="23%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:center;">Period</th>
+<!--                     <th width="10%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;">Sales AMT<br/>({!$Label.Default_Currency})</th> -->
+<!--                     <th width="7%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:center;">%</th> -->
+                    
+<!--                     <th width="{!If(iw.chargeType == 'GTO (Higher)','10%','1%')}" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;"> -->
+<!--                         <apex:outputPanel layout="none" rendered="{!iw.chargeType == 'GTO (Higher)'}"> -->
+<!--                          GTO AMT ({!$Label.Default_Currency}) -->
+<!--                         </apex:outputPanel> -->
+<!--                     </th> -->
+<!--                     <th width="{!If(iw.chargeType == 'GTO (Higher)','10%','1%')}" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;"> -->
+<!--                         <apex:outputPanel layout="none" rendered="{!iw.chargeType == 'GTO (Higher)'}"> -->
+<!--                             Base Rent ({!$Label.Default_Currency}) -->
+<!--                         </apex:outputPanel> -->
+<!--                     </th> -->
+                    
+                    
+<!--                     <th width="{!If(totalTax != null && totalTax > 0,'10%','1%')}" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;"> -->
+<!--                     <apex:outputPanel layout="none" rendered="{!totalTax != null && totalTax > 0}"> -->
+<!--                        Comm<br/>Tax -->
+<!--                     </apex:outputPanel> -->
+<!--                     </th> -->
+                    
+                    <th width="35%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;">
+                        <apex:outputPanel layout="none" rendered="{!iw.chargeType == 'GTO (Higher)'}">
+                            GTO Rent Due
+                        </apex:outputPanel>
+                        <apex:outputPanel layout="none" rendered="{!iw.chargeType == 'GTO (Sum)'}">
+                            Total Amount<br/>({!$Label.Default_Currency})
+                        </apex:outputPanel>
+                    </th>
+                </tr>
+                </thead>
+                <tbody style="font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <apex:repeat value="{!iw.invoice.Invoice_Line_Items__r}" var="ili">
+                    <tr style="height:25px;">
+                        <td>{!ili.Charge_Name__c}</td>
+                        <td style="padding-right:5px;">{!ili.Lease_Charge__r.Lease_Unit__r.Unit__r.Name}</td>
+                        <td style="text-align:center;">
+                            <apex:outputPanel rendered="{!!ISBLANK(ili.Transaction_Start_Date__c)}">
+                            <apex:outputText value="{0,date,dd MMM yy}">
+                                    <apex:param value="{!ili.Transaction_Start_Date__c}"/>
+                                </apex:outputText>&nbsp;To&nbsp;
+                               <apex:outputText value="{0,date,dd MMM yy}">
+                                    <apex:param value="{!ili.Transaction_End_Date__c}"/>
+                                </apex:outputText>
+                            </apex:outputPanel>
+                            
+                            <apex:outputPanel rendered="{!ISBLANK(ili.Transaction_Start_Date__c)}">
+                             <apex:outputText value="{0,date, dd MMM yy}"> 
+                                    <apex:param value="{!ili.Start_Date__c}"/>
+                                </apex:outputText>&nbsp;To&nbsp;
+                               <apex:outputText value="{0,date, dd MMM yy}"> 
+                                    <apex:param value="{!ili.End_Date__c}"/>
+                                </apex:outputText>
+                            </apex:outputPanel>
+                            
+                        </td>
+<!--                         <td   style="text-align:right;"> -->
+<!--                             <apex:outputText value="{0,number,###,###,##0.00}"> -->
+<!--                                     <apex:param value="{!ili.Sales_Amount__c}"/> -->
+<!--                                 </apex:outputText> -->
+<!--                         </td> -->
+<!--                         <td  style="text-align:right;">       -->
+<!--                             <apex:outputText value="{0,number,###,###,##0.00}"> -->
+<!--                                 <apex:param value="{!ili.on_Invoice__c}"/> -->
+<!--                             </apex:outputText> -->
+<!--                         </td> -->
+                        
+<!--                         <td style="text-align:right;"> -->
+<!--                         <apex:outputPanel layout="none" rendered="{!iw.chargeType == 'GTO (Higher)'}"> -->
+<!--                            <apex:outputText value="{0,number,###,###,##0.00}"> -->
+<!--                                     <apex:param value="{!ili.GTO_Amount__c * iw.invoice.Exchange_Rate__c}"/> -->
+<!--                                 </apex:outputText>  -->
+<!--                             </apex:outputPanel> -->
+<!--                         </td> -->
+<!--                         <td style="text-align:right;"> -->
+<!--                              <apex:outputPanel layout="none" rendered="{!iw.chargeType == 'GTO (Higher)'}"> -->
+<!--                              <apex:outputText value="{0,number,###,###,##0.00}"> -->
+<!--                                     <apex:param value="{!ili.Lease_Charge__r.Base_Rent_Calculation_Local__c * iw.invoice.Exchange_Rate__c}"/> -->
+<!--                                 </apex:outputText>  -->
+<!--                            </apex:outputPanel> -->
+<!--                         </td> -->
+<!--                         <td style="text-align:right;"> -->
+<!--                            <apex:outputPanel layout="none" rendered="{!totalTax != null && totalTax > 0}"> -->
+<!--                                <apex:outputText value="{0,number,###,###,##0.00}"> -->
+<!--                                    <apex:param value="{!ili.Comm_Tax_Amount__c}"/> -->
+<!--                                </apex:outputText> -->
+<!--                            </apex:outputPanel> -->
+<!--                         </td> -->
+
+                        <td  style="text-align:right;">
+                            <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!ili.Amount__c * iw.invoice.Exchange_Rate__c}"/>
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                    
+            </apex:repeat>
+                <apex:outputPanel layout="none" rendered="{!iw.ctApplicable}">
+                <tr>
+                    <td style="border-top:1px solid black;font-weight:bold;" colspan="3">Total</td>
+                    
+                    <td style="border-top:1px solid black;text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!IF(iw.totalAmount <> NULL || iw.totalAmount > 0,iw.totalAmount* iw.invoice.Exchange_Rate__c,0.00)}"/>
+                        </apex:outputText>
+                    </td>
+                </tr><tr>
+                    <td colspan="3" style="font-weight:bold;">Commercial Tax({!iw.taxPercent}%)</td>
+                    
+                    <td style="text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{! iw.invoice.Comm_Tax_Amount__c * iw.invoice.Exchange_Rate__c}"/>
+                        </apex:outputText>
+                    </td>
+                </tr>
+                </apex:outputPanel>
+                
+                <tr>
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;font-weight:bold;" colspan="3"><div style="margin: 5px;margin-left: 0px">Grand Total</div></td>
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.grandTotalAmount * iw.invoice.Exchange_Rate__c}"/>
+                        </apex:outputText>
+                    </td>
+                </tr>
+                
+                </tbody>
+            </table>
+            
+        </apex:outputPanel>
+        
+        <apex:outputPanel rendered="{!(iw.billType=='Debit Note' || iw.billType=='Credit Note')}">
+        <apex:variable value="{!1}" var="num" />
+            <table width="100%" cellspacing="0" cellpadding="0"  style="-fs-table-paginate: paginate;">
+                <thead  style="font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <tr>
+<!--                    <td colspan="{!IF(iw.invoice.Comm_Tax_Amount__c!=0,6,5)}" style="height: 25px"></td> -->
+                    <td colspan="5" style="height: 25px"></td>
+                </tr>
+                <tr> 
+                    <th width="17%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;">Charges</th>
+                    <th width="15%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;padding-right:10px;">Remarks</th>
+                    <th width="8%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;">Unit No</th>
+                    <th width="20%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;">Generated From</th>
+<!--                     <th width="15%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;">Period</th> -->
+<!--                     <apex:outputPanel layout="none" rendered="{!iw.invoice.Comm_Tax_Amount__c != 0}"> -->
+<!--                     <th width="10%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;">Comm<br/>Tax</th> -->
+<!--                     </apex:outputPanel> -->
+                    <th width="15%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;">Total Amount<br/>({!iw.invoice.Currency_Code__c})</th>
+                    <th width="{!if(iw.invoice.Currency_Code__c != $Label.Default_Currency ,'15%','1%')}" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;">
+                        <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency }" layout="none"> 
+                        Total Amount<br/>({!$Label.Default_Currency})
+                        </apex:outputPanel>
+                    </th>
+                </tr>
+                </thead>
+                <tbody style="display:table-row-group;font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <apex:repeat value="{!iw.invoice.Invoice_Line_Items__r}" var="ili">
+                    <tr  style="height:25px;">
+                        <td>{!ili.Charge_Name__c}</td>
+                        <td>{!remarksMap[ili.Id]}</td>
+                        <td style="padding-right:5px;">{!ili.Lease_Charge__r.Lease_Unit__r.Unit__r.Name}</td>
+                        <td>{!DNCNoldInvoiceMap[ili.Id]}</td>
+<!--                         <td> -->
+<!--                             <apex:outputPanel rendered="{!!ISBLANK(ili.Transaction_Start_Date__c)}"> -->
+<!--                                 <apex:outputText value="{0,date,MMMM YYYY}"> -->
+<!--                                     <apex:param value="{!ili.Transaction_End_Date__c}"/> -->
+<!--                                 </apex:outputText> -->
+<!--                             </apex:outputPanel> -->
+<!--                             <apex:outputPanel rendered="{!ISBLANK(ili.Transaction_Start_Date__c)}"> -->
+<!--                                 <apex:outputText value="{0,date,MMMM YYYY}"> -->
+<!--                                     <apex:param value="{!ili.End_Date__c}"/> -->
+<!--                                 </apex:outputText> -->
+<!--                             </apex:outputPanel> -->
+<!--                         </td> -->
+<!--                         <apex:outputPanel layout="none" rendered="{!iw.invoice.Comm_Tax_Amount__c != 0}"> -->
+<!--                            <td style="text-align:right;" > -->
+<!--                                <apex:outputText value="{0,number,###,###,##0.00}"> -->
+<!--                                    <apex:param value="{!ili.Comm_Tax_Amount__c}"/> -->
+<!--                                </apex:outputText> -->
+<!--                            </td> -->
+<!--                         </apex:outputPanel> -->
+                        <td style="text-align:right;">
+                            <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!ili.Amount__c}"/>
+                            </apex:outputText>
+                        </td>
+                         <td style="text-align:right;">
+                            <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency }" layout="none">
+                                <apex:outputText value="{0,number,###,###,##0.00}">
+                                    <apex:param value="{!iw.invoice.Amount__c  * iw.invoice.Exchange_Rate__c}"/>
+                                </apex:outputText>
+                            </apex:outputPanel>
+                        </td>
+                    </tr>
+                     <apex:variable value="{!num+1}" var="num" />
+              </apex:repeat>
+                <apex:outputPanel layout="none" rendered="{!iw.invoice.Comm_Tax_Amount__c != 0}">
+                <tr>
+                    <td style="border-top:1px solid black;font-weight:bold;" colspan="4">Total</td>
+                    <td style="border-top:1px solid black;text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!iw.totalAmount}"/>
+                        </apex:outputText>
+                    </td>
+                    <td style="border-top:1px solid black;text-align:right;font-weight:bold;">
+                            <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency }" layout="none">
+                                <apex:outputText value="{0,number,###,###,##0.00}">
+                                    <apex:param value="{!iw.totalAmount  * iw.invoice.Exchange_Rate__c}"/>
+                                </apex:outputText>
+                            </apex:outputPanel>
+                        </td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="font-weight:bold;">Commercial Tax (
+                       <apex:outputText value="{0,number,###,###,##0}">
+                            <apex:param value="{!iw.invoice.Lease__r.Property__r.Comm_Tax__c}"/>
+                         </apex:outputText>%)
+                     </td>
+                    <td style="text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.invoice.Comm_Tax_Amount__c}"/>
+                        </apex:outputText>
+                    </td>
+                    <td style="text-align:right;font-weight:bold;">
+                            <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency }" layout="none">
+                                <apex:outputText value="{0,number,###,###,##0.00}">
+                                    <apex:param value="{!iw.invoice.Comm_Tax_Amount__c  * iw.invoice.Exchange_Rate__c}"/>
+                                </apex:outputText>
+                            </apex:outputPanel>
+                        </td>
+                </tr>
+                </apex:outputPanel>
+               
+                <tr >
+<!--                     <td style="border-top:2px solid black;border-bottom:2px solid black;font-weight:bold;" colspan="{!IF(iw.invoice.Comm_Tax_Amount__c!=0,5,4)}" > -->
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;font-weight:bold;" colspan="4" ><div style="margin: 5px;margin-left: 0px">Grand Total</div></td>
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.grandTotalAmount}"/>
+                        </apex:outputText>
+                    </td>
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;text-align:right;font-weight:bold;">
+                            <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency }" layout="none">
+                                <apex:outputText value="{0,number,###,###,##0.00}">
+                                    <apex:param value="{!iw.grandTotalAmount  * iw.invoice.Exchange_Rate__c}"/>
+                                </apex:outputText>
+                            </apex:outputPanel>
+                        </td>
+                </tr>
+                </tbody>
+            </table>
+        </apex:outputPanel>
+        <apex:outputPanel rendered="{!iw.billType=='Ad-Hoc Invoice'}">
+        <apex:variable value="{!1}" var="num" />
+            <table width="100%" cellspacing="0" cellpadding="0"  style="-fs-table-paginate: paginate;">
+                <thead  style="font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <tr>
+<!--                    <td colspan="{!IF(iw.ctApplicable,9,8)}" style="height: 25px"></td> -->
+                    <td colspan="5" style="height: 25px"></td>
+                </tr>
+                <tr> 
+                    <th width="22%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;">Charges</th>
+                    <th width="40%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;padding-right:10px;">Remarks</th>
+                    <th width="13%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;">&nbsp;Unit No</th>
+                    <th width="10%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;">Period</th>
+<!--                     <th width="10%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:Right;">Area<br/>(Sqft)</th> -->
+<!--                     <th width="10%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:Right;">Rate<br/>({!iw.invoice.Currency_Code__c})</th> -->
+<!--                     <th height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:Right;">Usage<br/>(Units)</th> -->
+<!--                     <apex:outputPanel layout="none" rendered="{!iw.ctApplicable}"> -->
+<!--                     <th width="10%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:center;">Comm<br/>Tax</th> -->
+<!--                     </apex:outputPanel> -->
+                    <th width="13%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;">Total Amount<br/>({!iw.invoice.Currency_Code__c})</th>
+                </tr>
+                </thead>
+                <tbody style="display:table-row-group;font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <apex:repeat value="{!iw.invoice.Invoice_Line_Items__r}" var="ili">
+                    <tr  style="height:25px;">
+                        <td>{!ili.Charge_Name__c}</td>
+                        <td>{!remarksMap[ili.Id]}</td>
+                        <td style="padding-right:5px;">&nbsp;{!ili.Lease_Charge__r.Lease_Unit__r.Unit__r.Name}</td>
+                        <td>
+                            <apex:outputPanel rendered="{!!ISBLANK(ili.Transaction_Start_Date__c)}">
+                                <apex:outputText value="{0,date,MMMM yyyy}">
+                                    <apex:param value="{!ili.Transaction_End_Date__c}"/>
+                                </apex:outputText>
+                            </apex:outputPanel>
+                            <apex:outputPanel rendered="{!ISBLANK(ili.Transaction_Start_Date__c)}">
+                                <apex:outputText value="{0,date,dd-MMM}">
+                                    <apex:param value="{!ili.End_Date__c}"/>
+                                </apex:outputText>
+                            </apex:outputPanel>
+                            
+                        </td>
+<!--                         <td style="text-align:right;"> -->
+<!--                             {!ili.Lease_Charge__r.Lease_Unit__r.Area_Sq_Ft__c} -->
+<!--                         </td> -->
+<!--                         <td style="text-align:right;"> -->
+<!--                             <apex:outputPanel rendered="{!ili.Lease_Charge__r.Charge_Type__c!='GTO Rent' && tieredCheckMap[ili.Id]==false}"> -->
+<!--                                 <apex:outputPanel rendered="{!baseRentLCPresentMap[ili.Id]==true}"> -->
+<!--                                     <apex:outputText rendered="{!isBLANK(baseRentLCChargeRateMap[ili.Id])}" value="0.00"/>                                -->
+<!--                                     <apex:outputText value="{0,number,###,###,##0.00}" rendered="{!!isBLANK(baseRentLCChargeRateMap[ili.Id])}"> -->
+<!--                                         <apex:param value="{!baseRentLCChargeRateMap[ili.Id]}"/> -->
+<!--                                     </apex:outputText> -->
+<!--                                 </apex:outputPanel> -->
+<!--                                 <apex:outputPanel rendered="{!baseRentLCPresentMap[ili.Id]==false}"> -->
+<!--                                     <apex:outputText rendered="{!isBLANK(ili.Lease_Charge__r.Charge_Rate__c)}" value="0.00"/>                                -->
+<!--                                     <apex:outputText value="{0,number,###,###,##0.00}" rendered="{!!isBLANK(ili.Lease_Charge__r.Charge_Rate__c)}"> -->
+<!--                                         <apex:param value="{!ili.Lease_Charge__r.Charge_Rate__c}"/> -->
+<!--                                     </apex:outputText> -->
+<!--                                 </apex:outputPanel> -->
+<!--                             </apex:outputPanel> -->
+<!--                         </td> -->
+<!--                         <td style="text-align:right;"> -->
+<!--                             <apex:outputText value="{0,number,###,###,##0.00}"> -->
+<!--                                 <apex:param value="{!usageUnitMap[ili.Id]}"/> -->
+<!--                             </apex:outputText> -->
+<!--                         </td> -->
+<!--                         <apex:outputPanel layout="none" rendered="{!iw.ctApplicable}"> -->
+<!--                         <apex:outputText value="{0,number,###,###,##0.00}"> -->
+<!--                             <apex:param value="{!ili.Comm_Tax_Amount__c}"/> -->
+<!--                         </apex:outputText> -->
+<!--                         </apex:outputPanel> -->
+                        <td style="text-align:right;">
+                            <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!ili.Amount__c}"/>
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                     <apex:variable value="{!num+1}" var="num" />
+              </apex:repeat>
+                <apex:outputPanel layout="none" rendered="{!iw.ctApplicable}">
+                <tr>
+                    <td style="border-top:1px solid black;font-weight:bold;" colspan="4">Total</td>
+                    <td style="border-top:1px solid black;text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!iw.totalAmount}"/>
+                        </apex:outputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="font-weight:bold;">Commercial Tax(%)</td>
+                    <td style="text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.invoice.Comm_Tax_Amount__c}"/>
+                        </apex:outputText>
+                    </td>
+                </tr>
+                </apex:outputPanel>
+               
+                <tr >
+<!--                     <td style="border-top:2px solid black;border-bottom:2px solid black;font-weight:bold;" colspan="{!IF(iw.ctApplicable,8,7)}" > -->
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;font-weight:bold;" colspan="4" ><div style="margin: 5px;margin-left: 0px">Grand Total</div></td>
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.grandTotalAmount}"/>
+                        </apex:outputText>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </apex:outputPanel>
+        
+        <apex:outputPanel rendered="{!iw.billType=='Late Charge'}">
+        <apex:variable value="{!1}" var="num" />
+            <table width="100%" cellspacing="0" cellpadding="0"  style="-fs-table-paginate: paginate;">
+                <thead  style="font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <tr>
+                    <td colspan="5" style="height: 25px"></td>
+                </tr>
+                <tr> 
+                    <th width="45%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;">Charge</th>
+                    <th width="10%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;padding-left:10px;text-align:center;">Due Days</th>
+                    <th width="15%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;">Invoice Amount</th>
+                    <th width="10%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;">Rate</th>
+                    <th width="20%" height="35px;" style="border-top:0.5px solid black;border-bottom:0.5px solid black;text-align:right;">Total Amount<br/>({!iw.invoice.Currency_Code__c})</th>
+                </tr>
+                </thead>
+                <tbody style="display:table-row-group;font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <apex:repeat value="{!iw.invoice.Invoice_Line_Items__r}" var="ili">
+                    <tr style="height:25px;">
+                        <td width="30%" style="padding-bottom: 4px;padding-top: 6px;">{!ili.Description__c}</td>
+                        <td width="15%" style="padding-left:10px;text-align:center;">
+                                <apex:outputText value="{!ili.Due_Days__c}"/>
+                        </td>
+                        <td style="text-align:right;">
+                            <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!ili.Outstanding_Amount__c}"/>
+                            </apex:outputText>
+                        </td>
+                        <td width="10%" style="text-align:right;">
+                            <apex:outputText value="{0,number, ###,##0}">
+                                <apex:param value="{!ili.Late_Rate__c}"/>
+                            </apex:outputText>%
+                        </td>
+                        <td width="15%" style="text-align:right;">
+                            <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!ili.Amount__c}"/>
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                     <apex:variable value="{!num+1}" var="num" />
+              </apex:repeat>
+                <apex:outputPanel layout="none" rendered="{!iw.ctApplicable}">
+                <tr>
+                    <td style="border-top:1px solid black;font-weight:bold;" colspan="4">Total</td>
+                    <td style="border-top:1px solid black;text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                                <apex:param value="{!iw.totalAmount}"/>
+                        </apex:outputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="font-weight:bold;">Commercial Tax(%)</td>
+                    <td style="text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.invoice.Comm_Tax_Amount__c}"/>
+                        </apex:outputText>
+                    </td>
+                </tr>
+                </apex:outputPanel>
+               
+                <tr >
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;font-weight:bold;" colspan="4" ><div style="margin: 5px;margin-left: 0px">Grand Total</div></td>
+                    <td style="border-top:2px solid black;border-bottom:2px solid black;text-align:right;font-weight:bold;">
+                        <apex:outputText value="{0,number,###,###,##0.00}">
+                            <apex:param value="{!iw.grandTotalAmount}"/>
+                        </apex:outputText>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+             
+        </apex:outputPanel>
+        
+        <div style="page-break-inside:avoid;">
+            <table width="100%" style="font-family:Arial, Helvetica, sans-serif,Lucida Console;">
+                <tr style="height: 9px;">
+                    <td>
+                    <div style="height: 8px;">&nbsp;</div>
+                    
+                        <apex:outputPanel rendered="{! iw.billType !=$Label.RentScheduleGTORecordType}">
+                             <apex:outputText style="font-weight:bold;" escape="false" value="{!'Exchange Rate : '+$Label.Default_Currency+' '}" rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}"/>
+                            <apex:outputText style="font-weight:bold;" value="{0,number,###,###,##0}" rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}">
+                                <apex:param value="{!iw.invoice.Exchange_Rate__c}"/>
+                            </apex:outputText>
+                            <apex:outputText style="font-weight:bold;" escape="false" value="{!' ( ' + $Label.Default_Currency + ' / ' + iw.invoice.Currency_Code__c+ ' )'}" rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}"/>
+                            
+                            <apex:outputPanel rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}">
+                                  <div style="height: 8px;">&nbsp;</div>
+                              </apex:outputPanel>
+                         </apex:outputPanel>
+                         
+                         <apex:outputPanel rendered="{! iw.billType ==$Label.RentScheduleGTORecordType}">
+                            <apex:outputText style="font-weight:bold;" escape="false" value="{!'Exchange Rate : 1 '+ iw.invoice.Currency_Code__c+' = '}" rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}"/>
+                            <apex:outputText style="font-weight:bold;"  value="{0,number,###,###,##0}" rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}">
+                                <apex:param value="{!iw.invoice.Exchange_Rate__c}"/>
+                            </apex:outputText>
+                            <apex:outputText style="font-weight:bold;" escape="false" value="{! ' '+$Label.Default_Currency+' '}" rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}"/>
+                            <apex:outputText style="font-weight:bold;" value="{!iw.exchangeRateDate}" rendered="{!iw.invoice.Currency_Code__c != $Label.Default_Currency}"/>
+                        </apex:outputPanel>
+                         
+                    </td>
+                </tr>
+                <tr>
+                    <td >
+                        <table width="100%">
+                         <apex:repeat value="{!iw.bankInfoList}" var="bnk">
+                            <tr>
+                                <td style="border-bottom:1px solid black;font-weight:bold;" colspan = "6">Currency : {!bnk.Currency_Code__c}</td>
+                            </tr>
+                            <tr>
+                                <td width="18%" >Beneficiary Name</td><td width="2%">:</td><td width="30%">{!bnk.Beneficiary_Name__c}</td>
+                                <td width="18%">Swift Code</td><td width="2%">:</td><td width="30%">{!bnk.Swift_Code__c}</td>
+                            </tr>
+                            <tr>
+                                <td>Account No.</td><td>:</td><td>{!bnk.Account_No__c}</td>
+                                <td>Branch Name</td><td>:</td><td>{!bnk.Branch_Name__c}</td>
+                            </tr>
+                            <tr>
+                                <td >Bank Name</td><td>:</td><td>{!bnk.Bank_Name__c}</td>
+                                <td>Bank Address</td><td>:</td><td>{!bnk.Bank_Address__c}</td>
+                            </tr>
+                            <tr>    <td  style="border-top:1px solid black;font-weight:bold;"  colspan="6">
+                                    <div style="height: 8px;">&nbsp;</div>
+                                    </td>
+                            </tr>
+                            </apex:repeat>
+                        </table>
+                    </td>
+                </tr>
+                 <tr>
+                    <td style="word-wrap:break-word;font-weight:bold;">
+                        Remarks : <br/>
+                        <apex:outputText escape="false" value="{!iw.invoice.Lease__r.Property__r.Remarks__c}" rendered="{!iw.billType!='Late Charge' && iw.billType!='Credit Note'}"/>
+                        <apex:outputPanel rendered="{!iw.billType!='Late Charge' && iw.billType!='Credit Note'}">
+                        <br/>
+                        </apex:outputPanel>
+                        <apex:outputText escape="false" value="{!iw.invoice.Lease__r.Property__r.Remarks_Other_Invoices__c}" rendered="{!iw.billType=='Late Charge' }"/>
+                        <apex:outputPanel rendered="{!iw.billType=='Late Charge' }">
+                        <br/>
+                        </apex:outputPanel>
+                        <apex:outputText escape="false" value="{!iw.invoice.Lease__r.Property__r.Remarks_Credit_Note__c}" rendered="{!iw.billType=='Credit Note'}"/>
+                        <apex:outputPanel rendered="{!iw.billType=='Credit Note'}">
+                        <br/>
+                        </apex:outputPanel>
+                        <apex:outputPanel rendered="{!iw.billType==$Label.RentScheduleMonthlyRecordType}">
+                            <apex:outputText escape="false" value="{!iw.invoice.Lease__r.Property__r.Utility_Usage_Remarks__c}" rendered="{!iw.billType!='Late Charge' && iw.billType!='Debit Note' && iw.billType!='Credit Note'}"/>
+                        </apex:outputPanel>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <apex:outputPanel rendered="{!iw.tieredRates != 0 && iw.billType ==$Label.RentScheduleGTORecordType}">
+                        <div style="height: 15px;">&nbsp;</div>
+                            <table  style="border-collapse: collapse;text-align:right;">
+                                <tr>
+                                    <td style="border:1px solid black;font-weight:bold;text-align:left;" colspan="2">Tiered Rates ({!iw.leaseCharge.Currency_Code__c})</td>
+                                    <td  style="border:1px solid black;font-weight:bold;" colspan="2"><apex:outputText escape="false" value="Cumulative" rendered="{!iw.tieredRates == 1}"/>
+                                        <apex:outputText escape="false" value="Non-Cumulative" rendered="{!iw.tieredRates == 2}"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="border:1px solid black;text-align:left;" >Tier Lower Limit</td>
+                                    <td style="border:1px solid black;">{!iw.leaseCharge.Tiered_Lower_Limit__c}</td>
+                                    <td style="border:1px solid black;" colspan="2"></td>
+                                </tr>
+                                
+                                <tr>
+                                    <td style="border:1px solid black;width:50px;text-align:left;white-space: nowrap; overflow: hidden; text-overflow:ellipsis;" >Tier 1 Upper Limit    </td>
+                                    <td style="border:1px solid black;width:40px;"><apex:outputText escape="false" value="{!iw.leaseCharge.Tier_1_Upper_Limit__c}" rendered="{!iw.leaseCharge.Tier_1_Upper_Limit__c != 0}"/></td>
+                                    <td style="border:1px solid black;width:39px;white-space: nowrap; overflow: hidden; text-overflow:ellipsis;" >Tier 1 Rate % </td>
+                                    <td style="border:1px solid black;width:25px;">{!iw.leaseCharge.Tier_1_Rate__c * 100}</td>
+                                </tr>
+                                <apex:outputPanel layout="none" rendered="{!iw.maxSalesAmt < iw.leaseCharge.Tier_1_Upper_Limit__c && iw.leaseCharge.Tier_2_Rate__c != 0}">
+                                <tr>
+                                    <td style="border:1px solid black;text-align:left;" >   </td>
+                                    <td style="border:1px solid black;"></td>
+                                    <td style="border:1px solid black;" >Tier 2 Rate % </td>
+                                    <td style="border:1px solid black;">{!iw.leaseCharge.Tier_2_Rate__c * 100}</td>
+                                </tr>
+                                </apex:outputPanel>
+                                <apex:outputPanel layout="none" rendered="{!iw.maxSalesAmt > iw.leaseCharge.Tier_1_Upper_Limit__c && iw.leaseCharge.Tier_1_Upper_Limit__c != 0}">
+                                <tr>
+                                    <td style="border:1px solid black;text-align:left;" >Tier 2 Upper Limit </td>
+                                    <td style="border:1px solid black;"><apex:outputText escape="false" value="{!iw.leaseCharge.Tier_2_Upper_Limit__c}" rendered="{!iw.leaseCharge.Tier_2_Upper_Limit__c != 0}"/></td>
+                                    <td style="border:1px solid black;" >Tier 2 Rate % </td>
+                                    <td style="border:1px solid black;">{!iw.leaseCharge.Tier_2_Rate__c * 100}</td>
+                                </tr>
+                                </apex:outputPanel>
+                                <apex:outputPanel layout="none" rendered="{!iw.maxSalesAmt < iw.leaseCharge.Tier_2_Upper_Limit__c && iw.leaseCharge.Tier_3_Rate__c != 0}">
+                                <tr>
+                                    <td style="border:1px solid black;text-align:left;" >   </td>
+                                    <td style="border:1px solid black;"></td>
+                                    <td style="border:1px solid black;" >Tier 3 Rate % </td>
+                                    <td style="border:1px solid black;">{!iw.leaseCharge.Tier_3_Rate__c * 100}</td>
+                                </tr>
+                                </apex:outputPanel>
+                                <apex:outputPanel layout="none" rendered="{!iw.maxSalesAmt > iw.leaseCharge.Tier_2_Upper_Limit__c && iw.leaseCharge.Tier_2_Upper_Limit__c != 0}">
+                                <tr>
+                                    <td style="border:1px solid black;text-align:left;" >Tier 3 Upper Limit </td>
+                                    <td style="border:1px solid black;"><apex:outputText escape="false" value="{!iw.leaseCharge.Tier_3_Upper_Limit__c}" rendered="{!iw.leaseCharge.Tier_3_Upper_Limit__c != 0}"/></td>
+                                    <td style="border:1px solid black;" >Tier 3 Rate % </td>
+                                    <td style="border:1px solid black;">{!iw.leaseCharge.Tier_3_Rate__c * 100}</td>
+                                </tr>
+                                </apex:outputPanel>
+                                <apex:outputPanel layout="none" rendered="{!iw.maxSalesAmt < iw.leaseCharge.Tier_3_Upper_Limit__c && iw.leaseCharge.Tier_4_Rate__c != 0}">
+                                <tr>
+                                    <td style="border:1px solid black;text-align:left;" >   </td>
+                                    <td style="border:1px solid black;"></td>
+                                    <td style="border:1px solid black;" >Tier 4 Rate % </td>
+                                    <td style="border:1px solid black;">{!iw.leaseCharge.Tier_4_Rate__c * 100}</td>
+                                </tr>
+                                </apex:outputPanel>
+                                <apex:outputPanel layout="none" rendered="{!iw.maxSalesAmt > iw.leaseCharge.Tier_3_Upper_Limit__c && iw.leaseCharge.Tier_3_Upper_Limit__c != 0}">
+                                <tr>
+                                    <td style="border:1px solid black;text-align:left;" >Tier 4 Upper Limit </td>
+                                    <td style="border:1px solid black;"><apex:outputText escape="false" value="{!iw.leaseCharge.Tier_4_Upper_Limit__c}" rendered="{!iw.leaseCharge.Tier_4_Upper_Limit__c != 0}"/></td>
+                                    <td style="border:1px solid black;" >Tier 4 Rate % </td>
+                                    <td style="border:1px solid black;">{!iw.leaseCharge.Tier_4_Rate__c * 100}</td>
+                                </tr>
+                                </apex:outputPanel>
+                                <apex:outputPanel layout="none" rendered="{!iw.maxSalesAmt < iw.leaseCharge.Tier_4_Upper_Limit__c && iw.leaseCharge.Tier_5_Rate__c != 0}">
+                                <tr>
+                                    <td style="border:1px solid black;text-align:left;" >   </td>
+                                    <td style="border:1px solid black;"></td>
+                                    <td style="border:1px solid black;" >Tier 5 Rate % </td>
+                                    <td style="border:1px solid black;">{!iw.leaseCharge.Tier_5_Rate__c * 100}</td>
+                                </tr>
+                                </apex:outputPanel>
+                                <apex:outputPanel layout="none" rendered="{!iw.maxSalesAmt > iw.leaseCharge.Tier_4_Upper_Limit__c && iw.leaseCharge.Tier_4_Upper_Limit__c != 0}">
+                                <tr>
+                                    <td style="border:1px solid black;text-align:left;" >Tier 5 Upper Limit </td>
+                                    <td style="border:1px solid black;"><apex:outputText escape="false" value="{!iw.leaseCharge.Tier_5_Upper_Limit__c}" rendered="{!iw.leaseCharge.Tier_5_Upper_Limit__c != 0}"/></td>
+                                    <td style="border:1px solid black;" >Tier 5 Rate % </td>
+                                    <td style="border:1px solid black;">{!iw.leaseCharge.Tier_5_Rate__c * 100}</td>
+                                </tr>
+                                </apex:outputPanel>
+                                <apex:outputPanel layout="none" rendered="{!iw.maxSalesAmt < iw.leaseCharge.Tier_5_Upper_Limit__c && iw.leaseCharge.Tier_6_Rate__c != 0}">
+                                <tr>
+                                    <td style="border:1px solid black;text-align:left;" >   </td>
+                                    <td style="border:1px solid black;"></td>
+                                    <td style="border:1px solid black;" >Tier 6 Rate % </td>
+                                    <td style="border:1px solid black;">{!iw.leaseCharge.Tier_6_Rate__c * 100}</td>
+                                </tr>
+                                </apex:outputPanel>
+                                <apex:outputPanel layout="none" rendered="{!iw.maxSalesAmt > iw.leaseCharge.Tier_5_Upper_Limit__c && iw.leaseCharge.Tier_5_Upper_Limit__c != 0}">
+                                <tr>
+                                    <td style="border:1px solid black;text-align:left;" >Tier 6 Upper Limit </td>
+                                    <td style="border:1px solid black;"><apex:outputText escape="false" value="{!iw.leaseCharge.Tier_6_Upper_Limit__c}" rendered="{!iw.leaseCharge.Tier_6_Upper_Limit__c != 0}"/></td>
+                                    <td style="border:1px solid black;" >Tier 6 Rate % </td>
+                                    <td style="border:1px solid black;">{!iw.leaseCharge.Tier_6_Rate__c * 100}</td>
+                                </tr>
+                                </apex:outputPanel>
+                                <apex:outputPanel layout="none" rendered="{!iw.maxSalesAmt < iw.leaseCharge.Tier_6_Upper_Limit__c && iw.leaseCharge.Tier_7_Rate__c != 0}">
+                                <tr>
+                                    <td style="border:1px solid black;text-align:left;" >   </td>
+                                    <td style="border:1px solid black;"></td>
+                                    <td style="border:1px solid black;" >Tier 7 Rate % </td>
+                                    <td style="border:1px solid black;">{!iw.leaseCharge.Tier_7_Rate__c * 100}</td>
+                                </tr>
+                                </apex:outputPanel>
+                                <apex:outputPanel layout="none" rendered="{!iw.maxSalesAmt > iw.leaseCharge.Tier_6_Upper_Limit__c && iw.leaseCharge.Tier_6_Upper_Limit__c != 0}">
+                                <tr>
+                                    <td style="border:1px solid black;text-align:left;" >Tier 7 Upper Limit </td>
+                                    <td style="border:1px solid black;"><apex:outputText escape="false" value="{!iw.leaseCharge.Tier_7_Upper_Limit__c}" rendered="{!iw.leaseCharge.Tier_7_Upper_Limit__c != 0}"/></td>
+                                    <td style="border:1px solid black;" >Tier 7 Rate % </td>
+                                    <td style="border:1px solid black;">{!iw.leaseCharge.Tier_7_Rate__c * 100}</td>
+                                </tr>
+                                </apex:outputPanel>
+                                <apex:outputPanel layout="none" rendered="{!iw.maxSalesAmt < iw.leaseCharge.Tier_7_Upper_Limit__c && iw.leaseCharge.Tier_8_Rate__c != 0}">
+                                <tr>
+                                    <td style="border:1px solid black;text-align:left;" >   </td>
+                                    <td style="border:1px solid black;"></td>
+                                    <td style="border:1px solid black;" >Tier 8 Rate % </td>
+                                    <td style="border:1px solid black;">{!iw.leaseCharge.Tier_8_Rate__c * 100}</td>
+                                </tr>
+                                </apex:outputPanel>
+                                <apex:outputPanel layout="none" rendered="{!iw.maxSalesAmt > iw.leaseCharge.Tier_7_Upper_Limit__c && iw.leaseCharge.Tier_7_Upper_Limit__c != 0}">
+                                <tr>
+                                    <td style="border:1px solid black;text-align:left;" >Tier 8 Upper Limit </td>
+                                    <td style="border:1px solid black;"><apex:outputText escape="false" value="{!iw.leaseCharge.Tier_8_Upper_Limit__c}" rendered="{!iw.leaseCharge.Tier_8_Upper_Limit__c != 0}"/></td>
+                                    <td style="border:1px solid black;" >Tier 8 Rate % </td>
+                                    <td style="border:1px solid black;">{!iw.leaseCharge.Tier_8_Rate__c * 100}</td>
+                                </tr>
+                                </apex:outputPanel>
+                                <apex:outputPanel layout="none" rendered="{!iw.maxSalesAmt > iw.leaseCharge.Tier_8_Upper_Limit__c && iw.leaseCharge.Tier_8_Upper_Limit__c != 0}">
+                                <tr>
+                                    <td style="border:1px solid black;text-align:left;" colspan="2"></td>
+                                    <td style="border:1px solid black;" >Tier 9 Rate % </td>
+                                    <td style="border:1px solid black;">{!iw.leaseCharge.Tier_9_Rate__c * 100}</td>
+                                </tr>
+                                </apex:outputPanel>
+                            </table>
+                        </apex:outputPanel>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <apex:outputPanel rendered="{!i < invWrapList.size}">
+        <div style="page-break-after:always;"></div>
+        </apex:outputPanel>
+        <apex:variable value="{!i+1}" var="i"/>
+        <apex:outputPanel rendered="{!i <= invWrapList.size}">
+        <div style="-fs-page-sequence: start;"></div>
+        </apex:outputPanel>
+        </apex:repeat>
+    </body>
+</html>
+</apex:page>

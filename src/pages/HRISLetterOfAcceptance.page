@@ -1,0 +1,140 @@
+<apex:page standardController="Personnel_Action__c" renderAs="pdf" showHeader="false" sidebar="false" standardStylesheets="false" applyBodyTag="false" applyHtmlTag="false">
+    <html>
+    <head>
+        <style>
+            @page {
+                size: A4;
+                margin: 10mm;
+                @top-center {
+                    content: "";
+                }
+                @bottom-center {
+                    content: "Page " counter(page) " of " counter(pages);
+                }
+            }
+            .page-break {
+                display:block;
+                page-break-after:always;
+            }
+            body {
+                font-family: Arial Unicode MS;
+                font-size: 11pt;
+            }
+        </style>
+    </head>
+    <body>
+        <div align="center">
+            <img width="150px" height="70px" src="https://c.ap5.content.force.com/servlet/servlet.ImageServer?id=0157F000000fToo&oid=00D7F000005CQGD&lastMod=1522939006000"/>
+            <br/>
+            <u><b>PRIVATE &amp; CONFIDENTIAL</b></u>
+        </div>
+        <br/>
+        <div>
+            Date : &nbsp;<apex:outputText value="{0,date,dd MMM yyyy}"><apex:param value="{!TODAY()}" /></apex:outputText>
+            <br/><br/>Name: &nbsp;<apex:outputText value="{!Personnel_Action__c.Employee__r.FirstName}" /> &nbsp; <apex:outputText value="{!Personnel_Action__c.Employee__r.LastName}" />
+            <br/>Address : &nbsp;
+            <br/><br/>Dear: &nbsp;<apex:outputText value="{!Personnel_Action__c.Employee__r.FirstName}" /> &nbsp; <apex:outputText value="{!Personnel_Action__c.Employee__r.LastName}" />
+            <br/>
+        </div>
+        <div align="center">
+            <u><b>LETTER OF APPOINTMENT</b></u>
+        </div>
+        
+        <table width="100%" cellspacing="3" cellpadding="3" >
+            <tr>
+                 <td colspan="2">We are pleased to offer you an appointment as Position in our Company on the following terms and conditions:</td>
+            </tr>
+            <tr>
+                <td valign="top" width="5%">1.</td>
+                <td><b>MEDICAL EXAMINATIONS</b>
+                    <div >
+                        It is a condition of this offer that you are certified as fit for work following a medical examination including chest x-ray to be carried out by a medical practitioner selected and paid for by the Hotel.<br/><br/>
+                    </div></td>
+            </tr>
+            <tr>
+                <td valign="top" width="5%">2.</td>
+                <td><b>COMMENCEMENT AND PERIOD OF EMPLOYMENT</b><br/>
+                    <div >
+                    Your employment with the Company shall be on a contract basis with effect from <apex:outputText value="{!Personnel_Action__c.Date_of_Join__c}" />. The contract will be subject to review at the end of the contract date and may revert to regular employment, upon successful completion of your probation and your performance be found acceptable.<br/><br/>
+                    </div>
+                </td>   
+                </tr>
+            <tr>
+                <td valign="top" width="5%">3.</td>
+                <td><b>PROBATION</b><br/>
+                    <div >
+                    The first three (3) months of your employment will be probationary.<br/>
+                    During this period of probation, your employment with the Hotel may be terminated (without assigning any reason) by either the Hotel or yourself giving to the other one week’s notice in writing or paying to the other a sum equivalent to one week’s basic salary in lieu of notice.<br/><br/>
+                    Your performance and suitability for continued employment will be reviewed throughout your probationary period and when your performance and suitability are found acceptable your employment will be confirmed in writing. This probationary period may be extended at the discretion of the Hotel.<br/><br/>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td valign="top" width="5%">4.</td>
+                <td><b>SALARY</b><br/>
+                    <div>
+                    Your basic salary at the commencement of your employment will be Singapore Dollars 1 Thousand 5 Hundred Only (S$<apex:outputText value="{!Personnel_Action__c.Salary__c}" />/-). <br/><br/>
+                    Your salary will be paid monthly in arrears by direct remittance to your designated POSB/DBS account.  In this connection, you are required to have an account with POSB/DBS and advise the Hotel of the same.  The Hotel may choose to use alternative methods of payment upon giving you reasonable notice of its intention to do so.<br/><br/><br/><br/><br/><br/>
+                    The Hotel reserves the right in its absolute discretion to deduct from your pay any sums which you may owe the Hotel including, without limitation, any overpayments or loans made to you by the Hotel or losses suffered by the Hotel as a result of your negligence or breach of Hotel rules.  The Hotel also has the right to forfeit a day’s pay for each day of unauthorised absence (including leaving employment without notice).<br/><br/>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td valign="top" width="5%">5.</td>
+                <td><b>NUMBER OF WORKING DAYS PER WEEK</b><br/>
+                    <table border="0">
+                        <tr>
+                            <td width="60%">Working days: </td>
+                            <td>5 days per week</td>
+                        </tr>
+                        <tr>
+                            <td width="60%">Rest days: </td>
+                            <td>2 days per week</td>
+                        </tr>
+                    </table>
+                    <br/><br/>
+                </td>
+            </tr>
+            <br/>
+        </table>
+        <table width="100%">
+            <tr>
+                <td valign="top" width="50%">
+                    Yours sincerely <br/>
+                    For and on behalf of  <br/>
+                    SHANGRI-LA HOTEL LIMITED  <br/><br/><br/><br/><br/><br/>
+                </td>
+                <td valign="top">
+                    Agreed and accepted by<br/><br/><br/><br/><br/><br/>
+                </td>
+            </tr>
+            
+            <tr>
+                <td valign="top" width="50%">
+                    Ong Eng Hwee <br/>
+                    Area Director of Human Resources <br/>
+                </td>
+                <td valign="top">
+                    Name<br/>
+                    NRIC No: <br/>
+                    Date: <br/>
+                </td>
+            </tr>
+        </table>
+         <table width="100%">
+            <tr>
+                <td valign="top" width="5%">EH:<br/><br/></td>
+                <td valign="top">dl <br/><br/></td>
+            </tr>
+             <tr>
+                <td valign="top" width="5%">Encl:</td>
+                <td valign="top">Code of Ethics <br/>
+                                 Employee Handbook<br/>
+                                 Grooming Standard.
+                 </td>
+            </tr>
+        </table>
+                
+    </body>
+   </html>
+</apex:page>

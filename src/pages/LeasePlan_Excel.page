@@ -1,0 +1,263 @@
+<apex:page controller="LeasePlan_ExcelController" contentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet#{!propName} LeasePlan.xls">
+<!--     contentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet#LeasePlan.xls" -->
+    <apex:outputText value="{!XML_HEADER}" />
+    <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:html="http://www.w3.org/TR/REC-html40">
+        <Styles>
+            <Style ss:ID="s1">
+                <Alignment/><Borders/><Font ss:Color="#f8f8f8" ss:Bold="1"/>	
+                <Interior ss:Color="#494529" ss:Pattern="Solid"  />
+				<NumberFormat/><Protection/>
+            </Style>
+            <Style ss:ID="vacant">
+                <Alignment/><Borders/><Font ss:Color="#000000" ss:Bold="1"/>	
+                <Interior ss:Color="#DD2D32" ss:Pattern="Solid"  />
+				<NumberFormat/><Protection/>
+            </Style>
+            <Style ss:ID="committed">
+                <Alignment/><Borders/><Font ss:Color="#000000" ss:Bold="1"/>	
+                <Interior ss:Color="#A2BD90" ss:Pattern="Solid"  />
+				<NumberFormat/><Protection/>
+            </Style>
+            <Style ss:ID="loi">
+                <Alignment/><Borders/><Font ss:Color="#000000" ss:Bold="1"/>	
+                <Interior ss:Color="#99CCFF" ss:Pattern="Solid"  />
+				<NumberFormat/><Protection/>
+            </Style>
+            <Style ss:ID="gray">
+                <Alignment/><Borders/><Font ss:Color="#000000" ss:Bold="1"/>	
+                <Interior ss:Color="#808080" ss:Pattern="Solid"  />
+				<NumberFormat/><Protection/>
+            </Style>
+            <Style ss:ID="white">
+                <Alignment/><Borders/><Font ss:Color="#000000" ss:Bold="1"/>	
+                <Interior ss:Color="#ffffff" ss:Pattern="Solid"  />
+				<NumberFormat/><Protection/>
+            </Style>
+            <Style ss:ID="crossCommPattern">
+			   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="12" ss:Color="#000000"/>
+   				<Interior ss:Color="#000000" ss:Pattern="VertStripe" ss:PatternColor="#A2BD90"/>
+			  </Style>
+			  <Style ss:ID="crossLOIPattern">
+			  <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="12" ss:Color="#000000"/>
+   				<Interior ss:Color="#000000" ss:Pattern="VertStripe" ss:PatternColor="#63AAFE"/>
+			   
+			  </Style>
+        </Styles>
+        <Measures>
+		    <Measure idx="1" heading="Total Pages"/>
+		    <Measure idx="2" heading="Cost"/>
+		  </Measures>
+        <Worksheet ss:Name="Leas Plan">
+            <Table x:FullColumns="1" x:FullRows="1">
+                <Column ss:Width="80" />
+                <Column ss:Width="80" />
+                <Column ss:Width="80" />
+                <Column ss:Width="80" />
+                <Column ss:Width="40" />
+                <Column ss:Width="60" />
+                <Column ss:Width="60" />
+                <Column ss:Width="60" />
+                <Row>
+							
+                    <Cell ss:StyleID="s1" idx="4">
+                  		  <Msr idx="2" val="222490"/>
+                        <Data ss:Type="String">Start Date</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s1">
+                        <Data ss:Type="String">End Date</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s1">
+                        <Data ss:Type="String">Trade Category</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s1">
+                        <Data ss:Type="String">Sub Trade Category</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s1">
+                        <Data ss:Type="String">Property</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s1">
+                        <Data ss:Type="String">Unit</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s1">
+                        <Data ss:Type="String">Av Bgt Rent PSF
+                          </Data>
+                    </Cell>
+                    <Cell ss:StyleID="s1">
+                        <Data ss:Type="String">NLA Net Lett Area</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s1">
+                        <Data ss:Type="String">Bgt Rent</Data>
+                    </Cell>
+                    <apex:repeat value="{!lpWrapper}" var="ll">
+                        <Cell ss:StyleID="s1">
+                            <Data ss:Type="String" >
+                                       <apex:outputText escape="false" value="{!ll.headerMonth}" />
+                                </Data>
+                        </Cell>
+                    </apex:repeat>
+                </Row>
+
+                <apex:repeat value="{!mainWrapper}" var="mw">
+                <apex:outputPanel layout="none" rendered="{!If(mw.endTab == 0,true,false)}">
+                    <Row>
+                    
+                            <Cell>
+                                <Data ss:Type="String">
+                                	<apex:outputText value="{0,date,dd/MM/yyyy}">
+                                          <apex:param value="{!mw.unit.Start_Date__c}" />
+                                       </apex:outputText>
+                                 </Data>
+                            </Cell>
+                            <Cell>
+                                <Data ss:Type="String">
+                                     <apex:outputText value="{0,date,dd/MM/yyyy}">
+                                          <apex:param value="{!mw.unit.End_Date__c}" />
+                                       </apex:outputText>
+                                </Data>
+                            </Cell>
+                            <Cell>
+                                <Data ss:Type="String">
+                              		  <apex:outputText value="{!mw.unit.Trade_Category__c}"></apex:outputText>
+                                </Data>
+                            </Cell>
+                            <Cell>
+                                <Data ss:Type="String">
+                              		  <apex:outputText value="{!mw.unit.Sub_Trade_Category__c}"></apex:outputText>
+                                </Data>
+                            </Cell>
+                            <Cell>
+                                <Data ss:Type="String">
+                              		  <apex:outputText value="{!mw.unit.Property__r.Short_Code__c}"></apex:outputText>
+                                </Data>
+                            </Cell>
+                            <Cell>
+                                <Data ss:Type="String">
+									<apex:outputLink id="complink" value="/{!mw.unit.Id}"> 
+									    <apex:outputText value="{!mw.unit.Name}"></apex:outputText>
+									</apex:outputLink>
+								</Data>
+                            </Cell>
+                            <Cell>
+                                <Data ss:Type="String">
+                                	<apex:outputText value="{0, number, ###,##0.00}">
+                                          <apex:param value="{!mw.avgMonthBudgt}" />
+                                       </apex:outputText>
+                                </Data>
+                            </Cell>
+                            <Cell>
+                                <Data ss:Type="String">
+                                     <apex:outputText value="{0, number, ###,##0.00}">
+                                          <apex:param value="{!mw.avgNLA}" />
+                                       </apex:outputText>
+                                </Data>
+                            </Cell>
+                            <Cell>
+                                <Data ss:Type="String">
+                                      <apex:outputText value="{0, number, ###,##0.00}">
+                                          <apex:param value="{!mw.avgMonthBudgt * mw.avgNLA}" />
+                                       </apex:outputText>
+                                </Data>
+                            </Cell>
+                            
+                            <apex:repeat value="{!mw.lpstr}" var="lp">
+                                    <Cell ss:StyleID="{!lp.cellStyle}">
+	                                    <apex:outputPanel rendered="{!If(lp.cellText != '',true,false)}"  layout="none">
+	                                    <Comment ss:Author="Microsoft Office User">
+	                                   		<Data>
+	                                   			<B xmlns="http://www.w3.org/TR/REC-html40">
+	                                   				<Font html:Size="10" html:Color="#000000">
+	                                   					<apex:outputPanel rendered="{!If(lp.vacantFrom != '',true,false)}" layout="none">
+	                                   						{!lp.vacantFrom}
+	                                   					</apex:outputPanel>
+	                                   					{!lp.cellText}
+	                                   					<apex:outputPanel rendered="{!If(lp.committedFrom != '',true,false)}" layout="none">
+	                                   						{!lp.committedFrom}
+	                                   					</apex:outputPanel>
+	                                   				</Font>
+	                                   			</B>
+	                                   		</Data>
+	                                   	</Comment>
+	                                   	</apex:outputPanel>
+                                  			<Data ss:Type="String">
+                                          <apex:outputText escape="false" value=""/>
+                                    </Data></Cell>
+                            </apex:repeat>
+                         
+                        
+                    </Row>
+                     </apex:outputPanel>  
+                </apex:repeat>
+                
+                <Row>
+                	<Cell></Cell>
+                	<Cell></Cell>
+                	<Cell></Cell>
+                	<Cell></Cell>
+                	<Cell></Cell> 
+                	<Cell></Cell>
+                	<Cell></Cell>
+                	<Cell ss:StyleID="s1">
+                		<Data ss:Type="String" >
+                		   <apex:outputText escape="false" value="{!currentYear}"></apex:outputText>
+                  		</Data>
+                  </Cell>
+                  <Cell ss:StyleID="s1">
+	                  <Data ss:Type="String">
+	                		  <apex:outputText escape="false"  value="{!currentYear+1}"></apex:outputText>
+	                  </Data>
+                  </Cell>
+                </Row>
+                <apex:repeat value="{!mainWrapper}" var="mw">
+                	<apex:outputPanel layout="none" rendered="{!If(mw.endTab != 0,true,false)}">
+						<Row>
+							<Cell></Cell>
+							<Cell></Cell>
+							<Cell></Cell>
+							<Cell></Cell>
+							<Cell></Cell> 
+							<Cell ss:StyleID="{!IF(mw.bgColor == 'Vacant','vacant',IF(mw.bgColor == 'Committed','committed',IF(mw.bgColor == 'LOI','loi',IF(mw.bgColor == 'Gray','gray','white'))))}">
+								<Data ss:Type="String">
+									<apex:outputText value="{!mw.smallHeader}"></apex:outputText>
+								</Data>
+							</Cell>
+							<Cell ss:StyleID="{!IF(mw.bgColor == 'Vacant','vacant',IF(mw.bgColor == 'Committed','committed',IF(mw.bgColor == 'LOI','loi',IF(mw.bgColor == 'Gray','gray','white'))))}">
+								<Data ss:Type="String">
+									<apex:outputText value="{!mw.rowHeader}"></apex:outputText>
+								</Data>
+							</Cell>
+							<Cell ss:StyleID="{!IF(mw.bgColor == 'Vacant','vacant',IF(mw.bgColor == 'Committed','committed',IF(mw.bgColor == 'LOI','loi',IF(mw.bgColor == 'Gray','gray','white'))))}">
+								<Data ss:Type="String">
+								<apex:outputText value="{!if(mw.rowHeader == '' , '' ,mw.totalAmountCrYr)}"></apex:outputText>
+								</Data>
+							</Cell>
+							<Cell ss:StyleID="{!IF(mw.bgColor == 'Vacant','vacant',IF(mw.bgColor == 'Committed','committed',IF(mw.bgColor == 'LOI','loi',IF(mw.bgColor == 'Gray','gray','white'))))}">
+								<Data ss:Type="String">
+								<apex:outputText value="{!if(mw.rowHeader == '' , '' ,mw.totalAmountNtYr)}"></apex:outputText>
+								</Data>
+							</Cell>
+							
+							<apex:repeat value="{!mw.lpstr}" var="lp">
+                                <apex:outputPanel rendered="{!If(mw.endTab == 1,true,false)}"  layout="none">
+                                    <Cell ss:StyleID="{!IF(mw.bgColor == 'Vacant','vacant',IF(mw.bgColor == 'Committed','committed',IF(mw.bgColor == 'LOI','loi','white')))}">
+                                    	 <Data ss:Type="String">
+                                            <apex:outputText value="{!if(mw.rowHeader == '' , '' ,lp.totalNLA)}"></apex:outputText>
+                                            </Data>
+                                        </Cell>
+
+                                </apex:outputPanel>
+                                <apex:outputPanel rendered="{!If(mw.endTab == 2,true,false)}"  layout="none">
+                                		<Cell  ss:StyleID="{!IF(mw.bgColor == 'Vacant','vacant',IF(mw.bgColor == 'Committed','committed',IF(mw.bgColor == 'LOI','loi','white')))}">
+                                    	 <Data ss:Type="String">
+                                            <apex:outputText value="{!if(mw.rowHeader == '' , '' ,lp.totalBudget)}"></apex:outputText>
+                                            </Data>
+                                        </Cell>
+                                </apex:outputPanel>
+                            </apex:repeat>
+						</Row>
+					</apex:outputPanel>
+				</apex:repeat>
+            </Table>
+        </Worksheet>
+
+    </Workbook>
+</apex:page>

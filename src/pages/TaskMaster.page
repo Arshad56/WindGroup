@@ -1,0 +1,18 @@
+<apex:page showHeader="false" sidebar="false" controller="TaskMaster_Controller">
+	<script>
+		 if ({!closeWindow}) {
+		     window.close();
+         }
+    </script>
+    <apex:form >
+		 <apex:pageBlock title="Create Tasklist" id="firstBlock">
+		  <apex:pageMessages ></apex:pageMessages> <br/>
+		 	<apex:actionFunction name="Save" action="{!Save}" />
+		 	<apex:inputField value="{!ti.Tasklist_Master__c}" style="border-width: 1px;border-color:{! if(errorOnPage, 'Red' , 'darkGrey')};"/>
+		 	&nbsp;&nbsp;<br/><br/>
+		 	<apex:commandButton value="Go" style="width:60px;text-align: center;" onclick="Save(); this.disabled='true'; this.value='Wait...';" id="saveClick" />
+		 <br/>
+		 <br/>
+		 </apex:pageBlock>
+	 </apex:form>
+</apex:page>

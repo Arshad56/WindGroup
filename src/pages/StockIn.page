@@ -1,0 +1,23 @@
+<apex:page showHeader="false" sidebar="false" standardController="Inventory__c" extensions="StockIn_Extension" docType="html-5.0">
+  <apex:form >
+        <apex:pageBlock >
+            <apex:pageMessages />
+            <apex:pageBlockSection columns="1">
+                <apex:outputField value="{!Inventory__c.Name}" label="Inventory"/>
+                <apex:outputField value="{!Inventory__c.Stock_Warehouse__r.Name}" label="Stock/Warehouse"/>
+                <apex:outputField value="{!Inventory__c.Product_Name__r.Name}" label="Product Name"/>
+                <apex:input type="number" value="{!stockInQty}" label="Stock In Quantity" required="true" />
+            </apex:pageBlockSection>            
+            <apex:pageBlockButtons >
+                <apex:commandButton value="Stock In" action="{!checkData}" oncomplete="window.opener.location = '/{!Inventory__c.Id}';window.close();"/>
+                <apex:commandButton value="Cancel" onclick="window.close();"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+    </apex:form>
+    <script>
+        if({error}){
+            window.opener.location = '/{!Inventory__c.Id}';
+            window.close();
+        }
+    </script>
+</apex:page>

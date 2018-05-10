@@ -1,0 +1,42 @@
+<apex:page lightningStylesheets="true" sidebar="false" id="RequistionStep1" standardController="Requisition__c" extensions="HRISRequisitionExtension" tabStyle="Requisition_Process__tab">
+    <apex:sectionHeader title="" subtitle="Requisition"/>
+    <c:HRISBreadcrumb />
+   
+    <apex:form id="myform"> 
+    <apex:pageMessages escape="false"/>
+        <table width="80%" align="center">
+        <tr>
+        <td>
+        <apex:pageBlock >
+        <apex:pageBlockSection title="Search for Requisition Record(s)">
+            <apex:inputField value="{!Requisition__c.Requisition_No_Lookup__c}"/>
+            <apex:inputField value="{!Requisition__c.Property__c}" required="true"/>
+            <apex:inputField value="{!Requisition__c.Approval_Status__c}"/>
+            <br/>
+            <br/>
+        </apex:pageBlockSection>
+        <apex:pageBlockButtons location="top">
+            <apex:commandButton action="{!search}" value="Search"/>
+            <apex:commandButton action="{!createRequisition}" value="Create Requisite"/>
+        </apex:pageBlockButtons>
+            <br/>
+            <br/>
+        <apex:pageBlockTable value="{!requisitionList}" var="r" rendered="{!requisitionList != null}">
+            <apex:column headerValue="{!headerValue}">
+                <apex:outputLink value="/apex/HRISRequisition?id={!r.Id}">{!r.Name}</apex:outputLink>
+            </apex:column>
+            <apex:column value="{!r.Division__c}"/>
+            <apex:column value="{!r.Department__c}"/>
+            <apex:column value="{!r.Position__c}"/>
+            <apex:column value="{!r.Job_Level__c}"/>
+            <apex:column value="{!r.Number_of_Employed__c}"/>
+            <apex:column value="{!r.Approval_Status__c}"/>
+            <apex:column value="{!r.Status__c}"/>
+        </apex:pageBlockTable>
+            
+        </apex:pageBlock>
+        </td>
+        </tr>
+        </table>
+    </apex:form>
+</apex:page>

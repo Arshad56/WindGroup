@@ -1,0 +1,25 @@
+<aura:component controller="GenerateRentSchedulesLsCmpController" implements="flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global" >
+	<aura:attribute name="recordId" type="String"/> 
+	<aura:attribute name="displayCmp" type="Boolean" default="false"/>
+	
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:renderIf isTrue="{!v.displayCmp}">
+	    <div class="slds-page-header slds-align_absolute-center">
+	        <h1 class="slds-page-header__title slds-truncate slds-align-middle">Generate Generate Rent SchedulesF</h1>
+	        <p class="slds-text-body_small slds-line-height_reset"></p>
+	    </div>
+	    
+	    <div style="text-align:center;font-size:18px;" class="slds align__absolute-center" >
+	        Are you sure you want to Generate Rent Schedules?
+	    </div><br/><br/>
+	    <div style="text-align:center;">
+	        <button  onclick="{!c.generateRentSchedules}"  class="slds-button slds-button--success">
+	            Yes
+	        </button>&nbsp;
+	        <button onclick="{!c.close}"  class="slds-button slds-button--destructive">
+	            No
+	        </button>
+	    </div>
+	 </aura:renderIf>
+</aura:component>

@@ -1,0 +1,7 @@
+<apex:page >
+    <apex:pageBlock >
+        <a href="/apex/ApproveRentRoll">Approve Pending Rolls</a>
+        <br/>
+        <a href="/apex/ApproveRentSchedule">Approve Pending Rent Schedules</a>
+    </apex:pageBlock>
+</apex:page>

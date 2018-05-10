@@ -1,0 +1,56 @@
+<!-- 
+Author Name- Arshad Shaikh	
+Date - 18th April 2018
+Description - To Void all Invoices and there related ILI, RS, RR
+ -->
+ <aura:component controller="VoidInvoice_Controller" implements="force:hasRecordId,force:lightningQuickActionWithoutHeader" >
+	<aura:attribute name="recordId" type="String"/>
+	
+    <aura:attribute name="reason" type="String"/> 
+    <aura:attribute name="isShowReason" type="Boolean" default="false"/>   
+    <aura:attribute name="displayCmp" type="Boolean" default="false"/>
+     
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:renderIf isTrue="{!v.displayCmp}">
+	     <div class="slds-page-header slds-align_absolute-center">
+	        <h1 class="slds-page-header__title slds-truncate slds-align-middle" title="Add Contacts">Void Invoice</h1>
+	        <p class="slds-text-body_small slds-line-height_reset"></p>
+	    </div>
+	    
+	    <div class="slds-grid slds-grid_vertical" >
+	         <div class="slds-col">
+	         		<br/>
+	         		<aura:renderIf isTrue="{!v.isShowReason}">
+				        <ui:inputText label="Void Reason" value="{!v.reason}" aura:id="inputReason" required="true" class="txtArea"/>
+				        <br/>
+				        <div style="text-align:right;">
+				            <button  onclick="{!c.close}"  class="slds-button slds-button_neutral">
+				                Cancel
+				            </button>
+				            <button  onclick="{!c.saveVoidInvoice}"  class="slds-button slds-button_brand">
+				                Save
+				            </button>
+				        </div>
+				        
+				        <aura:set attribute="else">
+				        	 
+				            <div style="text-align:center;font-size:18px;" class="slds align__absolute-center" >
+				                Are you sure you want to Void this Invoice?
+				            </div><br/><br/>
+				            <div style="text-align:center;">
+				                <button  onclick="{!c.checkReason}"  class="slds-button slds-button--success">
+				                    Yes
+				                </button>&nbsp;
+				                <button onclick="{!c.close}"  class="slds-button slds-button--destructive">
+				                    No
+				                </button>
+				            </div>
+				            
+				        </aura:set>
+				    </aura:renderIf> 
+	         </div>
+	    </div>
+     </aura:renderIf>
+	
+</aura:component>

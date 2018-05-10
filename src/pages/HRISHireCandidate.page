@@ -1,0 +1,147 @@
+<apex:page lightningStylesheets="true" sidebar="false" id="evaluationStep1" standardController="Personnel_Action__c" extensions="HRISHireCandidateExtension" tabStyle="Requisition_Process__tab">
+    <apex:sectionHeader title="" subtitle="Hire Candidate"/>
+    <c:HRISBreadcrumb />
+    
+    <apex:pageMessages escape="false"/>
+    <table width="80%" align="center">
+    <tr>
+    <td>
+    <apex:form id="myform"> 
+    <apex:pageBlock >
+        <apex:pageBlockSection title="Employee Profile" id="employee">
+            <apex:inputField value="{!Personnel_Action__c.Property__c}" required="true"/>
+            <apex:outputField value="{!Personnel_Action__c.Approval_Status__c}" />
+            <apex:inputField value="{!Personnel_Action__c.Requisition_No__c}" required="true">
+                <apex:actionSupport event="onchange" action="{!setEmployeeInfo}" rerender="employee,hr"/>
+            </apex:inputField>
+            <apex:inputField value="{!Personnel_Action__c.Employee_No__c}"/>
+            <apex:inputField value="{!Personnel_Action__c.Division__c}" />
+            <apex:inputField value="{!Personnel_Action__c.Employee__c}" >
+            	<apex:actionSupport event="onchange" action="{!setEmployeeInfo}" rerender="employee,hr"/>
+            </apex:inputField>
+            <apex:inputField value="{!Personnel_Action__c.Department__c}" />
+            <apex:inputField value="{!Personnel_Action__c.First_Name__c}" />
+            <apex:inputField value="{!Personnel_Action__c.Position__c}" />
+            <apex:inputField value="{!Personnel_Action__c.Last_Name__c}" />
+            <apex:inputField value="{!Personnel_Action__c.Job_Level__c}" />
+            <apex:inputField value="{!Personnel_Action__c.Email__c}" />
+            <apex:commandButton style="margin-left:250px;" action="{!createLOA}" value="Generate LOA" disabled="{!IF((Personnel_Action__c.Id == null),true,false)}"/>
+            <apex:inputField value="{!Personnel_Action__c.Date_of_Join__c}" />
+        </apex:pageBlockSection>
+        <apex:pageBlockSection title="Employment/Appointment" id="hr">
+            <!--apex:inputField value="{!Personnel_Action__c.Current_Headcount__c}" />
+            <apex:inputField value="{!Personnel_Action__c.Approved_Headcount__c}" /-->
+            <apex:inputField value="{!Personnel_Action__c.Employment_Type__c}"/>
+            <apex:outputLabel ></apex:outputLabel>
+            <apex:inputField value="{!Personnel_Action__c.Salary__c}" />
+            <apex:inputField value="{!Personnel_Action__c.Gross_Net__c}" />
+            <apex:inputField value="{!Personnel_Action__c.Allowance__c}" />
+            <apex:inputField value="{!Personnel_Action__c.Allowance_Type__c}" />
+        </apex:pageBlockSection>
+        <apex:pageBlockSection title="Pay Band Max" >
+            <apex:inputField value="{!Personnel_Action__c.Min__c}" />
+            <apex:inputField value="{!Personnel_Action__c.Max__c}" />
+        </apex:pageBlockSection>
+        <apex:pageBlockSection title="Market Rate" >
+            <apex:inputField value="{!Personnel_Action__c.Market_P75__c}" />
+            <apex:inputField value="{!Personnel_Action__c.P50__c}" />
+            <apex:inputField value="{!Personnel_Action__c.P25__c}" />
+        </apex:pageBlockSection>
+        <apex:pageBlockSection title="15% Increase" >
+            <apex:inputField value="{!Personnel_Action__c.X15_increase__c}" />
+        </apex:pageBlockSection>
+        <apex:pageBlockSection title="Comparative Salaries For Similar Level" columns="2">
+            <apex:inputField value="{!Personnel_Action__c.Comparative_Salary__c}"/>
+			<apex:commandButton action="{!add}" style="margin-right:500px" value="Add" disabled="{!IF((Personnel_Action__c.Approval_Status__c == 'In-Progress' || Personnel_Action__c.Approval_Status__c == 'Approved'),true,false)}"/> 
+        </apex:pageBlockSection>
+        <apex:pageBlockTable value="{!csList}" var="can" id="candidatetable" rendered="{!csList != null}" align="center" width="100%">
+            <apex:column headerValue="{!headerValue}">
+                <apex:commandButton value="Delete" action="{!deleteRow}" reRender="candidatetable" immediate="true" disabled="{!IF((Personnel_Action__c.Approval_Status__c == 'In-Progress' || Personnel_Action__c.Approval_Status__c == 'Approved'),true,false)}">
+                    <apex:param name="rowIndex" value="{!rowNumber}"/>
+                </apex:commandButton>
+            </apex:column>
+            <apex:column value="{!can.Contact__c}"/>
+            <apex:column value="{!can.Date_Join__c}"/>
+            <apex:column value="{!can.Department__c}"/>
+            <apex:column value="{!can.Job_Level__c}" />
+            <apex:column value="{!can.Currency__c}"/>
+            <apex:column value="{!can.Amount__c}"/>
+            <apex:column value="{!can.Net_Gross__c}"/>   
+        </apex:pageBlockTable>
+        <br/>
+        <!--apex:pageBlockSection title="IT New Hire Checklist" columns="1">
+            <apex:inputField value="{!Personnel_Action__c.Requested_Logins__c}" />
+            <apex:inputField value="{!Personnel_Action__c.Equipment__c}" />
+            <apex:inputField value="{!Personnel_Action__c.Remark__c}" style="width: 350px !important;"/>
+        </apex:pageBlockSection-->
+        <!--apex:pageBlockSection title="Approval History" columns="1" rendered="{!doaHistoryList != null}">
+            <apex:dataTable value="{!doaHistoryList}" var="doa" align="center" cellpadding="3" cellspacing="3" style="width:100%;" >
+                  <apex:column styleclass="">
+                    <apex:facet name="header">Action </apex:facet> 
+                    <apex:outputText ><b>{!doa.Action__c}</b></apex:outputText>
+                  </apex:column>
+                  <apex:column styleclass="">
+                    <apex:facet name="header">Name </apex:facet> 
+                    <apex:outputText >{!doa.Name__c}</apex:outputText>
+                  </apex:column>
+                  <apex:column styleclass="">
+                    <apex:facet name="header">Department </apex:facet> 
+                    <apex:outputText >{!doa.Department__c}</apex:outputText>
+                  </apex:column>
+                  <apex:column styleclass="">
+                    <apex:facet name="header">Position </apex:facet> 
+                    <apex:outputText >{!doa.Position__c}</apex:outputText>
+                  </apex:column>
+                  <apex:column styleclass="">
+                    <apex:facet name="header">Title </apex:facet> 
+                    <apex:outputText >{!doa.Title__c}</apex:outputText>
+                  </apex:column>
+                  <apex:column styleclass="">
+                    <apex:facet name="header" >Comment </apex:facet> 
+                    <apex:outputText >{!doa.Comment__c}</apex:outputText>
+                  </apex:column>
+                  <apex:column styleclass="">
+                      <apex:facet name="header"> Date </apex:facet> 
+                    <apex:outputText >{!doa.Approve_Reject_Date__c}</apex:outputText>
+                  </apex:column>
+                  <apex:column styleclass="">
+                    <apex:facet name="header">Status </apex:facet> 
+                      <apex:outputText rendered="{!doa.Status__c == 'Pending'}"> <apex:image url="{!URLFOR($Resource.SGLHR,'sglhr/yellow.png')}" style="height:14px;width:14px;" /> &nbsp;{!doa.Status__c}</apex:outputText>
+                      <apex:outputText rendered="{!doa.Status__c == 'Approved'}"> <apex:image url="{!URLFOR($Resource.SGLHR,'sglhr/trafficlight-green-icon.png')}" style="height:14px;width:14px;" /> &nbsp;{!doa.Status__c}</apex:outputText>
+                      <apex:outputText rendered="{!doa.Status__c == 'Rejected'}"> <apex:image url="{!URLFOR($Resource.SGLHR,'sglhr/Trafficlight-red-icon.png')}" style="height:14px;width:14px;" /> &nbsp;{!doa.Status__c}</apex:outputText>
+                  </apex:column>   
+            </apex:dataTable>  
+        </apex:pageBlockSection-->
+		<apex:pageBlockSection title="Delegation of Authority" columns="1">
+            <table align="center" border="1">
+                <tr>
+                    <td><b>Step</b></td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                    <td>4</td>
+                    <td>5</td>
+                </tr>
+                <tr>
+                    <td><b>Approver</b></td>
+                    <td>Division Head</td>
+                    <td>DOHR</td>
+                    <td>FC</td>
+                    <td>GM /RM</td>
+                    <td>EVP only for Job Level 1 and Level 2.</td>
+                </tr>
+            </table>
+        </apex:pageBlockSection>
+        <apex:pageBlockButtons location="bottom">
+            <apex:commandButton action="{!saveHire}" value="Save" disabled="{!IF((Personnel_Action__c.Approval_Status__c == 'In-Progress' || Personnel_Action__c.Approval_Status__c == 'Approved'),true,false)}"/>
+            <apex:commandButton action="{!submitHire}" value="Submit" disabled="{!IF((Personnel_Action__c.Approval_Status__c == 'In-Progress' || Personnel_Action__c.Approval_Status__c == 'Approved'),true,false)}"/>
+            <apex:commandButton action="{!cancelHire}" value="Cancel" immediate="true"/>
+        </apex:pageBlockButtons>
+    </apex:pageBlock>
+    </apex:form>
+    <apex:relatedList list="ProcessSteps" />
+    </td>
+    </tr>
+    </table>         
+   
+</apex:page>

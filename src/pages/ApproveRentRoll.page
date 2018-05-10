@@ -1,0 +1,90 @@
+<apex:page >
+
+<!--<apex:page controller="ApproveRentRollController">
+    <apex:form id="frm">
+        <apex:actionFunction name="selectAllToApprove" action="{!selectAllToApprove}" reRender="frm"/>
+        <apex:pageBlock rendered="{!!showRentDetail}">
+            <apex:pageBlockSection columns="1">
+                <apex:inputField value="{!rentRoll.Property__c}"/>
+            </apex:pageBlockSection>
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton value="Search" action="{!search}"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockTable value="{!displayRentRollList}" var="rr" rendered="{!displayRentRollList.size > 0}">
+                <apex:column headerValue="Rent Roll Name">
+                    <apex:commandLink action="{!selectRentRoll}" reRender="frm" value="{!rr.Name}">
+                        <apex:param value="{!rr.Id}" name="arg1" assignTo="{!selRentRollId}"/>
+                    </apex:commandLink>
+                </apex:column>
+                <apex:column headerValue="Date">
+                    <apex:outputField value="{!rr.Rent_Roll_Date__c}"/>
+                </apex:column>
+                <apex:column headerValue="Property">
+                    <apex:outputField value="{!rr.Property__c}"/>
+                </apex:column>
+                <apex:column headerValue="Status">
+                    <apex:outputText rendered="{!rr.Approved__c}" value="Approved" />
+                    <apex:outputText rendered="{!!rr.Approved__c}" value="Pending Approval" />
+                </apex:column>
+            </apex:pageBlockTable>
+            <br/>
+            <center>
+            <apex:commandLink action="{!rrPrevious}" value="<<Previous" rendered="{!isrrPrev}"/> &nbsp;
+            <apex:commandLink action="{!rrNext}" value="Next>>" rendered="{!isrrNext}"/>
+            </center>
+        </apex:pageBlock>
+        <apex:pageBlock rendered="{!showRentDetail}">
+            <apex:pageMessages />
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton value="Approve" action="{!approve}"/>
+                <apex:commandButton value="Save" action="{!save}"/>
+            </apex:pageBlockButtons>
+            <table width="100%">
+                <tr>
+                    <td>{!rentRoll.Name}</td>
+                    <td>
+                        Property : <apex:outputField value="{!rentRoll.Property__c}"/>
+                    </td>
+                    <td>
+                        Status : <apex:outputText rendered="{!rentRoll.Approved__c}" value="Approved" />
+                                <apex:outputText rendered="{!!rentRoll.Approved__c}" value="Pending Approval" />
+                    </td>
+                    <td>
+                        Diesel Rate : <apex:inputField value="{!rentRoll.Total_Diesel_Rate__c}"/>
+                    </td>
+                </tr>
+            </table>
+            
+            <apex:outputPanel rendered="{!rentScheduleList.size > 0}">
+                <table width="100%" border="1" style="border-collapse:collapse;text-align:center;" >
+                    <tr>
+                    <th style="text-align:center;">Approve<br/>
+                        <apex:inputCheckbox value="{!SelectAll}" onchange="selectAllToApprove();return false;"/>
+                    </th>
+                    <th style="text-align:center;">Tenant</th>
+                    <th style="text-align:center;">Unit</th>
+                    <th style="text-align:center;">Charge</th>
+                    <th style="text-align:center;">Total Units</th>
+                    <th style="text-align:center;">Charge Rate</th>
+                    <th style="text-align:center;">Amount</th>
+                    <th style="text-align:center;">Lease Charge Link</th>
+                    </tr>
+                    <apex:repeat value="{!rentScheduleList}" var="rs">
+                    <tr>
+                        <td>
+                            <apex:inputCheckbox value="{!rs.Approved__c}"/>
+                        </td>
+                        <td>{!rs.Tenant__c}</td>
+                        <td>{!rs.Unit__r.Name}</td>
+                        <td>{!rs.Lease_Charge__r.Name}</td>
+                        <td>{!rs.Total_Units__c}</td>
+                        <td>{!rs.Lease_Charge__r.Charge_Rate__c}</td>
+                        <td><apex:outputField value="{!rs.Amount__c}"/></td>
+                        <td><a href="/{!rs.Lease_Charge__c}" target="_blank">Click</a></td>
+                    </tr>
+                    </apex:repeat>
+                </table>
+            </apex:outputPanel>
+        </apex:pageBlock>
+    </apex:form>-->
+</apex:page>
